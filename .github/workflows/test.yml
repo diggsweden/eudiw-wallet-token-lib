@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: mvn Test
+
+on: [workflow_call]
+
+
+
+jobs:
+  test:
+    name: Test
+    environment: mainenv
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      matrix:
+        java-version: ['21'] 
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run tests
+        env:
+          MAVEN_CLI_OPTS: --batch-mode --no-transfer-progress --errors --fail-at-end -Dstyle.color=always -DinstallAtEnd=true -DdeployAtEnd=true
+        run: mvn $MAVEN_CLI_OPTS test
+ 

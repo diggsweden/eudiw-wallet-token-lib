@@ -86,21 +86,17 @@
     </dependency>
 
     <dependency>
-      <groupId>com.upokecenter</groupId>
-      <artifactId>cbor</artifactId>
-      <version>5.0.0-alpha2</version>
-    </dependency>
-
-    <dependency>
       <groupId>se.swedenconnect.security</groupId>
       <artifactId>credentials-support</artifactId>
       <version>${credentials-support.version}</version>
     </dependency>
+
     <dependency>
       <groupId>com.upokecenter</groupId>
       <artifactId>cbor</artifactId>
       <version>${upokeeper.version}</version>
     </dependency>
+
     <dependency>
       <groupId>net.i2p.crypto</groupId>
       <artifactId>eddsa</artifactId>
@@ -202,7 +198,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <groupId>com.hubspot.maven.plugins</groupId>
         <artifactId>prettier-maven-plugin</artifactId>
