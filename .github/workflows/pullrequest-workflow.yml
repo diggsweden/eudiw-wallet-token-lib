@@ -31,6 +31,6 @@ jobs:
   test:
     permissions:
       contents: read
-    if: ${{ !failure() }}
+    if: always()
     needs: [licenselint, commitlint, dependencyreviewlint, misclint]
     uses: ./.github/workflows/test.yml
