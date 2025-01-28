@@ -1,4 +1,4 @@
 /**
  * Description
  */
-package se.digg.wallet.datatypes.mdl.data;
+package se.digg.wallet.datatypes.mdl;

@@ -1,6 +1,7 @@
 package se.digg.wallet.datatypes.mdl.data;
 
 import se.idsec.cose.*;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -44,7 +45,8 @@ public class MobileSecurityObject {
   private DeviceKeyInfo deviceKeyInfo;
   private String docType;
   private ValidityInfo validityInfo;
-
+    public static class MobileSecurityObjectBuilder {} //lombok workaround
+    // https://stackoverflow.com/questions/51947791/javadoc-cannot-find-symbol-error-when-using-lomboks-builder-annotation
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
