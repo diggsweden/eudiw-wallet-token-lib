@@ -10,10 +10,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.spec.ECNamedCurveSpec;
-import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,6 +20,9 @@ import java.security.spec.ECParameterSpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.spec.ECNamedCurveSpec;
+import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 
 /**
  * Description
@@ -35,33 +34,49 @@ public class JSONUtils {
     .registerModule(new JavaTimeModule())
     .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-  public static String disclosureHashString(Disclosure disclosure, String hashAlgo) throws NoSuchAlgorithmException {
+  public static String disclosureHashString(
+    Disclosure disclosure,
+    String hashAlgo
+  ) throws NoSuchAlgorithmException {
     return base64URLString(disclosureHash(disclosure, hashAlgo));
   }
-  public static byte[] disclosureHash(Disclosure disclosure, String hashAlgo) throws NoSuchAlgorithmException {
-    return hash(base64URLString(disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8), hashAlgo);
+
+  public static byte[] disclosureHash(Disclosure disclosure, String hashAlgo)
+    throws NoSuchAlgorithmException {
+    return hash(
+      base64URLString(
+        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
+      ).getBytes(StandardCharsets.UTF_8),
+      hashAlgo
+    );
   }
 
   public static String base64URLString(byte[] bytes) {
     return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
   }
 
-  public static byte[] hash(byte[] input, String algo) throws NoSuchAlgorithmException {
+  public static byte[] hash(byte[] input, String algo)
+    throws NoSuchAlgorithmException {
     MessageDigest digest = MessageDigest.getInstance(algo);
     return digest.digest(input);
   }
-  public static String b64UrlHash(byte[] input, String alg) throws NoSuchAlgorithmException {
-    return base64URLString(hash(input, alg));
 
+  public static String b64UrlHash(byte[] input, String alg)
+    throws NoSuchAlgorithmException {
+    return base64URLString(hash(input, alg));
   }
 
-  public static JWK getJWKfromPublicKey(PublicKey publicKey) throws NoSuchAlgorithmException {
+  public static JWK getJWKfromPublicKey(PublicKey publicKey)
+    throws NoSuchAlgorithmException {
     if (publicKey instanceof RSAPublicKey) {
       return new RSAKey.Builder((RSAPublicKey) publicKey).build();
     }
     if (publicKey instanceof ECPublicKey ecPublicKey) {
       ECParameterSpec params = ecPublicKey.getParams();
-      return new ECKey.Builder(Curve.forECParameterSpec(params), (ECPublicKey) publicKey).build();
+      return new ECKey.Builder(
+        Curve.forECParameterSpec(params),
+        (ECPublicKey) publicKey
+      ).build();
     }
     throw new NoSuchAlgorithmException("Public key type not supported");
   }

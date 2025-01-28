@@ -1,13 +1,9 @@
 package se.digg.wallet.datatypes.mdl.process;
 
-import se.idsec.cose.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.upokecenter.cbor.CBORException;
 import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.cbor.CBORType;
-import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.mdl.data.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +16,9 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import se.digg.wallet.datatypes.common.*;
+import se.digg.wallet.datatypes.mdl.data.*;
+import se.idsec.cose.*;
 
 /**
  * Validator for validating @{link {@link IssuerSigned} tokens.
@@ -71,25 +70,42 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * @return TokenValidationResult containing information about the validated token
    * @throws TokenValidationException if there are any failures during the token validation process
    */
-  @Override public MdlIssuerSignedValidationResult validateToken(byte[] token, List<TrustedKey> trustedKeys) throws TokenValidationException {
+  @Override
+  public MdlIssuerSignedValidationResult validateToken(
+    byte[] token,
+    List<TrustedKey> trustedKeys
+  ) throws TokenValidationException {
     try {
       IssuerSigned parsedIssuerSigned = IssuerSigned.deserialize(token);
-      Sign1COSEObject parsedSignatureObject = (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(parsedIssuerSigned.getIssuerAuth(), COSEObjectTag.Sign1);
-      CBORObject unprotectedAttributes = parsedSignatureObject.getUnprotectedAttributes();
+      Sign1COSEObject parsedSignatureObject =
+        (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
+          parsedIssuerSigned.getIssuerAuth(),
+          COSEObjectTag.Sign1
+        );
+      CBORObject unprotectedAttributes =
+        parsedSignatureObject.getUnprotectedAttributes();
 
       // Retrieve certificate chain in signature and determine trusted signing key
-      CBORObject x5chain = unprotectedAttributes.get(HeaderKeys.x5chain.AsCBOR());
+      CBORObject x5chain = unprotectedAttributes.get(
+        HeaderKeys.x5chain.AsCBOR()
+      );
       List<X509Certificate> chain = getChain(x5chain);
       // Get the trusted validation key. If trustedKeys is null, then all keys are trusted
-      PublicKey validationKey = getValidationKey(chain, parsedSignatureObject, trustedKeys);
+      PublicKey validationKey = getValidationKey(
+        chain,
+        parsedSignatureObject,
+        trustedKeys
+      );
       if (validationKey == null) {
         throw new TokenValidationException("No validation key was found");
       }
-      if(!parsedSignatureObject.validate(new COSEKey(validationKey, null))){
+      if (!parsedSignatureObject.validate(new COSEKey(validationKey, null))) {
         throw new TokenValidationException("Token signature validation failed");
       }
 
-      MobileSecurityObject mso = MobileSecurityObject.deserialize(parsedSignatureObject.GetContent());
+      MobileSecurityObject mso = MobileSecurityObject.deserialize(
+        parsedSignatureObject.GetContent()
+      );
       // Validate time
       timeValidation(mso);
       // Retrieve the wallet public key
@@ -102,28 +118,38 @@ public class MdlIssuerSignedValidator implements TokenValidator {
       validateAttributes(parsedIssuerSigned.getNameSpaces(), mso, token);
 
       // Construct the validation result
-      MdlIssuerSignedValidationResult validationResult = new MdlIssuerSignedValidationResult();
+      MdlIssuerSignedValidationResult validationResult =
+        new MdlIssuerSignedValidationResult();
       validationResult.setValidationChain(chain);
-      validationResult.setValidationCertificate(chain.isEmpty() ? null : chain.getFirst());
+      validationResult.setValidationCertificate(
+        chain.isEmpty() ? null : chain.getFirst()
+      );
       validationResult.setValidationKey(validationKey);
       validationResult.setIssuerSigned(parsedIssuerSigned);
       validationResult.setWalletPublicKey(walletPublicKey);
       validationResult.setMso(mso);
       return validationResult;
-    }
-    catch (JsonProcessingException e) {
-      throw new TokenValidationException("Failed to parse Issuer Signed token",e);
-    }
-    catch (IOException e) {
-      throw new TokenValidationException("Failed to validate Issuer Signed token", e);
-    }
-    catch (CoseException e) {
-      throw new TokenValidationException("Token signature validation failure",e);
-    }
-    catch (CertificateException e) {
-      throw new TokenValidationException("Error processing signature certificate information", e);
-    }
-    catch (NoSuchAlgorithmException e) {
+    } catch (JsonProcessingException e) {
+      throw new TokenValidationException(
+        "Failed to parse Issuer Signed token",
+        e
+      );
+    } catch (IOException e) {
+      throw new TokenValidationException(
+        "Failed to validate Issuer Signed token",
+        e
+      );
+    } catch (CoseException e) {
+      throw new TokenValidationException(
+        "Token signature validation failure",
+        e
+      );
+    } catch (CertificateException e) {
+      throw new TokenValidationException(
+        "Error processing signature certificate information",
+        e
+      );
+    } catch (NoSuchAlgorithmException e) {
       throw new TokenValidationException("Unsupported Hash algorithm", e);
     }
   }
@@ -136,23 +162,34 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * the signing time is not declared, the valid from time is not declared, the expiration time is not declared,
    * the token declares signing time in the future, the token is not yet valid, or the token has expired
    */
-  private void timeValidation(MobileSecurityObject mso) throws TokenValidationException {
+  private void timeValidation(MobileSecurityObject mso)
+    throws TokenValidationException {
     MobileSecurityObject.ValidityInfo validityInfo = mso.getValidityInfo();
     if (validityInfo == null) {
-      throw new TokenValidationException("MobileSecurityObject does not contain validity information");
+      throw new TokenValidationException(
+        "MobileSecurityObject does not contain validity information"
+      );
     }
-    Instant signingTime = Optional.ofNullable(validityInfo.getSigned()).orElseThrow(
+    Instant signingTime = Optional.ofNullable(
+      validityInfo.getSigned()
+    ).orElseThrow(
       () -> new TokenValidationException("Signing time is not declared")
     );
-    Instant validFrom = Optional.ofNullable(validityInfo.getValidFrom()).orElseThrow(
+    Instant validFrom = Optional.ofNullable(
+      validityInfo.getValidFrom()
+    ).orElseThrow(
       () -> new TokenValidationException("Valid from time is not declared")
     );
-    Instant expirationTime = Optional.ofNullable(validityInfo.getValidUntil()).orElseThrow(
+    Instant expirationTime = Optional.ofNullable(
+      validityInfo.getValidUntil()
+    ).orElseThrow(
       () -> new TokenValidationException("Expiration time is not declared")
     );
     Instant currentTime = Instant.now();
     if (currentTime.isBefore(signingTime.minus(timeSkew))) {
-      throw new TokenValidationException("Token declares signing time in the future");
+      throw new TokenValidationException(
+        "Token declares signing time in the future"
+      );
     }
     if (currentTime.isBefore(validFrom.minus(timeSkew))) {
       throw new TokenValidationException("Token is not yet valid");
@@ -171,32 +208,60 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * @throws IOException if an I/O error occurs
    * @throws NoSuchAlgorithmException if a required cryptographic algorithm is not available
    */
-  private void validateAttributes(Map<String, List<IssuerSignedItem>> nameSpaces, MobileSecurityObject mso, byte[] token)
-    throws TokenValidationException, IOException, NoSuchAlgorithmException {
+  private void validateAttributes(
+    Map<String, List<IssuerSignedItem>> nameSpaces,
+    MobileSecurityObject mso,
+    byte[] token
+  ) throws TokenValidationException, IOException, NoSuchAlgorithmException {
     if (nameSpaces == null) {
       throw new TokenValidationException("Token has no attribute information");
     }
-    Map<String, Map<Integer,byte[]>> tokenParsedIssuerSignedItemBytes = parseTokenIssuerSignedItems(token);
-    for (Map.Entry<String, List<IssuerSignedItem>> entry : nameSpaces.entrySet()) {
+    Map<String, Map<Integer, byte[]>> tokenParsedIssuerSignedItemBytes =
+      parseTokenIssuerSignedItems(token);
+    for (Map.Entry<
+      String,
+      List<IssuerSignedItem>
+    > entry : nameSpaces.entrySet()) {
       String namespace = entry.getKey();
-      Map<Integer, byte[]> tokenParsedNameSpace = tokenParsedIssuerSignedItemBytes.get(namespace);
+      Map<Integer, byte[]> tokenParsedNameSpace =
+        tokenParsedIssuerSignedItemBytes.get(namespace);
       List<IssuerSignedItem> items = entry.getValue();
       for (IssuerSignedItem item : items) {
         byte[] hashedBytes = tokenParsedNameSpace.get(item.getDigestID());
-        MessageDigest digest = MessageDigest.getInstance(TokenDigestAlgorithm.fromMdlName(mso.getDigestAlgorithm()).getJdkName());
+        MessageDigest digest = MessageDigest.getInstance(
+          TokenDigestAlgorithm.fromMdlName(
+            mso.getDigestAlgorithm()
+          ).getJdkName()
+        );
         byte[] signedItemHash = digest.digest(hashedBytes);
-        byte[] msoHash = getMsoHash(mso.getValueDigests(), namespace, item.getDigestID());
+        byte[] msoHash = getMsoHash(
+          mso.getValueDigests(),
+          namespace,
+          item.getDigestID()
+        );
         if (msoHash == null) {
-          throw new TokenValidationException("No hash available for present attribute " + item.getDigestID() + "for name space " + namespace);
+          throw new TokenValidationException(
+            "No hash available for present attribute " +
+            item.getDigestID() +
+            "for name space " +
+            namespace
+          );
         }
         if (!Arrays.equals(signedItemHash, msoHash)) {
-          throw new TokenValidationException("Hash mismatch for attribute " + item.getDigestID() + " in namespace " + namespace);
+          throw new TokenValidationException(
+            "Hash mismatch for attribute " +
+            item.getDigestID() +
+            " in namespace " +
+            namespace
+          );
         }
       }
     }
   }
 
-  private Map<String, Map<Integer,byte[]>> parseTokenIssuerSignedItems(byte[] token) throws TokenValidationException {
+  private Map<String, Map<Integer, byte[]>> parseTokenIssuerSignedItems(
+    byte[] token
+  ) throws TokenValidationException {
     try {
       Map<String, Map<Integer, byte[]>> valueDigests = new HashMap<>();
       CBORObject issuerSigned = CBORObject.DecodeFromBytes(token);
@@ -207,18 +272,27 @@ public class MdlIssuerSignedValidator implements TokenValidator {
         for (int i = 0; i < nameSpace.size(); i++) {
           CBORObject issuerSignedItem = nameSpace.get(i);
           byte[] toBeHashedBytes = issuerSignedItem.EncodeToBytes();
-          IssuerSignedItem itemObject = CBORUtils.CBOR_MAPPER.readValue(toBeHashedBytes, IssuerSignedItem.class);
+          IssuerSignedItem itemObject = CBORUtils.CBOR_MAPPER.readValue(
+            toBeHashedBytes,
+            IssuerSignedItem.class
+          );
           int digestID = itemObject.getDigestID();
-          valueDigests.computeIfAbsent(nameSpaceName.AsString(), k -> new HashMap<>()).put(digestID, toBeHashedBytes);
+          valueDigests
+            .computeIfAbsent(nameSpaceName.AsString(), k -> new HashMap<>())
+            .put(digestID, toBeHashedBytes);
         }
       }
       return valueDigests;
-    }
-    catch (CBORException e) {
-      throw new TokenValidationException("Failed to parse Issuer Signed Items", e);
-    }
-    catch (IOException e) {
-      throw new TokenValidationException("Unable to parse Issuer Signed Item bytes to object", e);
+    } catch (CBORException e) {
+      throw new TokenValidationException(
+        "Failed to parse Issuer Signed Items",
+        e
+      );
+    } catch (IOException e) {
+      throw new TokenValidationException(
+        "Unable to parse Issuer Signed Item bytes to object",
+        e
+      );
     }
   }
 
@@ -231,7 +305,11 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * @return the byte array representing the hash value, or null if the value digests map is null, the nameSpace is not found,
    * or the digest ID is not found within the specified nameSpace
    */
-  private byte[] getMsoHash(Map<String, Map<Integer, byte[]>> valueDigests, String nameSpace, int digestID) {
+  private byte[] getMsoHash(
+    Map<String, Map<Integer, byte[]>> valueDigests,
+    String nameSpace,
+    int digestID
+  ) {
     if (valueDigests == null) {
       return null;
     }
@@ -251,22 +329,33 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * @return the validation key if found or null if not found
    * @throws TokenValidationException if no validation key is found or there is a validation error
    */
-  private PublicKey getValidationKey(List<X509Certificate> chain, Sign1COSEObject parsedSignatureObject, List<TrustedKey> trustedKeys)
-    throws TokenValidationException {
+  private PublicKey getValidationKey(
+    List<X509Certificate> chain,
+    Sign1COSEObject parsedSignatureObject,
+    List<TrustedKey> trustedKeys
+  ) throws TokenValidationException {
     boolean allTrusted = trustedKeys == null;
-    PublicKey providedKey = chain.isEmpty() ? null : chain.getFirst().getPublicKey();
+    PublicKey providedKey = chain.isEmpty()
+      ? null
+      : chain.getFirst().getPublicKey();
     String kid = getKeyId(parsedSignatureObject);
     if (!allTrusted) {
       for (TrustedKey trustedKey : trustedKeys) {
-        PublicKey trustedPublicKey = Optional.ofNullable(trustedKey.getPublicKey()).orElse(trustedKey.getCertificate().getPublicKey());
+        PublicKey trustedPublicKey = Optional.ofNullable(
+          trustedKey.getPublicKey()
+        ).orElse(trustedKey.getCertificate().getPublicKey());
         if (providedKey != null && providedKey.equals(trustedPublicKey)) {
           return providedKey;
         }
-        if (trustedKey.getKeyId() != null && trustedKey.getKeyId().equals(kid)) {
+        if (
+          trustedKey.getKeyId() != null && trustedKey.getKeyId().equals(kid)
+        ) {
           return trustedPublicKey;
         }
       }
-      throw new TokenValidationException("Trusted keys was provided, but none matched the signing key");
+      throw new TokenValidationException(
+        "Trusted keys was provided, but none matched the signing key"
+      );
     } else {
       // All keys are trusted. Return the provided signing key
       return providedKey;
@@ -287,8 +376,16 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * @return the Key Identifier (kid) if found, or null if not found
    */
   private String getKeyId(Sign1COSEObject parsedSignatureObject) {
-    CBORObject kidObject = Optional.ofNullable(parsedSignatureObject.getProtectedAttributes().get(HeaderKeys.KID.AsCBOR())).orElseGet(() ->
-      parsedSignatureObject.getUnprotectedAttributes().get(HeaderKeys.KID.AsCBOR()));
+    CBORObject kidObject = Optional.ofNullable(
+      parsedSignatureObject
+        .getProtectedAttributes()
+        .get(HeaderKeys.KID.AsCBOR())
+    ).orElseGet(
+      () ->
+        parsedSignatureObject
+          .getUnprotectedAttributes()
+          .get(HeaderKeys.KID.AsCBOR())
+    );
     return kidObject == null ? null : kidObject.AsString();
   }
 
@@ -299,7 +396,8 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * @return a list of X.509 certificates extracted from the CBORObject
    * @throws CertificateException if an error occurs during certificate processing
    */
-  private List<X509Certificate> getChain(CBORObject x5chain) throws CertificateException, IOException {
+  private List<X509Certificate> getChain(CBORObject x5chain)
+    throws CertificateException, IOException {
     List<X509Certificate> chain = new ArrayList<>();
     if (x5chain == null) {
       return chain;
@@ -322,8 +420,9 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * @return the X.509 certificate extracted from the byte array
    * @throws CertificateException if an error occurs during certificate processing
    */
-  private X509Certificate getCert(byte[] certBytes) throws CertificateException, IOException {
-    try(InputStream is = new ByteArrayInputStream(certBytes)) {
+  private X509Certificate getCert(byte[] certBytes)
+    throws CertificateException, IOException {
+    try (InputStream is = new ByteArrayInputStream(certBytes)) {
       CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
       return (X509Certificate) certFactory.generateCertificate(is);
     }

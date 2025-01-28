@@ -1,14 +1,12 @@
 package se.digg.wallet.datatypes.common;
 
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
 
 /**
  * This is an abstract result class for token validation results. This may be extended by explicit token validators
@@ -18,7 +16,9 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public abstract class TokenValidationResult<T extends Object, P extends Object> {
+public abstract class TokenValidationResult<
+  T extends Object, P extends Object
+> {
 
   protected PublicKey validationKey;
 

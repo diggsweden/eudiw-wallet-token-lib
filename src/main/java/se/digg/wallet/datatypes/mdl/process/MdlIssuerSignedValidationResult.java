@@ -15,16 +15,19 @@ import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MdlIssuerSignedValidationResult extends TokenValidationResult<IssuerSigned, MobileSecurityObject> {
+public class MdlIssuerSignedValidationResult
+  extends TokenValidationResult<IssuerSigned, MobileSecurityObject> {
 
   private IssuerSigned issuerSigned;
   private MobileSecurityObject mso;
 
-  @Override public IssuerSigned getTokenData() {
+  @Override
+  public IssuerSigned getTokenData() {
     return null;
   }
 
-  @Override public MobileSecurityObject getTokenPayload() {
+  @Override
+  public MobileSecurityObject getTokenPayload() {
     return null;
   }
 }

@@ -1,10 +1,9 @@
 package se.digg.wallet.datatypes.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.io.IOException;
 import java.util.Arrays;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * Hash algorithms supported by the mDL standard
@@ -19,9 +18,13 @@ public enum TokenDigestAlgorithm {
   private final String mdlName;
   private final String jdkName;
 
-  public static TokenDigestAlgorithm fromMdlName(String mdlName) throws IOException {
+  public static TokenDigestAlgorithm fromMdlName(String mdlName)
+    throws IOException {
     return Arrays.stream(values())
-      .filter(tokenDigestAlgorithm -> tokenDigestAlgorithm.getMdlName().equalsIgnoreCase(mdlName))
+      .filter(
+        tokenDigestAlgorithm ->
+          tokenDigestAlgorithm.getMdlName().equalsIgnoreCase(mdlName)
+      )
       .findFirst()
       .orElseThrow(() -> new IOException("Unsupported mDL hash algorithm"));
   }

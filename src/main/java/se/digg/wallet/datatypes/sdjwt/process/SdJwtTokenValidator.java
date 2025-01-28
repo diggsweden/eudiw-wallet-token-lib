@@ -8,12 +8,6 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.sdjwt.JSONUtils;
-import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
-import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
-import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +22,11 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import se.digg.wallet.datatypes.common.*;
+import se.digg.wallet.datatypes.sdjwt.JSONUtils;
+import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
+import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
+import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 
 /**
  * Description
@@ -44,16 +43,29 @@ public class SdJwtTokenValidator implements TokenValidator {
     this.timeSkew = Duration.ofSeconds(30);
   }
 
-  @Override public SdJwtTokenValidationResult validateToken(byte[] token, List<TrustedKey> trustedKeys) throws TokenValidationException {
+  @Override
+  public SdJwtTokenValidationResult validateToken(
+    byte[] token,
+    List<TrustedKey> trustedKeys
+  ) throws TokenValidationException {
     try {
-      SdJwt parsedToken = SdJwt.parse(new String(token, StandardCharsets.UTF_8));
+      SdJwt parsedToken = SdJwt.parse(
+        new String(token, StandardCharsets.UTF_8)
+      );
       SignedJWT issuerSigned = parsedToken.getIssuerSigned();
       if (issuerSigned == null) {
         throw new TokenValidationException("Issuer signature missing");
       }
       // Check jwt type
-      if (!issuerSigned.getHeader().getType().equals(new JOSEObjectType(SdJwt.SD_JWT_TYPE))) {
-        throw new TokenValidationException("Illegal JWT type for SD JWT: " +  issuerSigned.getHeader().getType());
+      if (
+        !issuerSigned
+          .getHeader()
+          .getType()
+          .equals(new JOSEObjectType(SdJwt.SD_JWT_TYPE))
+      ) {
+        throw new TokenValidationException(
+          "Illegal JWT type for SD JWT: " + issuerSigned.getHeader().getType()
+        );
       }
 
       // Retrieve certificate chain in signature and determine trusted signing key
@@ -65,7 +77,9 @@ public class SdJwtTokenValidator implements TokenValidator {
       if (validationKey == null) {
         throw new TokenValidationException("No validation key was found");
       }
-      TokenSigningAlgorithm algorithm = TokenSigningAlgorithm.fromJWSAlgorithm(issuerSigned.getHeader().getAlgorithm());
+      TokenSigningAlgorithm algorithm = TokenSigningAlgorithm.fromJWSAlgorithm(
+        issuerSigned.getHeader().getAlgorithm()
+      );
       JWSVerifier jwsVerifier = algorithm.jwsVerifier(validationKey);
       if (!issuerSigned.verify(jwsVerifier)) {
         throw new TokenValidationException("Token signature validation failed");
@@ -73,7 +87,10 @@ public class SdJwtTokenValidator implements TokenValidator {
       JWTClaimsSet issuerSignedClaims = issuerSigned.getJWTClaimsSet();
       timeValidation(issuerSignedClaims);
       PublicKey walletPublic = getWalletPublic(issuerSignedClaims);
-      boolean hasKeyBindingProof = validateKeyBinding(walletPublic, parsedToken);
+      boolean hasKeyBindingProof = validateKeyBinding(
+        walletPublic,
+        parsedToken
+      );
 
       Payload reconstructedPayload = restorePayload(parsedToken);
 
@@ -83,59 +100,81 @@ public class SdJwtTokenValidator implements TokenValidator {
       result.setKeyBindingProtection(hasKeyBindingProof);
       result.setValidationKey(validationKey);
       result.setValidationChain(chain);
-      result.setValidationCertificate(chain.isEmpty() ? null : chain.getFirst());
+      result.setValidationCertificate(
+        chain.isEmpty() ? null : chain.getFirst()
+      );
       result.setWalletPublicKey(walletPublic);
       return result;
-
-    }
-    catch (CertificateException | IOException | NoSuchAlgorithmException | JOSEException | ParseException e) {
+    } catch (
+      CertificateException
+      | IOException
+      | NoSuchAlgorithmException
+      | JOSEException
+      | ParseException e
+    ) {
       throw new RuntimeException(e);
     }
   }
 
-  private Payload restorePayload(SdJwt parsedToken) throws ParseException, NoSuchAlgorithmException {
-
-    ClaimsWithDisclosure claimsWithDisclosure = parsedToken.getClaimsWithDisclosure();
-    Map<String, Object> claims = new HashMap<>(parsedToken.getIssuerSigned().getJWTClaimsSet().getClaims());
+  private Payload restorePayload(SdJwt parsedToken)
+    throws ParseException, NoSuchAlgorithmException {
+    ClaimsWithDisclosure claimsWithDisclosure =
+      parsedToken.getClaimsWithDisclosure();
+    Map<String, Object> claims = new HashMap<>(
+      parsedToken.getIssuerSigned().getJWTClaimsSet().getClaims()
+    );
     String hashAlgo = (String) claims.get("_sd_alg");
     expandClaims(claims, claimsWithDisclosure.getAllDisclosures(), hashAlgo);
     Payload reconstructedPayload = new Payload(claims);
     return reconstructedPayload;
   }
 
-  private void expandClaims(Map<String, Object> claims, List<Disclosure> allDisclosures, String hashAlgo) throws NoSuchAlgorithmException {
+  private void expandClaims(
+    Map<String, Object> claims,
+    List<Disclosure> allDisclosures,
+    String hashAlgo
+  ) throws NoSuchAlgorithmException {
     // First task. Look for child with "_sd" declarations.
     Map<String, Object> dataClaims = new HashMap<>(claims);
     SdJwt.STD_CLAIMS.forEach(dataClaims::remove);
-    for (Map.Entry<String, Object> entry: dataClaims.entrySet()) {
-      if (entry.getValue() instanceof Map<?,?> subMap) {
+    for (Map.Entry<String, Object> entry : dataClaims.entrySet()) {
+      if (entry.getValue() instanceof Map<?, ?> subMap) {
         if (subMap.containsKey("_sd")) {
-          expandClaims((Map<String, Object>) entry.getValue(), allDisclosures, hashAlgo);
+          expandClaims(
+            (Map<String, Object>) entry.getValue(),
+            allDisclosures,
+            hashAlgo
+          );
         }
       }
     }
     // Now look at this base level and expand new items on the base level.
-    if (!claims.containsKey("_sd")){
+    if (!claims.containsKey("_sd")) {
       return;
     }
     // Start with List items
     for (Map.Entry<String, Object> entry : claims.entrySet()) {
-      if (entry.getValue() instanceof List<?> && !entry.getKey().equals("_sd")) {
+      if (
+        entry.getValue() instanceof List<?> && !entry.getKey().equals("_sd")
+      ) {
         List<?> list = (List<?>) entry.getValue();
         List<Object> expandedList = new ArrayList<>();
         for (Object item : list) {
           if (item instanceof Map<?, ?>) {
             // This is a map possibly containing a selective disclosure value.
-            if (((Map<?, ?>) item).containsKey("...")){
+            if (((Map<?, ?>) item).containsKey("...")) {
               // We found a selective disclosure lite item value
-              Disclosure matchingDisclosure = getMatchingDisclosure((String)((Map<?, ?>) item).get("..."), allDisclosures, hashAlgo);
+              Disclosure matchingDisclosure = getMatchingDisclosure(
+                (String) ((Map<?, ?>) item).get("..."),
+                allDisclosures,
+                hashAlgo
+              );
               if (matchingDisclosure != null) {
                 // We found a matching disclosure. Use its value
                 expandedList.add(matchingDisclosure.getValue());
               }
             }
-          }
-          else {
+          } else {
             // This was not a Map item. Keep the original value
             expandedList.add(item);
           }
@@ -162,8 +201,11 @@ public class SdJwtTokenValidator implements TokenValidator {
     claims.remove("_sd");
   }
 
-  private Disclosure getMatchingDisclosure(String b64UrlHash, List<Disclosure> allDisclosures, String hashAlgo)
-    throws NoSuchAlgorithmException {
+  private Disclosure getMatchingDisclosure(
+    String b64UrlHash,
+    List<Disclosure> allDisclosures,
+    String hashAlgo
+  ) throws NoSuchAlgorithmException {
     for (Disclosure disclosure : allDisclosures) {
       String hashString = JSONUtils.disclosureHashString(disclosure, hashAlgo);
       if (b64UrlHash.equals(hashString)) {
@@ -194,46 +236,79 @@ public class SdJwtTokenValidator implements TokenValidator {
       return false;
     }
     // Check jwt type
-    if (!walletSigned.getHeader().getType().equals(new JOSEObjectType(SdJwt.KB_JWT_TYPE))) {
-      throw new TokenValidationException("Illegal JWT type for SD JWT: " +  walletSigned.getHeader().getType());
+    if (
+      !walletSigned
+        .getHeader()
+        .getType()
+        .equals(new JOSEObjectType(SdJwt.KB_JWT_TYPE))
+    ) {
+      throw new TokenValidationException(
+        "Illegal JWT type for SD JWT: " + walletSigned.getHeader().getType()
+      );
     }
 
-    TokenSigningAlgorithm algorithm = TokenSigningAlgorithm.fromJWSAlgorithm(walletSigned.getHeader().getAlgorithm());
+    TokenSigningAlgorithm algorithm = TokenSigningAlgorithm.fromJWSAlgorithm(
+      walletSigned.getHeader().getAlgorithm()
+    );
     JWSVerifier walletVerifier = algorithm.jwsVerifier(walletPublic);
     if (!walletSigned.verify(walletVerifier)) {
       throw new TokenValidationException("Wallet signature validation failed");
     }
     String sdHash = (String) walletSigned.getJWTClaimsSet().getClaim("sd_hash");
     String unprotectedPresentation = parsedToken.unprotectedPresentation(null);
-    MessageDigest messageDigest = MessageDigest.getInstance(algorithm.getDigestAlgorithm().getJdkName());
-    String digestStr = JSONUtils.b64UrlHash(unprotectedPresentation.getBytes(StandardCharsets.UTF_8), algorithm.getDigestAlgorithm().getJdkName());
+    MessageDigest messageDigest = MessageDigest.getInstance(
+      algorithm.getDigestAlgorithm().getJdkName()
+    );
+    String digestStr = JSONUtils.b64UrlHash(
+      unprotectedPresentation.getBytes(StandardCharsets.UTF_8),
+      algorithm.getDigestAlgorithm().getJdkName()
+    );
     if (!digestStr.equals(sdHash)) {
-      throw new TokenValidationException("Hash mismatch between signed data and key binding JWT");
+      throw new TokenValidationException(
+        "Hash mismatch between signed data and key binding JWT"
+      );
     }
     return true;
   }
 
-  private PublicKey getWalletPublic(JWTClaimsSet issuerSignedClaims) throws TokenValidationException {
+  private PublicKey getWalletPublic(JWTClaimsSet issuerSignedClaims)
+    throws TokenValidationException {
     try {
-      JWK walletPublic = Optional.ofNullable(SdJwt.parseConfirmationKey(issuerSignedClaims.getClaim("cnf"))).orElseThrow(() ->
-        new TokenValidationException("No wallet public key found in token"));
+      JWK walletPublic = Optional.ofNullable(
+        SdJwt.parseConfirmationKey(issuerSignedClaims.getClaim("cnf"))
+      ).orElseThrow(
+        () ->
+          new TokenValidationException("No wallet public key found in token")
+      );
       return JSONUtils.getPublicKeyFromJWK(walletPublic);
-    }
-    catch (ParseException | JOSEException e) {
-      throw new TokenValidationException("Failed to parse wallet public key", e);
+    } catch (ParseException | JOSEException e) {
+      throw new TokenValidationException(
+        "Failed to parse wallet public key",
+        e
+      );
     }
   }
 
-  private void timeValidation(JWTClaimsSet jwtClaimsSet) throws TokenValidationException {
-    Instant issueTime = Optional.ofNullable(jwtClaimsSet.getIssueTime().toInstant()).orElseThrow(
-      () -> new TokenValidationException("Issue time is not declared"));
+  private void timeValidation(JWTClaimsSet jwtClaimsSet)
+    throws TokenValidationException {
+    Instant issueTime = Optional.ofNullable(
+      jwtClaimsSet.getIssueTime().toInstant()
+    ).orElseThrow(
+      () -> new TokenValidationException("Issue time is not declared")
+    );
     Instant notBefore = Optional.ofNullable(jwtClaimsSet.getNotBeforeTime())
-      .orElse(Date.from(Instant.now().minus(Duration.ofDays(1)))).toInstant();
-    Instant expirationTime = Optional.ofNullable(jwtClaimsSet.getExpirationTime().toInstant()).orElseThrow(
-      () -> new TokenValidationException("Expiration time is not declared"));
+      .orElse(Date.from(Instant.now().minus(Duration.ofDays(1))))
+      .toInstant();
+    Instant expirationTime = Optional.ofNullable(
+      jwtClaimsSet.getExpirationTime().toInstant()
+    ).orElseThrow(
+      () -> new TokenValidationException("Expiration time is not declared")
+    );
     Instant currentTime = Instant.now();
     if (currentTime.isBefore(issueTime.minus(timeSkew))) {
-      throw new TokenValidationException("Token declares issue time in the future");
+      throw new TokenValidationException(
+        "Token declares issue time in the future"
+      );
     }
     if (currentTime.isBefore(notBefore.minus(timeSkew))) {
       throw new TokenValidationException("Token is not yet valid");
@@ -243,36 +318,47 @@ public class SdJwtTokenValidator implements TokenValidator {
     }
   }
 
-  private PublicKey getValidationKey(List<X509Certificate> chain, String kid, List<TrustedKey> trustedKeys)
-    throws TokenValidationException {
+  private PublicKey getValidationKey(
+    List<X509Certificate> chain,
+    String kid,
+    List<TrustedKey> trustedKeys
+  ) throws TokenValidationException {
     boolean allTrusted = trustedKeys == null;
-    PublicKey providedKey = chain.isEmpty() ? null : chain.getFirst().getPublicKey();
+    PublicKey providedKey = chain.isEmpty()
+      ? null
+      : chain.getFirst().getPublicKey();
     if (!allTrusted) {
       for (TrustedKey trustedKey : trustedKeys) {
-        PublicKey trustedPublicKey = Optional.ofNullable(trustedKey.getPublicKey()).orElse(trustedKey.getCertificate().getPublicKey());
+        PublicKey trustedPublicKey = Optional.ofNullable(
+          trustedKey.getPublicKey()
+        ).orElse(trustedKey.getCertificate().getPublicKey());
         if (providedKey != null && providedKey.equals(trustedPublicKey)) {
           return providedKey;
         }
-        if (trustedKey.getKeyId() != null && trustedKey.getKeyId().equals(kid)) {
+        if (
+          trustedKey.getKeyId() != null && trustedKey.getKeyId().equals(kid)
+        ) {
           return trustedPublicKey;
         }
       }
-      throw new TokenValidationException("Trusted keys was provided, but none matched the signing key");
+      throw new TokenValidationException(
+        "Trusted keys was provided, but none matched the signing key"
+      );
     } else {
       // All keys are trusted. Return the provided signing key
       return providedKey;
     }
-
   }
 
-  private List<X509Certificate> getChain(List<Base64> x5chain) throws IOException, CertificateException {
+  private List<X509Certificate> getChain(List<Base64> x5chain)
+    throws IOException, CertificateException {
     List<X509Certificate> chain = new ArrayList<>();
     if (x5chain == null) {
       return chain;
     }
     for (Base64 cert : x5chain) {
       byte[] decodedCert = cert.decode();
-      try (InputStream is = new ByteArrayInputStream(decodedCert))  {
+      try (InputStream is = new ByteArrayInputStream(decodedCert)) {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         X509Certificate x509Cert = (X509Certificate) cf.generateCertificate(is);
         chain.add(x509Cert);

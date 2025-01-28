@@ -1,10 +1,9 @@
 package se.digg.wallet.datatypes.sdjwt.data;
 
-import lombok.Getter;
-import se.digg.wallet.datatypes.sdjwt.JSONUtils;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import lombok.Getter;
+import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 
 /**
  * This class represents all claims on one level (typically the base level). But any claim expressed here may declare a substructure.
@@ -51,16 +50,20 @@ public class ClaimsWithDisclosure {
    */
   private Map<String, ClaimsWithDisclosure> claimsWithDisclosure;
 
-  public static ClaimsWithDisclosure parse(Map<String, Object> claimsMap, List<Disclosure> disclosureList, String sdAlg)
-    throws NoSuchAlgorithmException {
-
-    ClaimsWithDisclosureBuilder cwdBuilder = ClaimsWithDisclosure.builder(sdAlg);
+  public static ClaimsWithDisclosure parse(
+    Map<String, Object> claimsMap,
+    List<Disclosure> disclosureList,
+    String sdAlg
+  ) throws NoSuchAlgorithmException {
+    ClaimsWithDisclosureBuilder cwdBuilder = ClaimsWithDisclosure.builder(
+      sdAlg
+    );
     List<String> sd = (List<String>) claimsMap.get("_sd");
     if (sd != null) {
       // There are disclosures at this level. Add them to this level
       for (Disclosure disc : disclosureList) {
         String hashString = JSONUtils.disclosureHashString(disc, sdAlg);
-        if (sd.contains(hashString)){
+        if (sd.contains(hashString)) {
           cwdBuilder.disclosure(disc);
         }
       }
@@ -73,7 +76,13 @@ public class ClaimsWithDisclosure {
             ClaimsWithDisclosure subCwd = parse(subMap, disclosureList, sdAlg);
             cwdBuilder.claimsWithDisclosure(entry.getKey(), subCwd);
           } else {
-            subMap.entrySet().stream().forEach(subEntry -> cwdBuilder.openClaim(subEntry.getKey(), subEntry.getValue()));
+            subMap
+              .entrySet()
+              .stream()
+              .forEach(
+                subEntry ->
+                  cwdBuilder.openClaim(subEntry.getKey(), subEntry.getValue())
+              );
           }
         }
         if (entry.getValue() instanceof List<?>) {
@@ -82,8 +91,7 @@ public class ClaimsWithDisclosure {
             cwdBuilder.arrayEntry(entry.getKey(), item);
           }
           cwdBuilder.arrayEntry(entry.getKey(), valueList);
-        }
-        else {
+        } else {
           cwdBuilder.openClaim(entry.getKey(), entry.getValue());
         }
       }
@@ -94,10 +102,14 @@ public class ClaimsWithDisclosure {
   public List<Disclosure> getAllDisclosures() {
     List<Disclosure> allDiscosures = new ArrayList<>(disclosures);
     if (claimsWithDisclosure != null) {
-      allDiscosures.addAll(claimsWithDisclosure.values().stream()
-        .map(ClaimsWithDisclosure::getAllDisclosures)
-        .flatMap(List::stream)
-        .toList());
+      allDiscosures.addAll(
+        claimsWithDisclosure
+          .values()
+          .stream()
+          .map(ClaimsWithDisclosure::getAllDisclosures)
+          .flatMap(List::stream)
+          .toList()
+      );
     }
     return allDiscosures;
   }
@@ -106,11 +118,16 @@ public class ClaimsWithDisclosure {
    * Get all claims that need to be present in addition to the _sd selectably discolable claims and values
    * @return claims to include in the issuer signed jwt with selectable disclosure
    */
-  public Map<String, Object> getAllSupportingClaims() throws NoSuchAlgorithmException {
+  public Map<String, Object> getAllSupportingClaims()
+    throws NoSuchAlgorithmException {
     Map<String, Object> allSupportingClaims = new HashMap<>(openClaims);
     List<String> sdHashList = new ArrayList<>();
     for (Disclosure disclosure : getDisclosures()) {
-      sdHashList.add(JSONUtils.base64URLString(JSONUtils.disclosureHash(disclosure, hashAlgo)));
+      sdHashList.add(
+        JSONUtils.base64URLString(
+          JSONUtils.disclosureHash(disclosure, hashAlgo)
+        )
+      );
     }
     if (!sdHashList.isEmpty()) {
       allSupportingClaims.put("_sd", sdHashList);
@@ -121,8 +138,7 @@ public class ClaimsWithDisclosure {
       claimsWithDisclosure.forEach((key, value) -> {
         try {
           allSupportingClaims.put(key, value.getAllSupportingClaims());
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
           throw new RuntimeException(e);
         }
       });
@@ -147,16 +163,27 @@ public class ClaimsWithDisclosure {
       this.claimsWithDisclosure.claimsWithDisclosure = new HashMap<>();
     }
 
-
     public ClaimsWithDisclosureBuilder disclosure(Disclosure disclosures) {
       this.claimsWithDisclosure.disclosures.add(disclosures);
       return this;
     }
 
-    public ClaimsWithDisclosureBuilder arrayEntry(String claimName, Object valueOrDisclosure) throws NoSuchAlgorithmException {
-      List<Object> valueList = this.claimsWithDisclosure.arrayEntryMap.computeIfAbsent(claimName, s -> new ArrayList<>());
+    public ClaimsWithDisclosureBuilder arrayEntry(
+      String claimName,
+      Object valueOrDisclosure
+    ) throws NoSuchAlgorithmException {
+      List<Object> valueList =
+        this.claimsWithDisclosure.arrayEntryMap.computeIfAbsent(
+            claimName,
+            s -> new ArrayList<>()
+          );
       if (valueOrDisclosure instanceof Disclosure disclosure) {
-        Map<String, String> disclosureRefValue = Collections.singletonMap("...", JSONUtils.base64URLString(JSONUtils.disclosureHash(disclosure, claimsWithDisclosure.hashAlgo)));
+        Map<String, String> disclosureRefValue = Collections.singletonMap(
+          "...",
+          JSONUtils.base64URLString(
+            JSONUtils.disclosureHash(disclosure, claimsWithDisclosure.hashAlgo)
+          )
+        );
         valueList.add(disclosureRefValue);
         this.claimsWithDisclosure.disclosures.add(disclosure);
       } else {
@@ -170,7 +197,10 @@ public class ClaimsWithDisclosure {
       return this;
     }
 
-    public ClaimsWithDisclosureBuilder claimsWithDisclosure(String key, ClaimsWithDisclosure value) {
+    public ClaimsWithDisclosureBuilder claimsWithDisclosure(
+      String key,
+      ClaimsWithDisclosure value
+    ) {
       this.claimsWithDisclosure.claimsWithDisclosure.put(key, value);
       return this;
     }
@@ -178,12 +208,5 @@ public class ClaimsWithDisclosure {
     public ClaimsWithDisclosure build() {
       return claimsWithDisclosure;
     }
-
   }
-
-
-
-
-
-
 }

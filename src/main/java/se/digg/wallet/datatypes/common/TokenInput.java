@@ -1,15 +1,14 @@
 package se.digg.wallet.datatypes.common;
 
 import com.nimbusds.jose.JWSAlgorithm;
+import java.security.PublicKey;
+import java.time.Duration;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import se.swedenconnect.security.credential.PkiCredential;
-
-import java.security.PublicKey;
-import java.time.Duration;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

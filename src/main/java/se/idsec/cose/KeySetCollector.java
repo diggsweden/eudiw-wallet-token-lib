@@ -18,7 +18,7 @@ public class KeySetCollector implements Collector<COSEKey, KeySet, KeySet> {
   @Override
   public Supplier<KeySet> supplier() {
     return KeySet::new;
- }
+  }
 
   @Override
   public BiConsumer<KeySet, COSEKey> accumulator() {
@@ -29,13 +29,15 @@ public class KeySetCollector implements Collector<COSEKey, KeySet, KeySet> {
   public BinaryOperator<KeySet> combiner() {
     // parallel streams are not supported
     return (acc1, acc2) -> {
-      throw new UnsupportedOperationException("parallel streams are not supported");
+      throw new UnsupportedOperationException(
+        "parallel streams are not supported"
+      );
     };
   }
 
   @Override
   public Function<KeySet, KeySet> finisher() {
-    return (acc) -> acc;
+    return acc -> acc;
   }
 
   @Override

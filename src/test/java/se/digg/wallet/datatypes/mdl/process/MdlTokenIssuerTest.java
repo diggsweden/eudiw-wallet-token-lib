@@ -1,8 +1,8 @@
 package se.digg.wallet.datatypes.mdl.process;
 
-import se.idsec.cose.AlgorithmID;
-import se.idsec.cose.COSEKey;
 import com.nimbusds.jose.JWSAlgorithm;
+import java.time.Duration;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,10 +15,9 @@ import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
 import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
 import se.digg.wallet.datatypes.mdl.data.TestCredentials;
 import se.digg.wallet.datatypes.mdl.data.TestData;
+import se.idsec.cose.AlgorithmID;
+import se.idsec.cose.COSEKey;
 import se.swedenconnect.security.credential.PkiCredential;
-
-import java.time.Duration;
-import java.util.List;
 
 /**
  * Description
@@ -36,8 +35,7 @@ class MdlTokenIssuerTest {
   }
 
   @Test
-  void issueCredentialTest() throws Exception{
-
+  void issueCredentialTest() throws Exception {
     TokenInput tokenInput = TokenInput.builder()
       .issuerCredential(issuerCredential)
       .algorithm(TokenSigningAlgorithm.ECDSA_256)
@@ -50,12 +48,16 @@ class MdlTokenIssuerTest {
     log.info("Issued mdL token: \n{}", Hex.toHexString(token));
 
     MdlIssuerSignedValidator validator = new MdlIssuerSignedValidator();
-    TokenValidationResult<IssuerSigned, MobileSecurityObject> validationResult = validator.validateToken(
-      token, List.of(TrustedKey.builder()
-        .certificate(issuerCredential.getCertificate())
-        .build()));
+    TokenValidationResult<IssuerSigned, MobileSecurityObject> validationResult =
+      validator.validateToken(
+        token,
+        List.of(
+          TrustedKey.builder()
+            .certificate(issuerCredential.getCertificate())
+            .build()
+        )
+      );
 
     log.info("Token validation passed");
   }
-
 }

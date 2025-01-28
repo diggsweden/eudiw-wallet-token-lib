@@ -6,7 +6,9 @@ import java.io.Serial;
  * Exception thrown wile validating a token
  */
 public class TokenValidationException extends Exception {
-  @Serial private static final long serialVersionUID = -3706726881712381049L;
+
+  @Serial
+  private static final long serialVersionUID = -3706726881712381049L;
 
   /** {@inheritDoc} */
   public TokenValidationException(String message) {

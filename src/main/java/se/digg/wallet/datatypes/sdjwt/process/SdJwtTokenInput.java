@@ -1,6 +1,9 @@
 package se.digg.wallet.datatypes.sdjwt.process;
 
 import com.nimbusds.jose.JWSAlgorithm;
+import java.security.PublicKey;
+import java.time.Duration;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import se.digg.wallet.datatypes.common.TokenAttribute;
@@ -9,46 +12,62 @@ import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
 import se.swedenconnect.security.credential.PkiCredential;
 
-import java.security.PublicKey;
-import java.time.Duration;
-import java.util.List;
-
 /**
  * Description
  */
-@EqualsAndHashCode(callSuper = true) @Data
+@EqualsAndHashCode(callSuper = true)
+@Data
 public class SdJwtTokenInput extends TokenInput {
 
   private ClaimsWithDisclosure claimsWithDisclosure;
   private String verifiableCredentialType;
 
-  public SdJwtTokenInput(String issuer, List<TokenAttribute> attributes,
+  public SdJwtTokenInput(
+    String issuer,
+    List<TokenAttribute> attributes,
     List<TokenAttribute> openAttributes,
-    PkiCredential issuerCredential, Duration expirationDuration,
-    TokenSigningAlgorithm algorithm, PublicKey walletPublicKey, ClaimsWithDisclosure claimsWithDisclosure) {
-    super(issuer, attributes, openAttributes, issuerCredential, expirationDuration, algorithm, walletPublicKey);
+    PkiCredential issuerCredential,
+    Duration expirationDuration,
+    TokenSigningAlgorithm algorithm,
+    PublicKey walletPublicKey,
+    ClaimsWithDisclosure claimsWithDisclosure
+  ) {
+    super(
+      issuer,
+      attributes,
+      openAttributes,
+      issuerCredential,
+      expirationDuration,
+      algorithm,
+      walletPublicKey
+    );
     this.claimsWithDisclosure = claimsWithDisclosure;
   }
 
-  public SdJwtTokenInput() {
-  }
+  public SdJwtTokenInput() {}
 
   public static SdJwtTokenInputBuilder sdJwtINputBuilder() {
     return new SdJwtTokenInputBuilder();
   }
 
   public static class SdJwtTokenInputBuilder {
+
     private final SdJwtTokenInput tokenInput;
 
     public SdJwtTokenInputBuilder() {
       tokenInput = new SdJwtTokenInput();
     }
-    public SdJwtTokenInputBuilder claimsWithDisclosure(ClaimsWithDisclosure claimsWithDisclosure) {
+
+    public SdJwtTokenInputBuilder claimsWithDisclosure(
+      ClaimsWithDisclosure claimsWithDisclosure
+    ) {
       tokenInput.claimsWithDisclosure = claimsWithDisclosure;
       return this;
     }
 
-    public SdJwtTokenInputBuilder verifiableCredentialType(String verifiableCredentialType) {
+    public SdJwtTokenInputBuilder verifiableCredentialType(
+      String verifiableCredentialType
+    ) {
       tokenInput.verifiableCredentialType = verifiableCredentialType;
       return this;
     }
@@ -63,17 +82,23 @@ public class SdJwtTokenInput extends TokenInput {
       return this;
     }
 
-    public SdJwtTokenInputBuilder openAttributes(List<TokenAttribute> openAttributes) {
+    public SdJwtTokenInputBuilder openAttributes(
+      List<TokenAttribute> openAttributes
+    ) {
       tokenInput.openAttributes = openAttributes;
       return this;
     }
 
-    public SdJwtTokenInputBuilder issuerCredential(PkiCredential issuerCredential) {
+    public SdJwtTokenInputBuilder issuerCredential(
+      PkiCredential issuerCredential
+    ) {
       tokenInput.issuerCredential = issuerCredential;
       return this;
     }
 
-    public SdJwtTokenInputBuilder expirationDuration(Duration expirationDuration) {
+    public SdJwtTokenInputBuilder expirationDuration(
+      Duration expirationDuration
+    ) {
       tokenInput.expirationDuration = expirationDuration;
       return this;
     }

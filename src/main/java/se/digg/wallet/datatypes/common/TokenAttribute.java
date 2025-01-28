@@ -20,5 +20,4 @@ public class TokenAttribute {
   private String nameSpace;
   /** The attribute value. For most attributes, this is either a String, Integer or LocalDate object */
   private Object value;
-
 }

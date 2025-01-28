@@ -7,8 +7,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.cbor.CBORType;
 import com.upokecenter.numbers.EInteger;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -17,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Description
@@ -25,11 +24,12 @@ import java.util.stream.Collectors;
 public class CBORUtils {
 
   public static final ObjectMapper CBOR_MAPPER;
-  public static final DateTimeFormatter LOCAL_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-  public static final DateTimeFormatter INSTANT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    .withZone(ZoneOffset.UTC);
-
-
+  public static final DateTimeFormatter LOCAL_DATE_FORMATTER =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  public static final DateTimeFormatter INSTANT_FORMATTER =
+    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(
+      ZoneOffset.UTC
+    );
 
   static {
     CBOR_MAPPER = new ObjectMapper(new CBORFactory())
@@ -52,11 +52,17 @@ public class CBORUtils {
     }
     if (o instanceof LocalDate localDate) {
       String dateString = localDate.format(LOCAL_DATE_FORMATTER);
-      return CBORObject.FromCBORObjectAndTag(CBORObject.FromString(dateString), EInteger.FromInt32(1004));
+      return CBORObject.FromCBORObjectAndTag(
+        CBORObject.FromString(dateString),
+        EInteger.FromInt32(1004)
+      );
     }
     if (o instanceof Instant instant) {
       String instantString = INSTANT_FORMATTER.format(instant);
-      return CBORObject.FromCBORObjectAndTag(CBORObject.FromString(instantString), 0);
+      return CBORObject.FromCBORObjectAndTag(
+        CBORObject.FromString(instantString),
+        0
+      );
     }
     return CBORObject.FromObject(o);
   }
@@ -71,24 +77,31 @@ public class CBORUtils {
       throw new IllegalArgumentException("Unsupported CBOR tag: " + tag);
     } else {
       switch (cborElementValue.getType()) {
-      case CBORType.TextString:
-        return cborElementValue.AsString();
-      case CBORType.ByteString:
-        return cborElementValue.GetByteString();
-      case CBORType.Boolean:
-        return cborElementValue.AsBoolean();
-      case CBORType.Array:
-        return cborElementValue.getValues().stream()
-          .map(CBORUtils::parseCBORObjectValue)
-          .collect(Collectors.toList());
-      case CBORType.Map:
-        Map<Object, Object> map = new HashMap<>();
-        for (CBORObject key : cborElementValue.getKeys()) {
-          map.put(parseCBORObjectValue(key), parseCBORObjectValue(cborElementValue.get(key)));
-        }
-        return map;
-      default:
-        throw new IllegalArgumentException("Unsupported CBOR type: " + cborElementValue.getType());
+        case CBORType.TextString:
+          return cborElementValue.AsString();
+        case CBORType.ByteString:
+          return cborElementValue.GetByteString();
+        case CBORType.Boolean:
+          return cborElementValue.AsBoolean();
+        case CBORType.Array:
+          return cborElementValue
+            .getValues()
+            .stream()
+            .map(CBORUtils::parseCBORObjectValue)
+            .collect(Collectors.toList());
+        case CBORType.Map:
+          Map<Object, Object> map = new HashMap<>();
+          for (CBORObject key : cborElementValue.getKeys()) {
+            map.put(
+              parseCBORObjectValue(key),
+              parseCBORObjectValue(cborElementValue.get(key))
+            );
+          }
+          return map;
+        default:
+          throw new IllegalArgumentException(
+            "Unsupported CBOR type: " + cborElementValue.getType()
+          );
       }
     }
   }
@@ -106,6 +119,7 @@ public class CBORUtils {
     }
     return cborObject.ToJSONString();
   }
+
   public static String cborToPrettyJson(byte[] cborBytes) throws IOException {
     // Decode CBOR bytes to a CBOR object
     String jsonString = cborToJson(cborBytes);
@@ -113,9 +127,8 @@ public class CBORUtils {
       .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
       .registerModule(new JavaTimeModule());
 
-    return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(
-      objectMapper.readValue(jsonString, Object.class)
-    );
+    return objectMapper
+      .writerWithDefaultPrettyPrinter()
+      .writeValueAsString(objectMapper.readValue(jsonString, Object.class));
   }
 }
-

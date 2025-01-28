@@ -119,5 +119,6 @@ is_command_available 'sed' ''
 
 lint
 commit
+format
 
 check_exit_codes

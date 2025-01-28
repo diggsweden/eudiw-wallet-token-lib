@@ -6,7 +6,6 @@ import java.util.List;
  * TokenValidator interface
  */
 public interface TokenValidator {
-
   /**
    * Validates a token using an optional list of trusted keys. I no trusted keys are provided validation will be attempted
    * using a key provided in the token.
@@ -16,6 +15,8 @@ public interface TokenValidator {
    * @param trustedKeys optional list of trusted keys used for validation.
    * @return An instance of TokenValidationResult containing information about the validation result.
    */
-  TokenValidationResult<?,?> validateToken(byte[] token, List<TrustedKey> trustedKeys) throws TokenValidationException;
-
+  TokenValidationResult<?, ?> validateToken(
+    byte[] token,
+    List<TrustedKey> trustedKeys
+  ) throws TokenValidationException;
 }

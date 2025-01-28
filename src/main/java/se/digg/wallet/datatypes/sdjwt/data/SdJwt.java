@@ -6,11 +6,6 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import lombok.Data;
-import se.digg.wallet.datatypes.common.TokenValidationException;
-import se.digg.wallet.datatypes.sdjwt.JSONUtils;
-import se.swedenconnect.security.credential.PkiCredential;
-
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
@@ -18,6 +13,10 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import lombok.Data;
+import se.digg.wallet.datatypes.common.TokenValidationException;
+import se.digg.wallet.datatypes.sdjwt.JSONUtils;
+import se.swedenconnect.security.credential.PkiCredential;
 
 /**
  * This class holds the information elements of a Selective Disclosure JWT.
@@ -27,7 +26,17 @@ public class SdJwt {
 
   public static final String SD_JWT_TYPE = "dc+sd-jwt";
   public static final String KB_JWT_TYPE = "kb+jwt";
-  public static final List<String> STD_CLAIMS = List.of("iss", "nbf", "exp", "cnf", "vct", "status", "sub", "iat", "_sd_alg");
+  public static final List<String> STD_CLAIMS = List.of(
+    "iss",
+    "nbf",
+    "exp",
+    "cnf",
+    "vct",
+    "status",
+    "sub",
+    "iat",
+    "_sd_alg"
+  );
 
   private String issuer;
   private JWK confirmationKey;
@@ -47,10 +56,15 @@ public class SdJwt {
     StringBuilder sdJwtVP = new StringBuilder()
       .append(issuerSigned.serialize())
       .append("~");
-    List<Disclosure> allDisclosures = Optional.ofNullable(getClaimsWithDisclosure())
-      .orElse(ClaimsWithDisclosure.builder(sdAlgorithm).build()).getAllDisclosures();
+    List<Disclosure> allDisclosures = Optional.ofNullable(
+      getClaimsWithDisclosure()
+    )
+      .orElse(ClaimsWithDisclosure.builder(sdAlgorithm).build())
+      .getAllDisclosures();
     for (Disclosure disclosure : allDisclosures) {
-      String disclosureStr = JSONUtils.base64URLString(disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8));
+      String disclosureStr = JSONUtils.base64URLString(
+        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
+      );
       sdJwtVP.append(disclosureStr).append("~");
     }
     return sdJwtVP.toString();
@@ -67,8 +81,7 @@ public class SdJwt {
     if (disclosures == null) {
       // If null value, then include all attribute disclosures
       sdJwtVP.append(tokenWithDisclosures());
-    }
-    else {
+    } else {
       // If specific list, then only include these disclosures in the presentation
       sdJwtVP.append(issuerSigned.serialize()).append("~");
       for (String disclosureStr : disclosures) {
@@ -78,21 +91,32 @@ public class SdJwt {
     return sdJwtVP.toString();
   }
 
-  public String protectedPresentation(JWSSigner signer, JWSAlgorithm algorithm, String aud, String nonce,
-    List<String> disclosures) throws NoSuchAlgorithmException, JOSEException {
+  public String protectedPresentation(
+    JWSSigner signer,
+    JWSAlgorithm algorithm,
+    String aud,
+    String nonce,
+    List<String> disclosures
+  ) throws NoSuchAlgorithmException, JOSEException {
     String unprotectedPresentation = unprotectedPresentation(disclosures);
     final JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
       .issueTime(new Date())
       .audience(aud)
       .claim("nonce", nonce)
-      .claim("sd_hash", JSONUtils.b64UrlHash(unprotectedPresentation.getBytes(StandardCharsets.UTF_8), sdAlgorithm));
+      .claim(
+        "sd_hash",
+        JSONUtils.b64UrlHash(
+          unprotectedPresentation.getBytes(StandardCharsets.UTF_8),
+          sdAlgorithm
+        )
+      );
 
     final SignedJWT walletSignedJwt = new SignedJWT(
       new JWSHeader.Builder(algorithm)
         .type(new JOSEObjectType(KB_JWT_TYPE))
         .build(),
-      claimsBuilder
-        .build());
+      claimsBuilder.build()
+    );
     walletSignedJwt.sign(signer);
     setWalletSigned(walletSignedJwt);
     return unprotectedPresentation + walletSignedJwt.serialize();
@@ -111,7 +135,9 @@ public class SdJwt {
       sdJwt.setSdAlgorithm(sdAlg);
     }
 
-    public SdJwtBuilder claimsWithDisclosure(ClaimsWithDisclosure claimsWithDisclosure) {
+    public SdJwtBuilder claimsWithDisclosure(
+      ClaimsWithDisclosure claimsWithDisclosure
+    ) {
       sdJwt.setClaimsWithDisclosure(claimsWithDisclosure);
       return this;
     }
@@ -136,9 +162,14 @@ public class SdJwt {
       return this;
     }
 
-    public SdJwt build(PkiCredential issuerCredential, Duration validity, JWSAlgorithm algorithm, JWSSigner signer, String kid)
+    public SdJwt build(
+      PkiCredential issuerCredential,
+      Duration validity,
+      JWSAlgorithm algorithm,
+      JWSSigner signer,
+      String kid
+    )
       throws JOSEException, NoSuchAlgorithmException, CertificateEncodingException {
-
       final JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
         .issuer(sdJwt.getIssuer())
         .subject(sdJwt.getSubject())
@@ -146,29 +177,42 @@ public class SdJwt {
         .expirationTime(Date.from(Instant.now().plus(validity)))
         .claim("vct", sdJwt.getVcType())
         .claim("_sd_alg", sdJwt.getSdAlgorithm())
-        .claim("cnf", sdJwt.getConfirmationKey() != null
-          ? Collections.singletonMap("jwk", sdJwt.confirmationKey.toJSONObject())
-          : null)
+        .claim(
+          "cnf",
+          sdJwt.getConfirmationKey() != null
+            ? Collections.singletonMap(
+              "jwk",
+              sdJwt.confirmationKey.toJSONObject()
+            )
+            : null
+        )
         .claim("status", sdJwt.getStatus());
 
       ClaimsWithDisclosure cwd = sdJwt.getClaimsWithDisclosure();
-      cwd.getAllSupportingClaims().forEach((key, value) -> claimsBuilder.claim(key, value));
+      cwd
+        .getAllSupportingClaims()
+        .forEach((key, value) -> claimsBuilder.claim(key, value));
       // Create JWT
       final SignedJWT jwt = new SignedJWT(
         new JWSHeader.Builder(algorithm)
           .keyID(kid)
-          .x509CertChain(List.of(Base64.encode(issuerCredential.getCertificate().getEncoded())))
+          .x509CertChain(
+            List.of(
+              Base64.encode(issuerCredential.getCertificate().getEncoded())
+            )
+          )
           .type(new JOSEObjectType(SD_JWT_TYPE))
           .build(),
-        claimsBuilder
-          .build());
+        claimsBuilder.build()
+      );
       jwt.sign(signer);
       sdJwt.setIssuerSigned(jwt);
       return sdJwt;
     }
   }
 
-  public static SdJwt parse(String presentation) throws TokenValidationException {
+  public static SdJwt parse(String presentation)
+    throws TokenValidationException {
     if (presentation == null) {
       throw new TokenValidationException("No data");
     }
@@ -203,33 +247,32 @@ public class SdJwt {
       sdJwt.setConfirmationKey(confirmationKey);
       STD_CLAIMS.forEach(claimsMap::remove);
       if (claimsMap.containsKey("_sd")) {
-        sdJwt.setClaimsWithDisclosure(ClaimsWithDisclosure.parse(claimsMap, disclosureList, sdAlgo));
+        sdJwt.setClaimsWithDisclosure(
+          ClaimsWithDisclosure.parse(claimsMap, disclosureList, sdAlgo)
+        );
       }
 
       return sdJwt;
-
-    }
-    catch (ParseException | JsonProcessingException | NoSuchAlgorithmException e) {
+    } catch (
+      ParseException | JsonProcessingException | NoSuchAlgorithmException e
+    ) {
       throw new TokenValidationException("Unable to parse token data", e);
     }
-
   }
 
-  public static JWK parseConfirmationKey(Object cnf) throws TokenValidationException, ParseException {
+  public static JWK parseConfirmationKey(Object cnf)
+    throws TokenValidationException, ParseException {
     if (cnf == null) {
       return null;
     }
     if (cnf instanceof Map<?, ?> confirmationMap) {
       if (confirmationMap.get("jwk") instanceof Map<?, ?> jwkMap) {
         return JWK.parse((Map<String, Object>) jwkMap);
-      }
-      else {
+      } else {
         throw new TokenValidationException("No JWK key in cnf claim");
       }
-    }
-    else {
+    } else {
       throw new TokenValidationException("Invalid confirmation key format");
     }
   }
-
 }

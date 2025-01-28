@@ -6,7 +6,9 @@ import java.io.Serial;
  * Exception caugth while issuing a token
  */
 public class TokenIssuingException extends Exception {
-  @Serial private static final long serialVersionUID = -3234309120112902779L;
+
+  @Serial
+  private static final long serialVersionUID = -3234309120112902779L;
 
   /** {@inheritDoc} */
   public TokenIssuingException(String message) {
