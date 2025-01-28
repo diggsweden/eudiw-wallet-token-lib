@@ -7,6 +7,8 @@ name: mvn Test
 on: [workflow_call]
 
 
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -15,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: read
     strategy:
       matrix:
         java-version: ['21'] 
