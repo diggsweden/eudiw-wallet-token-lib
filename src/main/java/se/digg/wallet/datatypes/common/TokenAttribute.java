@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.common;
 
 import lombok.AllArgsConstructor;
@@ -5,9 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Description
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

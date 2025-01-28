@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import java.time.Duration;
@@ -7,9 +11,6 @@ import java.time.ZoneId;
 import java.util.List;
 import se.digg.wallet.datatypes.common.TokenAttribute;
 
-/**
- * Description
- */
 public class TestData {
 
   public static final String pidNameSpace = "eu.europa.ec.eudi.pid.1";

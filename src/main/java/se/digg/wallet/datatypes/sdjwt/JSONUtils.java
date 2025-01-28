@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -24,9 +28,6 @@ import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveSpec;
 import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 
-/**
- * Description
- */
 public class JSONUtils {
 
   public static final ObjectMapper JSON_MAPPER = new ObjectMapper()

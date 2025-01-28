@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,9 +30,6 @@ import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.idsec.cose.*;
 
-/**
- * Description
- */
 @Slf4j
 class IssuerSignedTest {
 

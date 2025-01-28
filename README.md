@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 # EUDIW Wallet Token Library
 
 [![License: EUPL 1.2](https://img.shields.io/badge/License-European%20Union%20Public%20Licence%201.2-library?style=for-the-badge&&color=lightblue)](LICENSE)

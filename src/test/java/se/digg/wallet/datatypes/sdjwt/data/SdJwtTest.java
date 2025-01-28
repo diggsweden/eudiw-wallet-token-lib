@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.data;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,9 +31,6 @@ import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidator;
 import se.swedenconnect.security.credential.PkiCredential;
 
-/**
- * Description
- */
 @Slf4j
 class SdJwtTest {
 

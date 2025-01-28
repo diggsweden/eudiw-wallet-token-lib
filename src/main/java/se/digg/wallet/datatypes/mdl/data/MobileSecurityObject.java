@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,9 +30,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import se.idsec.cose.*;
 
-/**
- * Description
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

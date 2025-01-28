@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 # Run a code quality check
 
 # bash strict mode - undefined vars, propagate pipefails
@@ -56,6 +60,13 @@ lint() {
   print_header 'LINTER HEALTH (MEGALINTER)'
   podman run --rm --volume "$(pwd)":/repo -e MEGALINTER_CONFIG='development/megalinter.yml' -e DEFAULT_WORKSPACE=${MEGALINTER_DEF_WORKSPACE} -e LOG_LEVEL=INFO ghcr.io/oxsecurity/megalinter-java:v8.3.0
   store_exit_code "$?" "Lint" "${MISSING} ${RED}Lint check failed, see logs (std out and/or ./megalinter-reports) and fix problems.${NC}\n" "${GREEN}${CHECKMARK}${CHECKMARK} Lint check passed${NC}\n"
+  printf '\n\n'
+}
+
+license() {
+  print_header 'LICENSE HEALTH (REUSE)'
+  podman run --rm --volume "$(pwd)":/data docker.io/fsfe/reuse:4.0.3-debian lint
+  store_exit_code "$?" "License" "${MISSING} ${RED}License check failed, see logs and fix problems.${NC}\n" "${GREEN}${CHECKMARK}${CHECKMARK} License check passed${NC}\n"
   printf '\n\n'
 }
 
@@ -120,5 +131,6 @@ is_command_available 'sed' ''
 lint
 commit
 format
+license
 
 check_exit_codes

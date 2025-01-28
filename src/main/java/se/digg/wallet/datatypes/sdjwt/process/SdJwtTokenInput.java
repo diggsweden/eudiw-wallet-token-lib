@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.process;
 
 import com.nimbusds.jose.JWSAlgorithm;
@@ -12,9 +16,6 @@ import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
 import se.swedenconnect.security.credential.PkiCredential;
 
-/**
- * Description
- */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SdJwtTokenInput extends TokenInput {

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.process;
 
 import com.nimbusds.jose.Payload;
@@ -26,9 +30,6 @@ import se.idsec.cose.AlgorithmID;
 import se.idsec.cose.COSEKey;
 import se.swedenconnect.security.credential.PkiCredential;
 
-/**
- * Description
- */
 @Slf4j
 class SdJwtTokenIssuerTest {
 

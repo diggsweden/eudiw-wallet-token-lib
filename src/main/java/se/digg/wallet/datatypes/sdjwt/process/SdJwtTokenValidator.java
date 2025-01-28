@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.process;
 
 import com.nimbusds.jose.JOSEException;
@@ -28,9 +32,6 @@ import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
 import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 
-/**
- * Description
- */
 public class SdJwtTokenValidator implements TokenValidator {
 
   private final Duration timeSkew;

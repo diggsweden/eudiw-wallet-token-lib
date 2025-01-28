@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,9 +19,6 @@ import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 import se.swedenconnect.security.credential.PkiCredential;
 
-/**
- * Description
- */
 public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
 
   @Override

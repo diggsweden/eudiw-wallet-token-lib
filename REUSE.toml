@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2024 Digg
+#
+# SPDX-License-Identifier: CC0-1.0
+
+version = 1
+
+[[annotations]]
+path = [
+  ".github/pull_request_template.md",
+  "docs/dco.txt",
+  "renovate.json",
+  "src/test/resources/simplelogger.properties",
+  "CHANGELOG.md",
+  "README.md",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "diggsweden. <https://github.com/diggsweden>"
+SPDX-License-Identifier = "CC0-1.0"

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import java.io.IOException;
@@ -10,9 +14,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import se.swedenconnect.security.credential.KeyStoreCredential;
 import se.swedenconnect.security.credential.PkiCredential;
 
-/**
- * Description
- */
 public class TestCredentials {
 
   public static final PkiCredential issuerCredential;
