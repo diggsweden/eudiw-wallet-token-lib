@@ -13,7 +13,6 @@ permissions:
 jobs:
   test:
     name: Test
-    environment: mainenv
     runs-on: ubuntu-latest
     permissions:
       contents: read

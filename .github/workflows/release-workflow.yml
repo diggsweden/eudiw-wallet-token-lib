@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: Release Workflow
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*" # Forces at least vX.Y and then allows anything after
+
+permissions:
+  contents: read
+
+jobs:
+  version-bump:
+    secrets: inherit
+    permissions:
+      contents: write
+    uses: diggsweden/.github/.github/workflows/version-bump-changelog.yml@main
+
+  release-lib:
+    needs: [version-bump]
+    permissions:
+      contents: write
+      id-token: write 
+      packages: write 
+    secrets: inherit
+    uses: ./.github/workflows/release-lib.yml
