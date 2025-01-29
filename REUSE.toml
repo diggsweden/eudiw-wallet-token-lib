@@ -11,6 +11,7 @@ path = [
   "renovate.json",
   "src/test/resources/simplelogger.properties",
   "CHANGELOG.md",
+  "jreleaser.yml",
   "README.md",
 ]
 precedence = "aggregate"
