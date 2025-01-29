@@ -17,3 +17,5 @@ SPDX-License-Identifier: EUPL-1.2
 A PoC Library to support different token formats for EUDI wallet such as SD-JWT and mDL
 
 TO-DO: Add documentation
+
+[Development](./docs/DEVELOPMENT.md)
