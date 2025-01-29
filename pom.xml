@@ -57,7 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
     <mockito.version>5.15.2</mockito.version>
     <upokeeper.version>5.0.0-alpha2</upokeeper.version>
     <eddsa.version>0.3.0</eddsa.version>
-    <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+    <maven-deploy-plugin.version>3.1.3</maven-deploy-plugin.version>
     <jreleaser-maven-plugin.version>1.16.0</jreleaser-maven-plugin.version>
 
   </properties>
