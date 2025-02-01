@@ -149,7 +149,7 @@ public class IssuerSigned {
     }
 
     public IssuerSigned build()
-      throws CoseException, JsonProcessingException, CertificateEncodingException {
+      throws CoseException, IOException, CertificateEncodingException {
       Map<String, List<IssuerSignedItem>> nameSpaces =
         this.issuerSigned.getNameSpaces();
       if (nameSpaces == null) {

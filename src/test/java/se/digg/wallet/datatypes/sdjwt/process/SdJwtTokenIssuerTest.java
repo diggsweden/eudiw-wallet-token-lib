@@ -137,7 +137,7 @@ class SdJwtTokenIssuerTest {
     );
 
     SdJwtTokenValidator tokenValidator = new SdJwtTokenValidator();
-    TokenValidationResult<SdJwt, Payload> validationResult =
+    TokenValidationResult validationResult =
       tokenValidator.validateToken(
         protectededPresentation.getBytes(StandardCharsets.UTF_8),
         null

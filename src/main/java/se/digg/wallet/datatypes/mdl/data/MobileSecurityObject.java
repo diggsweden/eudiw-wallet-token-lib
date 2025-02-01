@@ -87,7 +87,7 @@ public class MobileSecurityObject {
     COSEKey key,
     AlgorithmID algorithmID
   )
-    throws JsonProcessingException, CoseException, CertificateEncodingException {
+    throws IOException, CoseException, CertificateEncodingException {
     return sign(chain, key, algorithmID, null, false);
   }
 
@@ -99,40 +99,9 @@ public class MobileSecurityObject {
     String kid,
     boolean protectedKid
   )
-    throws JsonProcessingException, CoseException, CertificateEncodingException {
+    throws IOException, CoseException, CertificateEncodingException {
     byte[] toBeSigned = CBORUtils.CBOR_MAPPER.writeValueAsBytes(this);
-    Sign1COSEObject msg = new Sign1COSEObject(false);
-    msg.SetContent(toBeSigned);
-    msg.addAttribute(
-      HeaderKeys.Algorithm,
-      algorithmID.AsCBOR(),
-      Attribute.PROTECTED
-    );
-    if (kid != null) {
-      msg.addAttribute(
-        HeaderKeys.KID,
-        CBORObject.FromString(kid),
-        protectedKid ? Attribute.PROTECTED : Attribute.UNPROTECTED
-      );
-    }
-    if (chain != null && !chain.isEmpty()) {
-      CBORObject certChainObject;
-      if (chain.size() == 1) {
-        certChainObject = CBORObject.FromByteArray(chain.get(0).getEncoded());
-      } else {
-        certChainObject = CBORObject.NewArray();
-        for (X509Certificate cert : chain) {
-          certChainObject.Add(CBORObject.FromByteArray(cert.getEncoded()));
-        }
-      }
-      msg.addAttribute(
-        HeaderKeys.x5chain,
-        certChainObject,
-        Attribute.UNPROTECTED
-      );
-    }
-
-    msg.sign(key);
+    Sign1COSEObject msg = CBORUtils.sign(toBeSigned, key, algorithmID, kid, chain, protectedKid);
     return msg.EncodeToCBORObject();
   }
 

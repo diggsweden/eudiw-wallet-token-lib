@@ -11,15 +11,23 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.cbor.CBORType;
 import com.upokecenter.numbers.EInteger;
+
 import java.io.IOException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
+import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
+import se.idsec.cose.*;
 
 @Slf4j
 public class CBORUtils {
@@ -132,4 +140,41 @@ public class CBORUtils {
       .writerWithDefaultPrettyPrinter()
       .writeValueAsString(objectMapper.readValue(jsonString, Object.class));
   }
+
+  public static Sign1COSEObject sign(byte[] toBeSigned, COSEKey key, AlgorithmID algorithmID, String kid, List<X509Certificate> chain, boolean protectedKid) throws IOException, CoseException, CertificateEncodingException {
+    Sign1COSEObject coseSignature = new Sign1COSEObject(false);
+    coseSignature.SetContent(toBeSigned);
+    coseSignature.addAttribute(
+      HeaderKeys.Algorithm,
+      algorithmID.AsCBOR(),
+      Attribute.PROTECTED
+    );
+    if (kid != null) {
+      coseSignature.addAttribute(
+        HeaderKeys.KID,
+        CBORObject.FromString(kid),
+        protectedKid ? Attribute.PROTECTED : Attribute.UNPROTECTED
+      );
+    }
+    if (chain != null && !chain.isEmpty()) {
+      CBORObject certChainObject;
+      if (chain.size() == 1) {
+        certChainObject = CBORObject.FromByteArray(chain.get(0).getEncoded());
+      } else {
+        certChainObject = CBORObject.NewArray();
+        for (X509Certificate cert : chain) {
+          certChainObject.Add(CBORObject.FromByteArray(cert.getEncoded()));
+        }
+      }
+      coseSignature.addAttribute(
+        HeaderKeys.x5chain,
+        certChainObject,
+        Attribute.UNPROTECTED
+      );
+    }
+    coseSignature.sign(key);
+    return coseSignature;
+  }
+
+
 }

@@ -19,7 +19,7 @@ public interface TokenValidator {
    * @param trustedKeys optional list of trusted keys used for validation.
    * @return An instance of TokenValidationResult containing information about the validation result.
    */
-  TokenValidationResult<?, ?> validateToken(
+  TokenValidationResult validateToken(
     byte[] token,
     List<TrustedKey> trustedKeys
   ) throws TokenValidationException;

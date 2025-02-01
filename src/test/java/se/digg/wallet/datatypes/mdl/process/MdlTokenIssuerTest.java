@@ -4,21 +4,17 @@
 
 package se.digg.wallet.datatypes.mdl.process;
 
-import com.nimbusds.jose.JWSAlgorithm;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import se.digg.wallet.datatypes.common.TokenInput;
-import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.digg.wallet.datatypes.common.TokenValidationResult;
-import se.digg.wallet.datatypes.common.TrustedKey;
-import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
-import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
-import se.digg.wallet.datatypes.mdl.data.TestCredentials;
-import se.digg.wallet.datatypes.mdl.data.TestData;
+import se.digg.wallet.datatypes.common.*;
+import se.digg.wallet.datatypes.mdl.data.*;
 import se.idsec.cose.AlgorithmID;
 import se.idsec.cose.COSEKey;
 import se.swedenconnect.security.credential.PkiCredential;
@@ -28,28 +24,51 @@ class MdlTokenIssuerTest {
 
   static PkiCredential issuerCredential;
   static String pidNameSpace;
+  static Map<String, List<String>> selectedDisclosures;
 
   @BeforeAll
   static void setUp() {
     issuerCredential = TestCredentials.issuerCredential;
     pidNameSpace = "eu.europa.ec.eudi.pid.1";
+    selectedDisclosures = Collections.singletonMap("eu.europa.ec.eudi.pid.1", List.of(
+      "issuance_date",
+      "issuing_country",
+      "given_name",
+      "family_name",
+      "issuing_authority"
+    ));
   }
 
   @Test
   void issueCredentialTest() throws Exception {
+    COSEKey deviceKey = COSEKey.generateKey(AlgorithmID.ECDSA_256);
+
     TokenInput tokenInput = TokenInput.builder()
       .issuerCredential(issuerCredential)
       .algorithm(TokenSigningAlgorithm.ECDSA_256)
       .expirationDuration(Duration.ofDays(1))
-      .walletPublicKey(COSEKey.generateKey(AlgorithmID.ECDSA_256).AsPublicKey())
+      .walletPublicKey(deviceKey.AsPublicKey())
       .attributes(TestData.defaultPidUserAttributes)
       .build();
     MdlTokenIssuer tokenIssuer = new MdlTokenIssuer(true);
     byte[] token = tokenIssuer.issueToken(tokenInput);
     log.info("Issued mdL token: \n{}", Hex.toHexString(token));
 
+    PresentationInput<?> presentationInput = MdlPresentationInput.builder()
+      .token(token)
+      .clientId("https://example.com/client")
+      .responseUri("https://example.com/response")
+      .nonce("abcdefgh1234567890")
+      .mdocGeneratedNonce("MTIzNDU2Nzg5MGFiY2RlZmdo")
+      .algorithm(TokenSigningAlgorithm.ECDSA_256)
+      .disclosures(selectedDisclosures)
+      .build();
+    TokenPresenter<?> tokenPresenter = new MdlTokenPresenter();
+    byte[] presentedToken = tokenPresenter.presentToken(presentationInput, deviceKey.AsPrivateKey());
+    log.info("Presented mdL token: \n{}", Hex.toHexString(presentedToken));
+
     MdlIssuerSignedValidator validator = new MdlIssuerSignedValidator();
-    TokenValidationResult<IssuerSigned, MobileSecurityObject> validationResult =
+    TokenValidationResult validationResult =
       validator.validateToken(
         token,
         List.of(

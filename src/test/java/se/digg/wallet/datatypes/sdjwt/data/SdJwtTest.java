@@ -28,6 +28,7 @@ import se.digg.wallet.datatypes.common.TokenAttribute;
 import se.digg.wallet.datatypes.common.TokenValidationResult;
 import se.digg.wallet.datatypes.mdl.data.TestCredentials;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
+import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidationResult;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidator;
 import se.swedenconnect.security.credential.PkiCredential;
 
@@ -207,13 +208,13 @@ class SdJwtTest {
 
     // Validate and reconstruct disclosed credentials;
     SdJwtTokenValidator validator = new SdJwtTokenValidator();
-    TokenValidationResult<SdJwt, Payload> validationResult =
+    SdJwtTokenValidationResult validationResult =
       validator.validateToken(sdJwtVP.getBytes(StandardCharsets.UTF_8), null);
 
     log.info(
       "Disclosed payload:\n{}",
       JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
-        .writeValueAsString(validationResult.getTokenPayload().toJSONObject())
+        .writeValueAsString(validationResult.getDisclosedTokenPayload().toJSONObject())
     );
   }
 }

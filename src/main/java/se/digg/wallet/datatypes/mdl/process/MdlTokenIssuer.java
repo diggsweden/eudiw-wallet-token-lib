@@ -5,6 +5,8 @@
 package se.digg.wallet.datatypes.mdl.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -108,6 +110,8 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         "Illegal certificate information - Failed to issue token",
         e
       );
+    } catch (IOException e) {
+      throw new TokenIssuingException("Error issuing token",e);
     }
   }
 
