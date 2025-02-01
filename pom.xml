@@ -12,7 +12,7 @@ SPDX-License-Identifier: EUPL-1.2
 
   <groupId>se.digg.wallet</groupId>
   <artifactId>eudiw-wallet-token-lib</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <name>EUDI Wallet -- Token Library</name>
   <description>Library for handling data types in the EUDI Wallet PoC project.</description>
   <url>https://github.com/diggsweden/eudiw-wallet-token-lib</url>
