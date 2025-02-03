@@ -22,7 +22,7 @@ release:
     branch: main
     changelog:
       enabled: true
-      external: CHANGELOG.md
+      external: ReleasenotesTmp
 
 checksum:
   algorithms:

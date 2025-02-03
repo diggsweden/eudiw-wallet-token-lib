@@ -32,6 +32,15 @@ jobs:
           java-version: 21
           distribution: 'temurin'
           cache: 'maven'
+     
+          
+      - name: Generate Releasenotes
+        uses: orhun/git-cliff-action@4a4a951bc43fafe41cd2348d181853f52356bee7 # v4
+        with:
+          args: --latest
+        env:
+          OUTPUT: ReleasenotesTmp
+          GITHUB_REPO: ${{ github.repository }}
       
       - name: Release with JReleaser
         env:
