@@ -28,6 +28,11 @@ public class Disclosure {
 
   public static final SecureRandom RNG = new SecureRandom();
 
+  private String salt;
+  private String name;
+  private Object value;
+  private String disclosure;
+
   public Disclosure(TokenAttribute tokenAttribute)
     throws JsonProcessingException {
     this.salt = Base64.getUrlEncoder()
@@ -76,8 +81,4 @@ public class Disclosure {
     }
   }
 
-  private String salt;
-  private String name;
-  private Object value;
-  private String disclosure;
 }

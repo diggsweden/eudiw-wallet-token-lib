@@ -1,15 +1,23 @@
 package se.digg.wallet.datatypes.mdl.process;
 
-import se.digg.wallet.datatypes.common.TokenValidationException;
-import se.digg.wallet.datatypes.common.TokenValidationResult;
-import se.digg.wallet.datatypes.common.TokenValidator;
-import se.digg.wallet.datatypes.common.TrustedKey;
+import se.digg.wallet.datatypes.common.*;
 
 import java.util.List;
 
-public class MdlPresentationValidator implements TokenValidator {
+public class MdlPresentationValidator implements PresentationValidator {
+
   @Override
-  public TokenValidationResult validateToken(byte[] token, List<TrustedKey> trustedKeys) throws TokenValidationException {
+  public TokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput,
+       List<TrustedKey> trustedKeys) throws TokenValidationException {
+
+
+
+/*
+    MdlIssuerSignedValidator issuerSignedValidator = new MdlIssuerSignedValidator();
+    MdlIssuerSignedValidationResult issuerSignedValidationResult = issuerSignedValidator.validateToken(token, trustedKeys);
+    issuerSignedValidationResult.getMso().getDeviceKeyInfo()
+*/
+
     return null;
   }
 }
