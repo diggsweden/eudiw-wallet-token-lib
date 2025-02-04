@@ -124,6 +124,8 @@ public class MdlIssuerSignedValidator implements TokenValidator {
       // Construct the validation result
       MdlIssuerSignedValidationResult validationResult =
         new MdlIssuerSignedValidationResult();
+      validationResult.setIssueTime(mso.getValidityInfo().getValidFrom());
+      validationResult.setExpirationTime(mso.getValidityInfo().getValidUntil());
       validationResult.setValidationChain(chain);
       validationResult.setValidationCertificate(
         chain.isEmpty() ? null : chain.getFirst()
@@ -138,7 +140,7 @@ public class MdlIssuerSignedValidator implements TokenValidator {
         "Failed to parse Issuer Signed token",
         e
       );
-    } catch (TokenParsingexception e) {
+    } catch (TokenParsingException e) {
       throw new TokenValidationException(
         "Failed to validate Issuer Signed token",
         e

@@ -88,5 +88,15 @@ class MdlTokenIssuerTest {
     log.info("Parsed presentation token CBOR:\n{}", Hex.toHexString(parseResponseCbor));
     Assertions.assertArrayEquals(presentedToken, parseResponseCbor);
     log.info("Presentation token parsed");
+
+    MdlPresentationValidator presentationValidator = new MdlPresentationValidator();
+    TokenValidationResult tokenValidationResult = presentationValidator.validatePresentation(
+      presentedToken,
+      new MdlPresentationValidationInput((MdlPresentationInput) presentationInput),
+      null
+    );
+
+    int sdf = 0;
+
   }
 }

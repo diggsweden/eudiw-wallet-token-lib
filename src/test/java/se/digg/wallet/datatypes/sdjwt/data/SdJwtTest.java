@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.TokenAttribute;
+import se.digg.wallet.datatypes.common.TokenAttributeType;
 import se.digg.wallet.datatypes.common.TokenValidationResult;
 import se.digg.wallet.datatypes.mdl.data.TestCredentials;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
@@ -63,18 +64,22 @@ class SdJwtTest {
         ClaimsWithDisclosure.builder(sdAlgorithm)
           .disclosure(
             new Disclosure(
-              TokenAttribute.builder().name("given_name").value("John").build()
-            )
-          )
-          .disclosure(
-            new Disclosure(
-              TokenAttribute.builder().name("family_name").value("Doe").build()
+              TokenAttribute.builder()
+                .type(new TokenAttributeType("given_name"))
+                .value("John").build()
             )
           )
           .disclosure(
             new Disclosure(
               TokenAttribute.builder()
-                .name("email")
+                .type(new TokenAttributeType("family_name"))
+                .value("Doe").build()
+            )
+          )
+          .disclosure(
+            new Disclosure(
+              TokenAttribute.builder()
+                .type(new TokenAttributeType("email"))
                 .value("johndoe@example.com")
                 .build()
             )
@@ -82,7 +87,7 @@ class SdJwtTest {
           .disclosure(
             new Disclosure(
               TokenAttribute.builder()
-                .name("phone_number")
+                .type(new TokenAttributeType("phone_number"))
                 .value("+1-202-555-0101")
                 .build()
             )
@@ -90,7 +95,7 @@ class SdJwtTest {
           .disclosure(
             new Disclosure(
               TokenAttribute.builder()
-                .name("birthdate")
+                .type(new TokenAttributeType("birthdate"))
                 .value("1940-01-01")
                 .build()
             )
@@ -111,7 +116,7 @@ class SdJwtTest {
               .disclosure(
                 new Disclosure(
                   TokenAttribute.builder()
-                    .name("street_address")
+                    .type(new TokenAttributeType("street_address"))
                     .value("123 Main St")
                     .build()
                 )
@@ -119,7 +124,7 @@ class SdJwtTest {
               .disclosure(
                 new Disclosure(
                   TokenAttribute.builder()
-                    .name("locality")
+                    .type(new TokenAttributeType("locality"))
                     .value("Anytown")
                     .build()
                 )
@@ -127,14 +132,16 @@ class SdJwtTest {
               .disclosure(
                 new Disclosure(
                   TokenAttribute.builder()
-                    .name("region")
+                    .type(new TokenAttributeType("region"))
                     .value("Anystate")
                     .build()
                 )
               )
               .disclosure(
                 new Disclosure(
-                  TokenAttribute.builder().name("country").value("US").build()
+                  TokenAttribute.builder()
+                    .type(new TokenAttributeType("country"))
+                    .value("US").build()
                 )
               )
               .build()

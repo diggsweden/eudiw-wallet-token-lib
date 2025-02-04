@@ -47,7 +47,7 @@ public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
         ).orElse(new ArrayList<>());
         for (TokenAttribute openAttribute : openAttributes) {
           cwdBuilder.openClaim(
-            openAttribute.getName(),
+            openAttribute.getType().getAttributeName(),
             openAttribute.getValue()
           );
         }

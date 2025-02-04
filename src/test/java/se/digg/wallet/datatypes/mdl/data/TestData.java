@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import se.digg.wallet.datatypes.common.TokenAttribute;
+import se.digg.wallet.datatypes.common.TokenAttributeNameSpace;
+import se.digg.wallet.datatypes.common.TokenAttributeType;
 
 public class TestData {
 
@@ -17,33 +19,39 @@ public class TestData {
   public static final String mdlNameSpace = "org.iso.18013.5.1";
   public static final List<TokenAttribute> defaultPidUserAttributes = List.of(
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("issuance_date")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "issuance_date"))
       .value(LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()))
       .build(),
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("issuing_country")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "issuing_country"))
       .value("SE")
       .build(),
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("given_name")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "given_name"))
       .value("Johnny")
       .build(),
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("age_over_18")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "age_over_18"))
       .value(true)
       .build(),
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("birth_date")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "birth_date"))
       .value(LocalDate.of(1986, 02, 21))
       .build(),
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("expiry_date")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "expiry_date"))
       .value(
         LocalDate.ofInstant(
           Instant.now().plus(Duration.ofDays(1)),
@@ -52,13 +60,16 @@ public class TestData {
       )
       .build(),
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("family_name")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "family_name"
+      ))
       .value("Thuland")
       .build(),
     TokenAttribute.builder()
-      .nameSpace(pidNameSpace)
-      .name("issuing_authority")
+      .type(new TokenAttributeType(
+        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        "issuing_authority"))
       .value("Test PID issuer")
       .build()
   );

@@ -2,7 +2,6 @@ package se.digg.wallet.datatypes.mdl.data;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -11,8 +10,7 @@ import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.numbers.EInteger;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import se.digg.wallet.datatypes.common.TokenParsingexception;
-import se.digg.wallet.datatypes.common.TokenPresentationException;
+import se.digg.wallet.datatypes.common.TokenParsingException;
 
 import java.io.IOException;
 
@@ -90,7 +88,7 @@ public class DeviceResponse {
   }
 
   public static DeviceResponse deserialize(byte[] cborEncoded)
-    throws TokenParsingexception {
+    throws TokenParsingException {
 
     try {
       CBORObject deviceResponseObject = CBORObject.DecodeFromBytes(cborEncoded);
@@ -117,7 +115,7 @@ public class DeviceResponse {
         deviceSignature,
         deviceMac);
     } catch (Exception e) {
-      throw new TokenParsingexception("Failed to parse Device Response", e);
+      throw new TokenParsingException("Failed to parse Device Response", e);
     }
   }
 }

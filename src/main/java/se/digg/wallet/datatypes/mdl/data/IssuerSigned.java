@@ -21,7 +21,7 @@ import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import se.digg.wallet.datatypes.common.TokenParsingexception;
+import se.digg.wallet.datatypes.common.TokenParsingException;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.idsec.cose.COSEKey;
 import se.idsec.cose.CoseException;
@@ -251,7 +251,7 @@ public class IssuerSigned {
   }
 
   public static IssuerSigned deserialize(byte[] cborEncoded)
-    throws TokenParsingexception {
+    throws TokenParsingException {
     // Parse CBOR
     try {
       CBORObject cbor = CBORObject.DecodeFromBytes(cborEncoded);
@@ -281,7 +281,7 @@ public class IssuerSigned {
       issuerSigned.setIssuerAuth(issuerAuth);
       return issuerSigned;
     } catch (Exception e) {
-      throw new TokenParsingexception("Failed to parse IssuerSigned", e);
+      throw new TokenParsingException("Failed to parse IssuerSigned", e);
     }
   }
 }

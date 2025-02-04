@@ -96,6 +96,8 @@ public class SdJwtTokenValidator implements TokenValidator {
       Payload reconstructedPayload = restorePayload(parsedToken);
 
       SdJwtTokenValidationResult result = new SdJwtTokenValidationResult();
+      result.setIssueTime(issuerSignedClaims.getIssueTime().toInstant());
+      result.setExpirationTime(issuerSignedClaims.getExpirationTime().toInstant());
       result.setVcToken(parsedToken);
       result.setDisclosedTokenPayload(reconstructedPayload);
       result.setKeyBindingProtection(hasKeyBindingProof);
@@ -105,6 +107,10 @@ public class SdJwtTokenValidator implements TokenValidator {
         chain.isEmpty() ? null : chain.getFirst()
       );
       result.setWalletPublicKey(walletPublic);
+      if (hasKeyBindingProof) {
+        result.setPresentationRequestNonce((String) parsedToken.getWalletSigned().getJWTClaimsSet().getClaim("nonce"));
+      }
+
       return result;
     } catch (
       CertificateException

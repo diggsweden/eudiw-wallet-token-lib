@@ -8,17 +8,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
 import com.upokecenter.cbor.CBORObject;
 import java.io.IOException;
-import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import se.digg.wallet.datatypes.common.TokenParsingexception;
+import se.digg.wallet.datatypes.common.TokenParsingException;
 import se.idsec.cose.*;
 
 @Data
@@ -245,7 +242,7 @@ public class MobileSecurityObject {
   }
 
   public static MobileSecurityObject deserialize(byte[] cborBytes)
-    throws TokenParsingexception {
+    throws TokenParsingException {
     // Initialize CBORObject from bytes
     try {
       CBORObject cbor = CBORObject.DecodeFromBytes(cborBytes);
@@ -372,7 +369,7 @@ public class MobileSecurityObject {
 
       return mobileSecurityObject;
     } catch (Exception e) {
-      throw new TokenParsingexception("Error parsing MobileSecurityObject from CBOR", e);
+      throw new TokenParsingException("Error parsing MobileSecurityObject from CBOR", e);
     }
   }
 }

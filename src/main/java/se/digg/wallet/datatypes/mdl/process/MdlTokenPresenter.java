@@ -44,7 +44,7 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
         DeviceResponse deviceResponse = new DeviceResponse(docType, issuerSigned, deviceSignature.EncodeToBytes());
         return CBORUtils.CBOR_MAPPER.writeValueAsBytes(deviceResponse);
 
-      } catch (IOException | TokenParsingexception | TokenValidationException | CoseException | CertificateEncodingException e) {
+      } catch (IOException | TokenParsingException | TokenValidationException | CoseException | CertificateEncodingException e) {
         throw new TokenPresentationException("Error presenting token", e);
       }
     } else {

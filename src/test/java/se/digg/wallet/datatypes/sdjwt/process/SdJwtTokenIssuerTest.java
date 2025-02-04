@@ -16,10 +16,7 @@ import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import se.digg.wallet.datatypes.common.TokenAttribute;
-import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
-import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.digg.wallet.datatypes.common.TokenValidationResult;
+import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.TestCredentials;
 import se.digg.wallet.datatypes.mdl.data.TestData;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
@@ -57,12 +54,16 @@ class SdJwtTokenIssuerTest {
           .openClaim("open_claim", "claim-value")
           .disclosure(
             new Disclosure(
-              TokenAttribute.builder().name("given_name").value("John").build()
+              TokenAttribute.builder()
+                .type(new TokenAttributeType("given_name"))
+                .value("John").build()
             )
           )
           .disclosure(
             new Disclosure(
-              TokenAttribute.builder().name("Surname").value("Doe").build()
+              TokenAttribute.builder()
+                .type(new TokenAttributeType("Surname"))
+                .value("Doe").build()
             )
           )
           .build()

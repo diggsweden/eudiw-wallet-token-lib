@@ -145,11 +145,11 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
       IssuerSignedItem issuerSignedItem = IssuerSignedItem.builder()
         .digestID(i)
         .random(new BigInteger(128, RNG).toByteArray())
-        .elementIdentifier(attribute.getName())
+        .elementIdentifier(attribute.getType().getAttributeName())
         .elementValue(attribute.getValue())
         .build();
       nameSpaces
-        .computeIfAbsent(attribute.getNameSpace(), k -> new ArrayList<>())
+        .computeIfAbsent(attribute.getType().getTokenAttributeNameSpace().getId(), k -> new ArrayList<>())
         .add(issuerSignedItem);
     }
     return nameSpaces;
