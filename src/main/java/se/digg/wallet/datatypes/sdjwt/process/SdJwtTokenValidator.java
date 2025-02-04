@@ -109,6 +109,7 @@ public class SdJwtTokenValidator implements TokenValidator {
       result.setWalletPublicKey(walletPublic);
       if (hasKeyBindingProof) {
         result.setPresentationRequestNonce((String) parsedToken.getWalletSigned().getJWTClaimsSet().getClaim("nonce"));
+        result.setAudience(parsedToken.getWalletSigned().getJWTClaimsSet().getAudience());
       }
 
       return result;

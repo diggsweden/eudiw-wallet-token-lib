@@ -10,6 +10,7 @@ import se.idsec.cose.COSEObjectTag;
 import se.idsec.cose.CoseException;
 import se.idsec.cose.Sign1COSEObject;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -36,6 +37,16 @@ import java.util.List;
  */
 @Slf4j
 public class MdlPresentationValidator implements PresentationValidator {
+
+  private final Duration timeSkew;
+
+  public MdlPresentationValidator() {
+    this(Duration.ofSeconds(30));
+  }
+
+  public MdlPresentationValidator(Duration timeSkew) {
+    this.timeSkew = timeSkew;
+  }
 
   /**
    * Validates an mDL (Mobile Driver's License) presentation against a specified validation input
@@ -71,7 +82,7 @@ public class MdlPresentationValidator implements PresentationValidator {
       // Parse and validate the issuer signed data
       IssuerSigned issuerSigned = deviceResponse.getIssuerSigned();
       byte[] issuerSignedBytes = CBORUtils.CBOR_MAPPER.writeValueAsBytes(issuerSigned);
-      MdlIssuerSignedValidator issuerSignedValidator = new MdlIssuerSignedValidator();
+      MdlIssuerSignedValidator issuerSignedValidator = new MdlIssuerSignedValidator(timeSkew);
       MdlIssuerSignedValidationResult issuerSignedValidationResult = issuerSignedValidator.validateToken(issuerSignedBytes, trustedKeys);
       // For now only accept device signatures
       if (deviceResponse.getDeviceMac() != null) {

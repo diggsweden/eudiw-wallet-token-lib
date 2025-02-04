@@ -9,6 +9,8 @@ import lombok.*;
 import se.digg.wallet.datatypes.common.TokenValidationResult;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 
+import java.util.List;
+
 /**
  * Extended validation results for SdJwt validation
  */
@@ -19,4 +21,5 @@ public class SdJwtTokenValidationResult extends TokenValidationResult {
   private SdJwt vcToken;
   private Payload disclosedTokenPayload;
   private boolean keyBindingProtection;
+  private List<String> audience;
 }
