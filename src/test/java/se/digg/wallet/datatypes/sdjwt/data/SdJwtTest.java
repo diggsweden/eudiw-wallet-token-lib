@@ -47,7 +47,7 @@ class SdJwtTest {
   @Test
   void simpleSdJwtTest() throws Exception {
     ECKey walletKey = new ECKeyGenerator(Curve.P_256).generate();
-    PkiCredential issuerCredential = TestCredentials.issuerCredential;
+    PkiCredential issuerCredential = TestCredentials.p256_issuerCredential;
     JWSSigner signer = new ECDSASigner(
       (ECPrivateKey) issuerCredential.getPrivateKey()
     );

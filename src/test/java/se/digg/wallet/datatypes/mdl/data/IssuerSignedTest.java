@@ -278,7 +278,7 @@ class IssuerSignedTest {
         )
       )
       .issuerAuthInput(
-        TestCredentials.issuerCredential,
+        TestCredentials.p256_issuerCredential,
         TokenSigningAlgorithm.ECDSA_256,
         COSEKey.generateKey(AlgorithmID.ECDSA_256).AsPublicKey(),
         Duration.ofDays(1),
@@ -316,7 +316,7 @@ class IssuerSignedTest {
     X509Certificate signingCert =
       (X509Certificate) certFactory.generateCertificate(in);
     Assertions.assertEquals(
-      TestCredentials.issuerCredential.getCertificate(),
+      TestCredentials.p256_issuerCredential.getCertificate(),
       signingCert
     );
     boolean valid = parsedSignatureObject.validate(

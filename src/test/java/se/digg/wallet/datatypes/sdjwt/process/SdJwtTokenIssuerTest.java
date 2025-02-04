@@ -4,7 +4,8 @@
 
 package se.digg.wallet.datatypes.sdjwt.process;
 
-import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jwt.SignedJWT;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -35,14 +36,101 @@ class SdJwtTokenIssuerTest {
   public static final Random RNG = new SecureRandom();
 
   static PkiCredential issuerCredential;
+  static ECKey walletKey;
+
 
   @BeforeAll
   static void setUp() {
-    issuerCredential = TestCredentials.issuerCredential;
+    issuerCredential = TestCredentials.p256_issuerCredential;
+    walletKey = TestCredentials.p256_walletKey;
   }
 
   @Test
-  void simpleIssueTest() throws Exception {
+  void basicTest() throws Exception {
+
+    SdJwtTokenInput tokenInput = SdJwtTokenInput.sdJwtINputBuilder()
+      .algorithm(TokenSigningAlgorithm.ECDSA_256)
+      .issuer("http://example.com/issuer")
+      .issuerCredential(issuerCredential)
+      .walletPublicKey(walletKey.toPublicKey())
+      .expirationDuration(Duration.ofDays(1))
+      .attributes(TestData.defaultPidUserAttributes)
+      .build();
+    SdJwtTokenIssuer tokenIssuer = new SdJwtTokenIssuer();
+    String token = new String(
+      tokenIssuer.issueToken(tokenInput),
+      StandardCharsets.UTF_8
+    );
+    logToken(token, tokenInput.getAlgorithm().getDigestAlgorithm().getJdkName());
+  }
+
+
+  @Test
+  void testCases() throws Exception {
+
+    performTest("Default setup",
+      SdJwtTokenInput.sdJwtINputBuilder()
+      .algorithm(TokenSigningAlgorithm.ECDSA_256)
+      .issuer("http://example.com/issuer")
+      .issuerCredential(issuerCredential)
+      .walletPublicKey(walletKey.toPublicKey())
+      .expirationDuration(Duration.ofDays(1))
+      .attributes(TestData.defaultPidUserAttributes)
+      .build(), false, null);
+
+    performTest("Legacy SD-JWT type",
+      SdJwtTokenInput.sdJwtINputBuilder()
+      .algorithm(TokenSigningAlgorithm.ECDSA_256)
+      .issuer("http://example.com/issuer")
+      .issuerCredential(issuerCredential)
+      .walletPublicKey(walletKey.toPublicKey())
+      .expirationDuration(Duration.ofDays(1))
+      .attributes(TestData.defaultPidUserAttributes)
+      .build(), true, null);
+
+    performTest("Bad algorithm",
+      SdJwtTokenInput.sdJwtINputBuilder()
+      .algorithm(TokenSigningAlgorithm.RSA_PSS_256)
+      .issuer("http://example.com/issuer")
+      .issuerCredential(issuerCredential)
+      .walletPublicKey(walletKey.toPublicKey())
+      .expirationDuration(Duration.ofDays(1))
+      .attributes(TestData.defaultPidUserAttributes)
+      .build(), true, TokenIssuingException.class);
+  }
+
+  void performTest(String description, SdJwtTokenInput tokenInput, boolean legacyType, Class<? extends Exception> exceptionClass) throws Exception {
+    SdJwtTokenIssuer tokenIssuer = new SdJwtTokenIssuer();
+    tokenIssuer.setLegacySdJwtHeaderType(legacyType);
+    if (exceptionClass != null) {
+      Exception exception = Assertions.assertThrows(exceptionClass, () -> {
+        tokenIssuer.issueToken(tokenInput);
+        Assertions.fail("Expected exception not thrown");
+      });
+      log.info("Thrown expected exception: {}", exception.getMessage());
+    } else {
+      byte[] issuedToken = tokenIssuer.issueToken(tokenInput);
+      List<TrustedKey> trustedKeys = List.of(TrustedKey.builder()
+        .certificate(tokenInput.getIssuerCredential().getCertificate())
+        .build());
+      SdJwtTokenValidator tokenValidator = new SdJwtTokenValidator();
+      SdJwtTokenValidationResult validationResult = tokenValidator.validateToken(issuedToken, trustedKeys);
+      log.info("Token validated OK");
+      logToken(new String(issuedToken, StandardCharsets.UTF_8), tokenInput.getAlgorithm().getDigestAlgorithm().getJdkName());
+      JOSEObjectType type = validationResult.getVcToken().getIssuerSigned().getHeader().getType();
+      if (legacyType) {
+        Assertions.assertEquals(SdJwt.SD_JWT_TYPE_LEGACY, type);
+      } else {
+        Assertions.assertEquals(SdJwt.SD_JWT_TYPE, type);
+      }
+    }
+
+
+  }
+
+
+  @Test
+  void dynamicClaimsTest() throws Exception {
     TokenSigningAlgorithm algorithm = TokenSigningAlgorithm.ECDSA_256;
     TokenDigestAlgorithm digestAlgorithm = algorithm.getDigestAlgorithm();
     SdJwtTokenInput tokenInput = SdJwtTokenInput.sdJwtINputBuilder()

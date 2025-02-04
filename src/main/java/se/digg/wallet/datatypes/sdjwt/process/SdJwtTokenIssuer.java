@@ -86,6 +86,8 @@ public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
       CertificateEncodingException | NoSuchAlgorithmException | JOSEException e
     ) {
       throw new TokenIssuingException("Token signing failed", e);
+    } catch (Exception e) {
+      throw new TokenIssuingException("Failed to issue token", e);
     }
   }
 }

@@ -29,7 +29,7 @@ class MdlTokenIssuerTest {
 
   @BeforeAll
   static void setUp() {
-    issuerCredential = TestCredentials.issuerCredential;
+    issuerCredential = TestCredentials.p256_issuerCredential;
     pidNameSpace = "eu.europa.ec.eudi.pid.1";
     selectedDisclosures = Collections.singletonMap("eu.europa.ec.eudi.pid.1", List.of(
       "issuance_date",
