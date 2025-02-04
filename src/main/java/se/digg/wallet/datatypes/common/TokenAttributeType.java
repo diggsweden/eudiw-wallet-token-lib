@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TokenAttributeType {
 
-  private TokenAttributeNameSpace tokenAttributeNameSpace;
+  private String nameSpace;
   private String attributeName;
 
   public TokenAttributeType(String attributeName) {
     this.attributeName = attributeName;
-    this.tokenAttributeNameSpace = null;
+    this.nameSpace = null;
   }
 }

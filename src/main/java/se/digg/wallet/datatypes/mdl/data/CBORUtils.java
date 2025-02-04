@@ -29,12 +29,22 @@ import lombok.extern.slf4j.Slf4j;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.idsec.cose.*;
 
+/**
+ * Utility class for handling CBOR (Concise Binary Object Representation) encoding,
+ * decoding, and conversion functionalities. This class includes methods for
+ * converting objects to CBOR format, parsing CBOR objects, and transforming CBOR
+ * data into JSON or other formats. The utility also provides a signing mechanism
+ * for CBOR data using a COSE-based signing process.
+ */
 @Slf4j
 public class CBORUtils {
 
+  /** ObjectMapper for parsing serializing objects to CBOR */
   public static final ObjectMapper CBOR_MAPPER;
+  /** Date formatter for dates */
   public static final DateTimeFormatter LOCAL_DATE_FORMATTER =
     DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  /** Time formatter for time */
   public static final DateTimeFormatter INSTANT_FORMATTER =
     DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(
       ZoneOffset.UTC
@@ -76,6 +86,18 @@ public class CBORUtils {
     return CBORObject.FromObject(o);
   }
 
+  /**
+   * Parses the given CBORObject and converts it into a corresponding Java object
+   * based on its type or tag.
+   *
+   * @param cborElementValue the CBORObject to parse representing
+   *                         a valid CBOR type or tagged value
+   * @return the corresponding Java object derived from the CBORObject, which may
+   *         include a string, byte array, boolean, list, map, or date, depending
+   *         on the CBORObject's type or tag
+   * @throws IllegalArgumentException if the CBORObject contains an unsupported
+   *                                  tag or type
+   */
   public static Object parseCBORObjectValue(CBORObject cborElementValue) {
     if (cborElementValue.isTagged()) {
       int tag = cborElementValue.getMostOuterTag().ToInt32Unchecked();
@@ -115,6 +137,14 @@ public class CBORUtils {
     }
   }
 
+  /**
+   * Converts a CBOR-encoded byte array to its JSON string representation. The method decodes the CBOR byte array
+   * into a CBOR object, untags it if it contains specific tagging, and then converts the resulting object to JSON.
+   *
+   * @param cborBytes the byte array containing CBOR-encoded data
+   * @return the JSON string representation of the CBOR data
+   * @throws IOException if an error occurs during CBOR decoding
+   */
   public static String cborToJson(byte[] cborBytes) throws IOException {
     // Decode CBOR bytes to a CBOR object
     CBORObject cborObject = CBORObject.DecodeFromBytes(cborBytes);
@@ -129,6 +159,13 @@ public class CBORUtils {
     return cborObject.ToJSONString();
   }
 
+  /**
+   * Converts CBOR-encoded byte array into a human-readable, pretty-printed JSON string.
+   *
+   * @param cborBytes the input byte array containing CBOR-encoded data
+   * @return the pretty-printed JSON string representation of the CBOR data
+   * @throws IOException if there is an error during the conversion process
+   */
   public static String cborToPrettyJson(byte[] cborBytes) throws IOException {
     // Decode CBOR bytes to a CBOR object
     String jsonString = cborToJson(cborBytes);

@@ -8,6 +8,7 @@ package se.digg.wallet.datatypes.common;
  * Interface for a token issuer
  */
 public interface TokenIssuer<T extends TokenInput> {
+
   /**
    * Generates a token based on the provided TokenInput.
    *

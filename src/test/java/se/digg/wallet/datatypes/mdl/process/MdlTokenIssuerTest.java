@@ -96,7 +96,6 @@ class MdlTokenIssuerTest {
       null
     );
 
-    int sdf = 0;
-
+    log.info("Validated and pared presentation token content:\n{}", CBORUtils.cborToPrettyJson(presentedToken));
   }
 }

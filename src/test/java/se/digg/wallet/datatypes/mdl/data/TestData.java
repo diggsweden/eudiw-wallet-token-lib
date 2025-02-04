@@ -15,42 +15,40 @@ import se.digg.wallet.datatypes.common.TokenAttributeType;
 
 public class TestData {
 
-  public static final String pidNameSpace = "eu.europa.ec.eudi.pid.1";
-  public static final String mdlNameSpace = "org.iso.18013.5.1";
   public static final List<TokenAttribute> defaultPidUserAttributes = List.of(
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "issuance_date"))
       .value(LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()))
       .build(),
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "issuing_country"))
       .value("SE")
       .build(),
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "given_name"))
       .value("Johnny")
       .build(),
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "age_over_18"))
       .value(true)
       .build(),
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "birth_date"))
       .value(LocalDate.of(1986, 02, 21))
       .build(),
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "expiry_date"))
       .value(
         LocalDate.ofInstant(
@@ -61,14 +59,14 @@ public class TestData {
       .build(),
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "family_name"
       ))
       .value("Thuland")
       .build(),
     TokenAttribute.builder()
       .type(new TokenAttributeType(
-        TokenAttributeNameSpace.EUDI_WALLET_PID,
+        TokenAttributeNameSpace.EUDI_WALLET_PID.getId(),
         "issuing_authority"))
       .value("Test PID issuer")
       .build()

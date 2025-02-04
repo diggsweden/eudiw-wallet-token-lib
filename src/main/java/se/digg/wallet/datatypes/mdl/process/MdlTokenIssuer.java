@@ -149,7 +149,7 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         .elementValue(attribute.getValue())
         .build();
       nameSpaces
-        .computeIfAbsent(attribute.getType().getTokenAttributeNameSpace().getId(), k -> new ArrayList<>())
+        .computeIfAbsent(attribute.getType().getNameSpace(), k -> new ArrayList<>())
         .add(issuerSignedItem);
     }
     return nameSpaces;

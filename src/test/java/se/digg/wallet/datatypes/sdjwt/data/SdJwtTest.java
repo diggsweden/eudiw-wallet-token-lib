@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.TestCredentials;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
+import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenPresenter;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidationResult;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidator;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtPresentationValidator;
@@ -175,18 +176,31 @@ class SdJwtTest {
     SdJwt parsedSdJwt = SdJwt.parse(unprotectedPresentation);
     assertNotNull(parsedSdJwt);
 
-    // Sign presentation:
     String nonce = JSONUtils.base64URLString(new BigInteger(64, RNG).toByteArray());
+    SdJwtPresentationInput presentationInput = SdJwtPresentationInput.builder()
+      .algorithm(TokenSigningAlgorithm.ECDSA_256)
+      .token(unprotectedPresentation.getBytes())
+      .audience("http://example.com/audience")
+      .nonce(nonce)
+      .build();
+
+    SdJwtTokenPresenter tokenPresenter = new SdJwtTokenPresenter();
+    byte[] presentedToken = tokenPresenter.presentToken(presentationInput, walletKey.toECPrivateKey());
+    assertNotNull(presentedToken);
+
+    // Sign presentation:
+/*
     JWSSigner presentationSigner = new ECDSASigner(walletKey.toECPrivateKey());
-    String sdJwtVP = sdJwt.protectedPresentation(
+    String sdJwtVP = parsedSdJwt.protectedPresentation(
       presentationSigner,
       jwsAlgorithm,
       "http://example.com/audience",
       nonce,
       null
     );
+*/
 
-    log.info("\nProtected presentation with disclosures:\n{}", sdJwtVP);
+    log.info("\nProtected presentation with disclosures:\n{}", new String(presentedToken));
 
     log.info(
       "Token Payload:\n{}",
@@ -217,7 +231,7 @@ class SdJwtTest {
     // Validate and reconstruct disclosed credentials;
     SdJwtTokenValidator validator = new SdJwtTokenValidator();
     SdJwtTokenValidationResult validationResult =
-      validator.validateToken(sdJwtVP.getBytes(StandardCharsets.UTF_8), null);
+      validator.validateToken(presentedToken, null);
 
     log.info(
       "Disclosed payload:\n{}",
@@ -228,7 +242,7 @@ class SdJwtTest {
     // Finally testing the presentation validator
     SdJwtPresentationValidator presentationValidator = new SdJwtPresentationValidator();
     TokenValidationResult presentationValidationResult = presentationValidator.validatePresentation(
-      sdJwtVP.getBytes(StandardCharsets.UTF_8),
+      presentedToken,
       new SdJwtPresentationValidationInput(nonce, "http://example.com/audience"),
       List.of(TrustedKey.builder()
         .certificate(issuerCredential.getCertificate())
