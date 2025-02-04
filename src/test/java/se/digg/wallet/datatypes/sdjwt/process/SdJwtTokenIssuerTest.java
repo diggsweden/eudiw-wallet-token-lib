@@ -12,8 +12,10 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.*;
@@ -50,7 +52,7 @@ class SdJwtTokenIssuerTest {
       .expirationDuration(Duration.ofDays(1))
       .walletPublicKey(COSEKey.generateKey(AlgorithmID.ECDSA_256).AsPublicKey())
       .claimsWithDisclosure(
-        ClaimsWithDisclosure.builder(digestAlgorithm.getJdkName())
+        ClaimsWithDisclosure.builder(digestAlgorithm)
           .openClaim("open_claim", "claim-value")
           .disclosure(
             new Disclosure(
@@ -70,6 +72,7 @@ class SdJwtTokenIssuerTest {
       )
       .build();
     SdJwtTokenIssuer tokenIssuer = new SdJwtTokenIssuer();
+    tokenIssuer.setLegacySdJwtHeaderType(true);
     String token = new String(
       tokenIssuer.issueToken(tokenInput),
       StandardCharsets.UTF_8
@@ -107,6 +110,7 @@ class SdJwtTokenIssuerTest {
     logToken(token, ecdsa256.getDigestAlgorithm().getJdkName());
 
     //  Selective disclosure in wallet
+    List<String> disclosedAttributes = List.of("given_name", "birth_date", "family_name", "issuing_authority");
     SdJwt parsed = SdJwt.parse(token);
     // Get all available disclosures
     List<Disclosure> allDisclosures = parsed
@@ -115,7 +119,7 @@ class SdJwtTokenIssuerTest {
     // Reduce the list of disclosures
     List<String> userDisclosures = filterDisclosure(
       allDisclosures,
-      List.of("given_name", "birth_date", "family_name", "issuing_authority")
+      disclosedAttributes
     );
     // Get the reduced list to sign
     String unprotectedPresentation = parsed.unprotectedPresentation(
@@ -137,12 +141,28 @@ class SdJwtTokenIssuerTest {
       ecdsa256.getDigestAlgorithm().getJdkName()
     );
 
+    // Check that token validates OK
     SdJwtTokenValidator tokenValidator = new SdJwtTokenValidator();
-    TokenValidationResult validationResult =
+    SdJwtTokenValidationResult validationResult =
       tokenValidator.validateToken(
         protectededPresentation.getBytes(StandardCharsets.UTF_8),
         null
       );
+    Map<String, Object> disclosedAttrMap = validationResult.getDisclosedTokenPayload().toJSONObject();
+    for (String attributeName : disclosedAttributes) {
+      Assertions.assertTrue(disclosedAttrMap.containsKey(attributeName));
+      Assertions.assertNotNull(disclosedAttrMap.get(attributeName));
+      log.info("Disclosed attribute: {} = {}", attributeName, disclosedAttrMap.get(attributeName));
+    }
+
+    List<String> excludedDisclosures = allDisclosures.stream()
+      .filter(disclosure -> !disclosedAttributes.contains(disclosure.getName()))
+      .map(Disclosure::getName)
+      .toList();
+    for(String excludedDisclosure : excludedDisclosures) {
+      Assertions.assertFalse(disclosedAttrMap.containsKey(excludedDisclosure));
+      log.info("Non disclosed attribute: {}", excludedDisclosure);
+    }
   }
 
   private List<String> filterDisclosure(

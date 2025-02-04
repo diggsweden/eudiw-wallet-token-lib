@@ -52,13 +52,14 @@ class SdJwtTest {
       (ECPrivateKey) issuerCredential.getPrivateKey()
     );
     JWSAlgorithm jwsAlgorithm = JWSAlgorithm.ES256;
-    String sdAlgorithm = "SHA-256";
+    TokenDigestAlgorithm sdAlgorithm = TokenDigestAlgorithm.SHA_256;
     Duration validity = Duration.ofDays(1);
 
-    SdJwt sdJwt = SdJwt.issuerSignedBuilder(
+    SdJwt sdJwt = SdJwt.builder(
         "https://example.com/pid-issuer",
         sdAlgorithm
       )
+      .legacySdJwtType(true)
       .confirmationKey(walletKey.toPublicJWK())
       .verifiableCredentialType("https://example.com/identity_credential")
       .claimsWithDisclosure(
@@ -188,18 +189,6 @@ class SdJwtTest {
     byte[] presentedToken = tokenPresenter.presentToken(presentationInput, walletKey.toECPrivateKey());
     assertNotNull(presentedToken);
 
-    // Sign presentation:
-/*
-    JWSSigner presentationSigner = new ECDSASigner(walletKey.toECPrivateKey());
-    String sdJwtVP = parsedSdJwt.protectedPresentation(
-      presentationSigner,
-      jwsAlgorithm,
-      "http://example.com/audience",
-      nonce,
-      null
-    );
-*/
-
     log.info("\nProtected presentation with disclosures:\n{}", new String(presentedToken));
 
     log.info(
@@ -221,7 +210,7 @@ class SdJwtTest {
       log.info(
         "Disclosure hash: {}",
         JSONUtils.base64URLString(
-          JSONUtils.disclosureHash(disclosure, sdAlgorithm)
+          JSONUtils.disclosureHash(disclosure, sdAlgorithm.getJdkName())
         )
       );
       log.info("Disclosure str: {}", disclosureString);

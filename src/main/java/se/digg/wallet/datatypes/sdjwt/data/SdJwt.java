@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import lombok.Data;
+import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
 import se.digg.wallet.datatypes.common.TokenValidationException;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.swedenconnect.security.credential.PkiCredential;
@@ -28,8 +29,9 @@ import se.swedenconnect.security.credential.PkiCredential;
 @Data
 public class SdJwt {
 
-  public static final String SD_JWT_TYPE = "dc+sd-jwt";
-  public static final String KB_JWT_TYPE = "kb+jwt";
+  public static final JOSEObjectType SD_JWT_TYPE = new JOSEObjectType("dc+sd-jwt");
+  public static final JOSEObjectType SD_JWT_TYPE_LEGACY = new JOSEObjectType("vc+sd-jwt");
+  public static final JOSEObjectType KB_JWT_TYPE = new JOSEObjectType("kb+jwt");
   public static final List<String> STD_CLAIMS = List.of(
     "iss",
     "nbf",
@@ -42,17 +44,18 @@ public class SdJwt {
     "_sd_alg"
   );
 
+  private JOSEObjectType jwtType = SD_JWT_TYPE;
   private String issuer;
   private JWK confirmationKey;
   private String vcType;
   private Object status;
   private String subject;
-  private String sdAlgorithm;
+  private TokenDigestAlgorithm sdAlgorithm;
   private ClaimsWithDisclosure claimsWithDisclosure;
   private SignedJWT issuerSigned;
   private SignedJWT walletSigned;
 
-  public static SdJwtBuilder issuerSignedBuilder(String issuer, String sdAlg) {
+  public static SdJwtBuilder builder(String issuer, TokenDigestAlgorithm sdAlg) {
     return new SdJwtBuilder(issuer, sdAlg);
   }
 
@@ -111,13 +114,13 @@ public class SdJwt {
         "sd_hash",
         JSONUtils.b64UrlHash(
           unprotectedPresentation.getBytes(StandardCharsets.UTF_8),
-          sdAlgorithm
+          sdAlgorithm.getJdkName()
         )
       );
 
     final SignedJWT walletSignedJwt = new SignedJWT(
       new JWSHeader.Builder(algorithm)
-        .type(new JOSEObjectType(KB_JWT_TYPE))
+        .type(KB_JWT_TYPE)
         .build(),
       claimsBuilder.build()
     );
@@ -133,7 +136,7 @@ public class SdJwt {
 
     private final SdJwt sdJwt;
 
-    public SdJwtBuilder(String issuer, String sdAlg) {
+    public SdJwtBuilder(String issuer, TokenDigestAlgorithm sdAlg) {
       sdJwt = new SdJwt();
       sdJwt.setIssuer(issuer);
       sdJwt.setSdAlgorithm(sdAlg);
@@ -165,6 +168,10 @@ public class SdJwt {
       sdJwt.setSubject(subject);
       return this;
     }
+    public SdJwtBuilder legacySdJwtType(boolean legacySdJwtType) {
+      sdJwt.setJwtType(legacySdJwtType ? SD_JWT_TYPE_LEGACY : SD_JWT_TYPE);
+      return this;
+    }
 
     public SdJwt build(
       PkiCredential issuerCredential,
@@ -180,7 +187,7 @@ public class SdJwt {
         .issueTime(new Date())
         .expirationTime(Date.from(Instant.now().plus(validity)))
         .claim("vct", sdJwt.getVcType())
-        .claim("_sd_alg", sdJwt.getSdAlgorithm())
+        .claim("_sd_alg", sdJwt.getSdAlgorithm().getSdJwtName())
         .claim(
           "cnf",
           sdJwt.getConfirmationKey() != null
@@ -195,7 +202,7 @@ public class SdJwt {
       ClaimsWithDisclosure cwd = sdJwt.getClaimsWithDisclosure();
       cwd
         .getAllSupportingClaims()
-        .forEach((key, value) -> claimsBuilder.claim(key, value));
+        .forEach(claimsBuilder::claim);
       // Create JWT
       final SignedJWT jwt = new SignedJWT(
         new JWSHeader.Builder(algorithm)
@@ -205,7 +212,7 @@ public class SdJwt {
               Base64.encode(issuerCredential.getCertificate().getEncoded())
             )
           )
-          .type(new JOSEObjectType(SD_JWT_TYPE))
+          .type(sdJwt.getJwtType())
           .build(),
         claimsBuilder.build()
       );
@@ -243,7 +250,7 @@ public class SdJwt {
       JWTClaimsSet claimsSet = issuerSignedJwt.getJWTClaimsSet();
       JWK confirmationKey = parseConfirmationKey(claimsSet.getClaim("cnf"));
       Map<String, Object> claimsMap = new HashMap<>(claimsSet.getClaims());
-      String sdAlgo = (String) claimsMap.get("_sd_alg");
+      TokenDigestAlgorithm sdAlgo = TokenDigestAlgorithm.fromSdJwtName((String) claimsMap.get("_sd_alg"));
       sdJwt.setSdAlgorithm(sdAlgo);
       sdJwt.setIssuer(claimsSet.getIssuer());
       sdJwt.setSubject(claimsSet.getSubject());

@@ -12,6 +12,8 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.Setter;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
@@ -20,6 +22,9 @@ import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 import se.swedenconnect.security.credential.PkiCredential;
 
 public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
+
+  @Setter
+  private boolean legacySdJwtHeaderType = false;
 
   @Override
   public byte[] issueToken(SdJwtTokenInput tokenInput)
@@ -35,7 +40,7 @@ public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
       if (claimsWithDisclosure == null) {
         // Construct from InputAttributes
         ClaimsWithDisclosure.ClaimsWithDisclosureBuilder cwdBuilder =
-          ClaimsWithDisclosure.builder(digestAlgorithm.getJdkName());
+          ClaimsWithDisclosure.builder(digestAlgorithm);
         List<TokenAttribute> tokenAttributes = Optional.ofNullable(
           tokenInput.getAttributes()
         ).orElse(new ArrayList<>());
@@ -55,10 +60,11 @@ public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
       }
 
       PkiCredential issuerCredential = tokenInput.getIssuerCredential();
-      SdJwt sdJwt = SdJwt.issuerSignedBuilder(
+      SdJwt sdJwt = SdJwt.builder(
         tokenInput.getIssuer(),
-        digestAlgorithm.getJdkName()
+        digestAlgorithm
       )
+        .legacySdJwtType(legacySdJwtHeaderType)
         .claimsWithDisclosure(claimsWithDisclosure)
         .confirmationKey(
           JSONUtils.getJWKfromPublicKey(tokenInput.getWalletPublicKey())

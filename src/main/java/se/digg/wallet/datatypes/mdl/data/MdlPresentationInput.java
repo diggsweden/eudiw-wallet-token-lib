@@ -3,7 +3,6 @@ package se.digg.wallet.datatypes.mdl.data;
 import lombok.Getter;
 import se.digg.wallet.datatypes.common.PresentationInput;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.digg.wallet.datatypes.common.TrustedKey;
 
 import java.util.List;
 import java.util.Map;
@@ -49,11 +48,6 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
 
     public MdlPresentationInputBuilder responseUri(String responseUri) {
       mdlPresentationInput.responseUri = responseUri;
-      return this;
-    }
-
-    public MdlPresentationInputBuilder trustedKeys(List<TrustedKey> trustedKeys) {
-      mdlPresentationInput.trustedKeys = trustedKeys;
       return this;
     }
 

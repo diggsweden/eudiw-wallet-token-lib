@@ -12,7 +12,6 @@ public class PresentationInput<T extends Object> {
   protected byte[] token;
   protected String nonce;
   protected TokenSigningAlgorithm algorithm;
-  protected List<TrustedKey> trustedKeys;
   protected T disclosures;
 
 }

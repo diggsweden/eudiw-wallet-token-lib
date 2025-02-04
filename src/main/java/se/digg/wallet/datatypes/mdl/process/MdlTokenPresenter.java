@@ -28,7 +28,7 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
         issuerSigned.setNameSpaces(disclosedNameSpaces);
 
         MdlIssuerSignedValidator issuerSignedValidator = new MdlIssuerSignedValidator();
-        MdlIssuerSignedValidationResult result = issuerSignedValidator.validateToken(input.getToken(), input.getTrustedKeys());
+        MdlIssuerSignedValidationResult result = issuerSignedValidator.validateToken(input.getToken(), null);
         String docType = result.getMso().getDocType();
         DeviceAuthentication deviceAuthentication = new DeviceAuthentication(
           docType, new SessionTranscript(

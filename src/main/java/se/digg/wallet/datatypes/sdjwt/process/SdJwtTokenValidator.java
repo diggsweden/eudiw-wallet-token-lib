@@ -26,6 +26,8 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+
+import lombok.Setter;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
@@ -35,6 +37,8 @@ import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 public class SdJwtTokenValidator implements TokenValidator {
 
   private final Duration timeSkew;
+  @Setter
+  private List<JOSEObjectType> validSdJweHeaderTypes = List.of(SdJwt.SD_JWT_TYPE, SdJwt.SD_JWT_TYPE_LEGACY);
 
   public SdJwtTokenValidator(Duration timeSkew) {
     this.timeSkew = timeSkew;
@@ -58,15 +62,9 @@ public class SdJwtTokenValidator implements TokenValidator {
         throw new TokenValidationException("Issuer signature missing");
       }
       // Check jwt type
-      if (
-        !issuerSigned
-          .getHeader()
-          .getType()
-          .equals(new JOSEObjectType(SdJwt.SD_JWT_TYPE))
-      ) {
-        throw new TokenValidationException(
-          "Illegal JWT type for SD JWT: " + issuerSigned.getHeader().getType()
-        );
+      JOSEObjectType type = issuerSigned.getHeader().getType();
+      if (!validSdJweHeaderTypes.contains(type)) {
+        throw new TokenValidationException("Illegal JWT type for SD JWT: " + type);
       }
 
       // Retrieve certificate chain in signature and determine trusted signing key
@@ -244,15 +242,9 @@ public class SdJwtTokenValidator implements TokenValidator {
       return false;
     }
     // Check jwt type
-    if (
-      !walletSigned
-        .getHeader()
-        .getType()
-        .equals(new JOSEObjectType(SdJwt.KB_JWT_TYPE))
-    ) {
-      throw new TokenValidationException(
-        "Illegal JWT type for SD JWT: " + walletSigned.getHeader().getType()
-      );
+    JOSEObjectType type = walletSigned.getHeader().getType();
+    if (!type.equals(SdJwt.KB_JWT_TYPE)) {
+      throw new TokenValidationException("Illegal JWT type for SD JWT: " + type);
     }
 
     TokenSigningAlgorithm algorithm = TokenSigningAlgorithm.fromJWSAlgorithm(

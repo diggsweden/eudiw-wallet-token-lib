@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import se.digg.wallet.datatypes.common.PresentationInput;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.digg.wallet.datatypes.common.TrustedKey;
 
 import java.util.List;
 
@@ -36,10 +35,6 @@ public class SdJwtPresentationInput extends PresentationInput<List<String>> {
     }
     public SdJwtPresentationInputbuilder algorithm(TokenSigningAlgorithm algorithm) {
       presentationInput.algorithm = algorithm;
-      return this;
-    }
-    public SdJwtPresentationInputbuilder trustedKeys(List<TrustedKey> trustedKeys) {
-      presentationInput.trustedKeys = trustedKeys;
       return this;
     }
     public SdJwtPresentationInputbuilder disclosures(List<String> disclosures) {
