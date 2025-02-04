@@ -2,6 +2,7 @@ package se.digg.wallet.datatypes.mdl.data;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -10,6 +11,8 @@ import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.numbers.EInteger;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import se.digg.wallet.datatypes.common.TokenParsingexception;
+import se.digg.wallet.datatypes.common.TokenPresentationException;
 
 import java.io.IOException;
 
@@ -83,6 +86,38 @@ public class DeviceResponse {
         // Handle non-CBOR case, throw exception
         throw new JsonGenerationException("Non-CBOR generator used", gen);
       }
+    }
+  }
+
+  public static DeviceResponse deserialize(byte[] cborEncoded)
+    throws TokenParsingexception {
+
+    try {
+      CBORObject deviceResponseObject = CBORObject.DecodeFromBytes(cborEncoded);
+      String version = deviceResponseObject.get("version").AsString();
+      int status = deviceResponseObject.get("status").AsInt32();
+      CBORObject documents = deviceResponseObject.get("documents");
+      CBORObject doc = documents.get(0);
+      IssuerSigned issuerSigned = IssuerSigned.deserialize(doc.get("issuerSigned").EncodeToBytes());
+      String docType = doc.get("docType").AsString();
+      CBORObject deviceSigned = doc.get("deviceSigned");
+      CBORObject deviceNameSpaces = CBORObject.DecodeFromBytes(deviceSigned.get("nameSpaces").Untag().GetByteString());
+      CBORObject deviceAuth = deviceSigned.get("deviceAuth");
+      byte[] deviceSignature = deviceAuth.get("deviceSignature") != null
+        ? deviceAuth.get("deviceSignature").EncodeToBytes() : null;
+      byte[] deviceMac = deviceAuth.get("deviceMac") != null
+        ? deviceAuth.get("deviceMac").EncodeToBytes() : null;
+
+      return new DeviceResponse(
+        status,
+        docType,
+        version,
+        issuerSigned,
+        deviceNameSpaces,
+        deviceSignature,
+        deviceMac);
+    } catch (Exception e) {
+      throw new TokenParsingexception("Failed to parse Device Response", e);
     }
   }
 }

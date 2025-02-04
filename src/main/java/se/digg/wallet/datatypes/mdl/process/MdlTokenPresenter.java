@@ -1,7 +1,6 @@
 package se.digg.wallet.datatypes.mdl.process;
 
 import com.upokecenter.cbor.CBORObject;
-import com.upokecenter.numbers.EInteger;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.*;
 import se.idsec.cose.*;
@@ -41,28 +40,11 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
           null, null, false);
         signedCOSEObject.SetContent((byte[]) null);
         CBORObject deviceSignature = signedCOSEObject.EncodeToCBORObject();
-        CBORObject deviceSignatureMap = CBORObject.NewMap();
-        deviceSignatureMap.Add(CBORObject.FromString("deviceSignature"), deviceSignature);
 
-        CBORObject deviceSigned = CBORObject.NewOrderedMap();
-        deviceSigned.Add(CBORObject.FromString("nameSpaces"),
-          CBORObject.FromCBORObjectAndTag(CBORObject.FromByteArray(CBORObject.NewMap().EncodeToBytes()), EInteger.FromInt32(24)));
-        deviceSigned.Add(CBORObject.FromString("deviceAuth"), deviceSignatureMap);
+        DeviceResponse deviceResponse = new DeviceResponse(docType, issuerSigned, deviceSignature.EncodeToBytes());
+        return CBORUtils.CBOR_MAPPER.writeValueAsBytes(deviceResponse);
 
-        CBORObject docArray = CBORObject.NewArray();
-        CBORObject mdoc = CBORObject.NewOrderedMap();
-        mdoc.Add(CBORObject.FromString("docType"), CBORObject.FromString(docType));
-        mdoc.Add(CBORObject.FromString("issuerSigned"), CBORObject.DecodeFromBytes(CBORUtils.CBOR_MAPPER.writeValueAsBytes(issuerSigned)));
-        mdoc.Add(CBORObject.FromString("deviceSigned"), deviceSigned);
-        docArray.Add(mdoc);
-
-        CBORObject deviceResponse = CBORObject.NewOrderedMap();
-        deviceResponse.Add(CBORObject.FromString("version"), CBORObject.FromString("1.0"));
-        deviceResponse.Add(CBORObject.FromString("documents"), docArray);
-        deviceResponse.Add(CBORObject.FromString("status"), CBORObject.FromInt32(0));
-        return deviceResponse.EncodeToBytes();
-
-      } catch (IOException | TokenValidationException | CoseException | CertificateEncodingException e) {
+      } catch (IOException | TokenParsingexception | TokenValidationException | CoseException | CertificateEncodingException e) {
         throw new TokenPresentationException("Error presenting token", e);
       }
     } else {

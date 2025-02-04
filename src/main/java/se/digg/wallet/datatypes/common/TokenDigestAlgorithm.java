@@ -5,6 +5,7 @@
 package se.digg.wallet.datatypes.common;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,13 +24,13 @@ public enum TokenDigestAlgorithm {
   private final String jdkName;
 
   public static TokenDigestAlgorithm fromMdlName(String mdlName)
-    throws IOException {
+    throws NoSuchAlgorithmException {
     return Arrays.stream(values())
       .filter(
         tokenDigestAlgorithm ->
           tokenDigestAlgorithm.getMdlName().equalsIgnoreCase(mdlName)
       )
       .findFirst()
-      .orElseThrow(() -> new IOException("Unsupported mDL hash algorithm"));
+      .orElseThrow(() -> new NoSuchAlgorithmException("Unsupported mDL hash algorithm"));
   }
 }

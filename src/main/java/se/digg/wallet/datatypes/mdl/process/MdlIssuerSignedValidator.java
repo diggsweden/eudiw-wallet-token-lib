@@ -138,7 +138,7 @@ public class MdlIssuerSignedValidator implements TokenValidator {
         "Failed to parse Issuer Signed token",
         e
       );
-    } catch (IOException e) {
+    } catch (TokenParsingexception e) {
       throw new TokenValidationException(
         "Failed to validate Issuer Signed token",
         e
@@ -155,6 +155,8 @@ public class MdlIssuerSignedValidator implements TokenValidator {
       );
     } catch (NoSuchAlgorithmException e) {
       throw new TokenValidationException("Unsupported Hash algorithm", e);
+    } catch (IOException e) {
+      throw new TokenValidationException("Error parsing input data", e);
     }
   }
 
@@ -216,7 +218,7 @@ public class MdlIssuerSignedValidator implements TokenValidator {
     Map<String, List<IssuerSignedItem>> nameSpaces,
     MobileSecurityObject mso,
     byte[] token
-  ) throws TokenValidationException, IOException, NoSuchAlgorithmException {
+  ) throws TokenValidationException, NoSuchAlgorithmException {
     if (nameSpaces == null) {
       throw new TokenValidationException("Token has no attribute information");
     }

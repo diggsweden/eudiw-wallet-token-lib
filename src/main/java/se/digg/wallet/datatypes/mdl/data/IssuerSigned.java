@@ -21,6 +21,7 @@ import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import se.digg.wallet.datatypes.common.TokenParsingexception;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.idsec.cose.COSEKey;
 import se.idsec.cose.CoseException;
@@ -250,33 +251,37 @@ public class IssuerSigned {
   }
 
   public static IssuerSigned deserialize(byte[] cborEncoded)
-    throws IOException, JsonProcessingException {
+    throws TokenParsingexception {
     // Parse CBOR
-    CBORObject cbor = CBORObject.DecodeFromBytes(cborEncoded);
+    try {
+      CBORObject cbor = CBORObject.DecodeFromBytes(cborEncoded);
 
-    // Extract values from the CBOR Object
-    CBORObject nameSpacesCbor = cbor.get("nameSpaces");
-    Map<String, List<IssuerSignedItem>> nameSpaces = new HashMap<>();
-    for (CBORObject key : nameSpacesCbor.getKeys()) {
-      CBORObject listObj = nameSpacesCbor.get(key);
-      List<IssuerSignedItem> list = new ArrayList<>();
-      for (int i = 0; i < listObj.size(); i++) {
-        byte[] itemBytes = listObj.get(i).EncodeToBytes();
-        IssuerSignedItem item = CBORUtils.CBOR_MAPPER.readValue(
-          itemBytes,
-          IssuerSignedItem.class
-        );
-        list.add(item);
+      // Extract values from the CBOR Object
+      CBORObject nameSpacesCbor = cbor.get("nameSpaces");
+      Map<String, List<IssuerSignedItem>> nameSpaces = new HashMap<>();
+      for (CBORObject key : nameSpacesCbor.getKeys()) {
+        CBORObject listObj = nameSpacesCbor.get(key);
+        List<IssuerSignedItem> list = new ArrayList<>();
+        for (int i = 0; i < listObj.size(); i++) {
+          byte[] itemBytes = listObj.get(i).EncodeToBytes();
+          IssuerSignedItem item = CBORUtils.CBOR_MAPPER.readValue(
+            itemBytes,
+            IssuerSignedItem.class
+          );
+          list.add(item);
+        }
+        nameSpaces.put(key.AsString(), list);
       }
-      nameSpaces.put(key.AsString(), list);
+
+      byte[] issuerAuth = cbor.get("issuerAuth").EncodeToBytes();
+
+      // Construct and return IssuerSigned
+      IssuerSigned issuerSigned = new IssuerSigned();
+      issuerSigned.setNameSpaces(nameSpaces);
+      issuerSigned.setIssuerAuth(issuerAuth);
+      return issuerSigned;
+    } catch (Exception e) {
+      throw new TokenParsingexception("Failed to parse IssuerSigned", e);
     }
-
-    byte[] issuerAuth = cbor.get("issuerAuth").EncodeToBytes();
-
-    // Construct and return IssuerSigned
-    IssuerSigned issuerSigned = new IssuerSigned();
-    issuerSigned.setNameSpaces(nameSpaces);
-    issuerSigned.setIssuerAuth(issuerAuth);
-    return issuerSigned;
   }
 }

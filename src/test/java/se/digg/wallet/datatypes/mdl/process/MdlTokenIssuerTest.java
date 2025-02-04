@@ -11,6 +11,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.*;
@@ -54,6 +55,20 @@ class MdlTokenIssuerTest {
     byte[] token = tokenIssuer.issueToken(tokenInput);
     log.info("Issued mdL token: \n{}", Hex.toHexString(token));
 
+    // Validate Issuer Signed Token
+    MdlIssuerSignedValidator validator = new MdlIssuerSignedValidator();
+    TokenValidationResult validationResult =
+      validator.validateToken(
+        token,
+        List.of(
+          TrustedKey.builder()
+            .certificate(issuerCredential.getCertificate())
+            .build()
+        )
+      );
+    log.info("Token validation passed");
+
+    // Make presentation
     PresentationInput<?> presentationInput = MdlPresentationInput.builder()
       .token(token)
       .clientId("https://example.com/client")
@@ -67,17 +82,11 @@ class MdlTokenIssuerTest {
     byte[] presentedToken = tokenPresenter.presentToken(presentationInput, deviceKey.AsPrivateKey());
     log.info("Presented mdL token: \n{}", Hex.toHexString(presentedToken));
 
-    MdlIssuerSignedValidator validator = new MdlIssuerSignedValidator();
-    TokenValidationResult validationResult =
-      validator.validateToken(
-        token,
-        List.of(
-          TrustedKey.builder()
-            .certificate(issuerCredential.getCertificate())
-            .build()
-        )
-      );
-
-    log.info("Token validation passed");
+    // Parse presentation
+    DeviceResponse deviceResponse = DeviceResponse.deserialize(presentedToken);
+    byte[] parseResponseCbor = CBORUtils.CBOR_MAPPER.writeValueAsBytes(deviceResponse);
+    log.info("Parsed presentation token CBOR:\n{}", Hex.toHexString(parseResponseCbor));
+    Assertions.assertArrayEquals(presentedToken, parseResponseCbor);
+    log.info("Presentation token parsed");
   }
 }
