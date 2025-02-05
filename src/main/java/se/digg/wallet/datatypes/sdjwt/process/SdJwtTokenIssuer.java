@@ -21,9 +21,9 @@ import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 import se.swedenconnect.security.credential.PkiCredential;
 
+@Setter
 public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
 
-  @Setter
   private boolean legacySdJwtHeaderType = false;
 
   @Override

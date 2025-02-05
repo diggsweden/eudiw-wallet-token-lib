@@ -10,6 +10,7 @@ import se.digg.wallet.datatypes.sdjwt.data.SdJwtPresentationInput;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.util.Objects;
 
 /**
  * A concrete implementation of the {@link TokenPresenter} interface for creating verifiable
@@ -40,6 +41,12 @@ public class SdJwtTokenPresenter implements TokenPresenter<SdJwtPresentationInpu
 
     if (presentationInput instanceof SdJwtPresentationInput input) {
       try {
+        Objects.requireNonNull(input.getToken(), "Input token must not be null");
+        Objects.requireNonNull(privateKey, "Private key must not be null");
+        Objects.requireNonNull(input.getAlgorithm(), "Algorithm must not be null");
+        Objects.requireNonNull(input.getAudience(), "Audience must not be null");
+        Objects.requireNonNull(input.getNonce(), "Nonce must not be null");
+
         SdJwt sdJwt = SdJwt.parse(new String(presentationInput.getToken()));
         String protectedVerifiablePresentation = sdJwt.protectedPresentation(
           input.getAlgorithm().jwsSigner(privateKey),
@@ -49,8 +56,12 @@ public class SdJwtTokenPresenter implements TokenPresenter<SdJwtPresentationInpu
           input.getDisclosures()
         );
         return protectedVerifiablePresentation.getBytes();
-      } catch (TokenValidationException | JOSEException | NoSuchAlgorithmException e) {
+      }
+      catch (TokenValidationException | JOSEException | NoSuchAlgorithmException e) {
         throw new TokenPresentationException("Unable to create verifiable presentation",e);
+      }
+      catch (Exception e) {
+        throw new TokenPresentationException("Critical error while creating verifiable presentation",e);
       }
     } else {
       throw new TokenPresentationException("PresentationInput must be of type SdJwtPresentationInput");

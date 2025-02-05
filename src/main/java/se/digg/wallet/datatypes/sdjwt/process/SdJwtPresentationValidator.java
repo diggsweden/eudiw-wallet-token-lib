@@ -2,7 +2,6 @@ package se.digg.wallet.datatypes.sdjwt.process;
 
 import lombok.extern.slf4j.Slf4j;
 import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.mdl.data.MdlPresentationValidationInput;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwtPresentationValidationInput;
 
 import java.time.Duration;
@@ -62,7 +61,7 @@ public class SdJwtPresentationValidator implements PresentationValidator {
    * @throws TokenParsingException If the presentation token cannot be parsed successfully.
    */
   @Override
-  public TokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput, List<TrustedKey> trustedKeys) throws TokenValidationException, TokenParsingException {
+  public SdJwtTokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput, List<TrustedKey> trustedKeys) throws TokenValidationException, TokenParsingException {
 
     if (log.isTraceEnabled()) {
       log.trace("Validating SD JWT presentation:\n{}", new String(presentation));

@@ -27,6 +27,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import se.digg.wallet.datatypes.common.TestCredentials;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.idsec.cose.*;
 

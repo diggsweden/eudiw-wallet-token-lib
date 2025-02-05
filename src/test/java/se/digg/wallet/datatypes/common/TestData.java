@@ -2,16 +2,13 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package se.digg.wallet.datatypes.mdl.data;
+package se.digg.wallet.datatypes.common;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-import se.digg.wallet.datatypes.common.TokenAttribute;
-import se.digg.wallet.datatypes.common.TokenAttributeNameSpace;
-import se.digg.wallet.datatypes.common.TokenAttributeType;
 
 public class TestData {
 

@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.mdl.data.TestCredentials;
+import se.digg.wallet.datatypes.common.TestCredentials;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenPresenter;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidationResult;
@@ -199,9 +199,7 @@ class SdJwtTest {
         )
     );
 
-    List<Disclosure> allDisclosures = sdJwt
-      .getClaimsWithDisclosure()
-      .getAllDisclosures();
+    List<Disclosure> allDisclosures = sdJwt.getDisclosures();
     log.info("Disclosures:\n------------------");
     for (Disclosure disclosure : allDisclosures) {
       String disclosureString = JSONUtils.base64URLString(

@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.mdl.data.TestCredentials;
-import se.digg.wallet.datatypes.mdl.data.TestData;
+import se.digg.wallet.datatypes.common.TestCredentials;
+import se.digg.wallet.datatypes.common.TestData;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
 import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
@@ -68,11 +68,21 @@ class SdJwtTokenIssuerTest {
   @Test
   void testCases() throws Exception {
 
-    performTest("Default setup",
+    performTest("Default EC issuer key setup",
       SdJwtTokenInput.sdJwtINputBuilder()
       .algorithm(TokenSigningAlgorithm.ECDSA_256)
       .issuer("http://example.com/issuer")
       .issuerCredential(issuerCredential)
+      .walletPublicKey(walletKey.toPublicKey())
+      .expirationDuration(Duration.ofDays(1))
+      .attributes(TestData.defaultPidUserAttributes)
+      .build(), false, null);
+
+    performTest("RSA Issuer key",
+      SdJwtTokenInput.sdJwtINputBuilder()
+      .algorithm(TokenSigningAlgorithm.RSA_PSS_512)
+      .issuer("http://example.com/issuer")
+      .issuerCredential(TestCredentials.rsa_issuerCredential)
       .walletPublicKey(walletKey.toPublicKey())
       .expirationDuration(Duration.ofDays(1))
       .attributes(TestData.defaultPidUserAttributes)
@@ -97,9 +107,47 @@ class SdJwtTokenIssuerTest {
       .expirationDuration(Duration.ofDays(1))
       .attributes(TestData.defaultPidUserAttributes)
       .build(), true, TokenIssuingException.class);
+
+    performTest("Null algorithm",
+      SdJwtTokenInput.sdJwtINputBuilder()
+      .issuer("http://example.com/issuer")
+      .issuerCredential(issuerCredential)
+      .walletPublicKey(walletKey.toPublicKey())
+      .expirationDuration(Duration.ofDays(1))
+      .attributes(TestData.defaultPidUserAttributes)
+      .build(), true, TokenIssuingException.class);
+
+    performTest("Null issuer",
+      SdJwtTokenInput.sdJwtINputBuilder()
+      .algorithm(TokenSigningAlgorithm.ECDSA_256)
+      .issuerCredential(issuerCredential)
+      .walletPublicKey(walletKey.toPublicKey())
+      .expirationDuration(Duration.ofDays(1))
+      .attributes(TestData.defaultPidUserAttributes)
+      .build(), true, TokenIssuingException.class);
+
+    performTest("No wallet key",
+      SdJwtTokenInput.sdJwtINputBuilder()
+        .algorithm(TokenSigningAlgorithm.ECDSA_256)
+        .issuer("http://example.com/issuer")
+        .issuerCredential(issuerCredential)
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(), false, TokenIssuingException.class);
+
+    performTest("No expiration time",
+      SdJwtTokenInput.sdJwtINputBuilder()
+        .algorithm(TokenSigningAlgorithm.ECDSA_256)
+        .issuer("http://example.com/issuer")
+        .issuerCredential(issuerCredential)
+        .walletPublicKey(walletKey.toPublicKey())
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(), false, TokenIssuingException.class);
+
   }
 
   void performTest(String description, SdJwtTokenInput tokenInput, boolean legacyType, Class<? extends Exception> exceptionClass) throws Exception {
+    log.info("TEST CASE:\n================\n{}\n================", description);
     SdJwtTokenIssuer tokenIssuer = new SdJwtTokenIssuer();
     tokenIssuer.setLegacySdJwtHeaderType(legacyType);
     if (exceptionClass != null) {
@@ -107,7 +155,8 @@ class SdJwtTokenIssuerTest {
         tokenIssuer.issueToken(tokenInput);
         Assertions.fail("Expected exception not thrown");
       });
-      log.info("Thrown expected exception: {}", exception.getMessage());
+      log.info("Thrown expected exception: {} - {}", exception.getClass().getSimpleName(), exception.getMessage());
+      log.info("Cause: {} - {}", exception.getCause().getClass().getSimpleName(), exception.getCause().toString());
     } else {
       byte[] issuedToken = tokenIssuer.issueToken(tokenInput);
       List<TrustedKey> trustedKeys = List.of(TrustedKey.builder()
@@ -124,7 +173,6 @@ class SdJwtTokenIssuerTest {
         Assertions.assertEquals(SdJwt.SD_JWT_TYPE, type);
       }
     }
-
 
   }
 
@@ -174,7 +222,7 @@ class SdJwtTokenIssuerTest {
    * @throws Exception if an error occurs during the test execution
    */
   @Test
-  void issueCredentialTest() throws Exception {
+  void fullIssueAndPresentationAndValidationTest() throws Exception {
     // Pick key and algorithms
     TokenSigningAlgorithm ecdsa256 = TokenSigningAlgorithm.ECDSA_256;
     COSEKey walletKeyPair = COSEKey.generateKey(ecdsa256.getAlgorithmID());
@@ -201,18 +249,18 @@ class SdJwtTokenIssuerTest {
     List<String> disclosedAttributes = List.of("given_name", "birth_date", "family_name", "issuing_authority");
     SdJwt parsed = SdJwt.parse(token);
     // Get all available disclosures
-    List<Disclosure> allDisclosures = parsed
-      .getClaimsWithDisclosure()
-      .getAllDisclosures();
+    List<Disclosure> allDisclosures = parsed.getDisclosures();
     // Reduce the list of disclosures
+/*
     List<String> userDisclosures = filterDisclosure(
       allDisclosures,
       disclosedAttributes
-    );
     // Get the reduced list to sign
     String unprotectedPresentation = parsed.unprotectedPresentation(
-      userDisclosures
+      disclosedAttributes
     );
+    );
+*/
     // Sign the reduced disclosures with the wallet private key
     String protectededPresentation = parsed.protectedPresentation(
       ecdsa256.jwsSigner(walletKeyPair.AsPrivateKey()),
@@ -221,7 +269,7 @@ class SdJwtTokenIssuerTest {
       JSONUtils.base64URLString(
         new BigInteger(128, RNG).negate().toByteArray()
       ),
-      userDisclosures
+      disclosedAttributes
     );
     // Log result
     logToken(
@@ -236,6 +284,11 @@ class SdJwtTokenIssuerTest {
         protectededPresentation.getBytes(StandardCharsets.UTF_8),
         null
       );
+
+    log.info("Reconstructed discolsed token payload:\n{}",
+      JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(
+        validationResult.getDisclosedTokenPayload().toJSONObject()));
+
     Map<String, Object> disclosedAttrMap = validationResult.getDisclosedTokenPayload().toJSONObject();
     for (String attributeName : disclosedAttributes) {
       Assertions.assertTrue(disclosedAttrMap.containsKey(attributeName));
@@ -253,24 +306,7 @@ class SdJwtTokenIssuerTest {
     }
   }
 
-  private List<String> filterDisclosure(
-    List<Disclosure> allDisclosures,
-    List<String> selectedNames
-  ) {
-    List<String> filteredDisclosures = new ArrayList<>();
-    for (Disclosure disclosure : allDisclosures) {
-      if (selectedNames.contains(disclosure.getName())) {
-        filteredDisclosures.add(
-          JSONUtils.base64URLString(
-            disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
-          )
-        );
-      }
-    }
-    return filteredDisclosures;
-  }
-
-  void logToken(String token, String digestAlgo) throws Exception {
+  public static void logToken(String token, String digestAlgo) throws Exception {
     log.info("Issued sdJwt token: \n{}", token);
 
     String[] split = token.split("~");
