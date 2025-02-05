@@ -7,6 +7,7 @@ package se.digg.wallet.datatypes.sdjwt.data;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import lombok.Getter;
+import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 
 /**
@@ -57,7 +58,7 @@ public class ClaimsWithDisclosure {
   public static ClaimsWithDisclosure parse(
     Map<String, Object> claimsMap,
     List<Disclosure> disclosureList,
-    String sdAlg
+    TokenDigestAlgorithm sdAlg
   ) throws NoSuchAlgorithmException {
     ClaimsWithDisclosureBuilder cwdBuilder = ClaimsWithDisclosure.builder(
       sdAlg
@@ -66,7 +67,7 @@ public class ClaimsWithDisclosure {
     if (sd != null) {
       // There are disclosures at this level. Add them to this level
       for (Disclosure disc : disclosureList) {
-        String hashString = JSONUtils.disclosureHashString(disc, sdAlg);
+        String hashString = JSONUtils.disclosureHashString(disc, sdAlg.getSdJwtName());
         if (sd.contains(hashString)) {
           cwdBuilder.disclosure(disc);
         }
@@ -150,7 +151,7 @@ public class ClaimsWithDisclosure {
     return allSupportingClaims;
   }
 
-  public static ClaimsWithDisclosureBuilder builder(String hashAlgo) {
+  public static ClaimsWithDisclosureBuilder builder(TokenDigestAlgorithm hashAlgo) {
     return new ClaimsWithDisclosureBuilder(hashAlgo);
   }
 
@@ -158,9 +159,9 @@ public class ClaimsWithDisclosure {
 
     private ClaimsWithDisclosure claimsWithDisclosure;
 
-    public ClaimsWithDisclosureBuilder(String hashAlgo) {
+    public ClaimsWithDisclosureBuilder(TokenDigestAlgorithm hashAlgo) {
       this.claimsWithDisclosure = new ClaimsWithDisclosure();
-      this.claimsWithDisclosure.hashAlgo = hashAlgo;
+      this.claimsWithDisclosure.hashAlgo = hashAlgo.getSdJwtName();
       this.claimsWithDisclosure.disclosures = new ArrayList<>();
       this.claimsWithDisclosure.arrayEntryMap = new HashMap<>();
       this.claimsWithDisclosure.openClaims = new HashMap<>();

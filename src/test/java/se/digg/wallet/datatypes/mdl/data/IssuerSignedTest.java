@@ -27,6 +27,7 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import se.digg.wallet.datatypes.common.TestCredentials;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.idsec.cose.*;
 
@@ -278,7 +279,7 @@ class IssuerSignedTest {
         )
       )
       .issuerAuthInput(
-        TestCredentials.issuerCredential,
+        TestCredentials.p256_issuerCredential,
         TokenSigningAlgorithm.ECDSA_256,
         COSEKey.generateKey(AlgorithmID.ECDSA_256).AsPublicKey(),
         Duration.ofDays(1),
@@ -316,7 +317,7 @@ class IssuerSignedTest {
     X509Certificate signingCert =
       (X509Certificate) certFactory.generateCertificate(in);
     Assertions.assertEquals(
-      TestCredentials.issuerCredential.getCertificate(),
+      TestCredentials.p256_issuerCredential.getCertificate(),
       signingCert
     );
     boolean valid = parsedSignatureObject.validate(

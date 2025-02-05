@@ -6,6 +6,7 @@ package se.digg.wallet.datatypes.common;
 
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,36 +14,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * This is an abstract result class for token validation results. This may be extended by explicit token validators
- *
- * @param <T> Class Type for the Token as Java Object
- * @param <P> Class Type for the signed Payload as Java Object
+ * This class holds base result data for token validation. This is extended by explicit token validators
  */
 @Data
 @NoArgsConstructor
-public abstract class TokenValidationResult<
-  T extends Object, P extends Object
-> {
+public class TokenValidationResult{
 
   protected PublicKey validationKey;
-
   protected X509Certificate validationCertificate;
-
   protected List<X509Certificate> validationChain;
-
   protected PublicKey walletPublicKey;
-
-  /**
-   * Retrieves the validated token data.
-   *
-   * @return The token data.
-   */
-  public abstract T getTokenData();
-
-  /**
-   * Retrieves the signed payload associated with the token.
-   *
-   * @return The signed payload data.
-   */
-  public abstract P getTokenPayload();
+  protected Instant issueTime;
+  protected Instant expirationTime;
+  protected String presentationRequestNonce;
 }

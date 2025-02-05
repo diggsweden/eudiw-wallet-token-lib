@@ -15,10 +15,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TokenAttribute {
 
-  /** The name of the attribute presented in the token */
-  private String name;
-  /** Optional nameSpace declaration (Required for mDL tokens) */
-  private String nameSpace;
+  /** The type of token attribute */
+  private TokenAttributeType type;
   /** The attribute value. For most attributes, this is either a String, Integer or LocalDate object */
   private Object value;
+
 }

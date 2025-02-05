@@ -28,12 +28,17 @@ public class Disclosure {
 
   public static final SecureRandom RNG = new SecureRandom();
 
+  private String salt;
+  private String name;
+  private Object value;
+  private String disclosure;
+
   public Disclosure(TokenAttribute tokenAttribute)
     throws JsonProcessingException {
     this.salt = Base64.getUrlEncoder()
       .withoutPadding()
       .encodeToString(new BigInteger(128, RNG).toByteArray());
-    this.name = tokenAttribute.getName();
+    this.name = tokenAttribute.getType() != null ? tokenAttribute.getType().getAttributeName() : null;
     this.value = tokenAttribute.getValue();
     this.disclosure = name != null
       ? JSONUtils.JSON_MAPPER.writeValueAsString(
@@ -76,8 +81,4 @@ public class Disclosure {
     }
   }
 
-  private String salt;
-  private String name;
-  private Object value;
-  private String disclosure;
 }

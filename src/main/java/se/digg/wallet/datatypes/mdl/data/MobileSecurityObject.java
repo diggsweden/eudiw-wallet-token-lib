@@ -8,17 +8,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
 import com.upokecenter.cbor.CBORObject;
 import java.io.IOException;
-import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import se.digg.wallet.datatypes.common.TokenParsingException;
 import se.idsec.cose.*;
 
 @Data
@@ -87,7 +85,7 @@ public class MobileSecurityObject {
     COSEKey key,
     AlgorithmID algorithmID
   )
-    throws JsonProcessingException, CoseException, CertificateEncodingException {
+    throws IOException, CoseException, CertificateEncodingException {
     return sign(chain, key, algorithmID, null, false);
   }
 
@@ -99,40 +97,9 @@ public class MobileSecurityObject {
     String kid,
     boolean protectedKid
   )
-    throws JsonProcessingException, CoseException, CertificateEncodingException {
+    throws IOException, CoseException, CertificateEncodingException {
     byte[] toBeSigned = CBORUtils.CBOR_MAPPER.writeValueAsBytes(this);
-    Sign1COSEObject msg = new Sign1COSEObject(false);
-    msg.SetContent(toBeSigned);
-    msg.addAttribute(
-      HeaderKeys.Algorithm,
-      algorithmID.AsCBOR(),
-      Attribute.PROTECTED
-    );
-    if (kid != null) {
-      msg.addAttribute(
-        HeaderKeys.KID,
-        CBORObject.FromString(kid),
-        protectedKid ? Attribute.PROTECTED : Attribute.UNPROTECTED
-      );
-    }
-    if (chain != null && !chain.isEmpty()) {
-      CBORObject certChainObject;
-      if (chain.size() == 1) {
-        certChainObject = CBORObject.FromByteArray(chain.get(0).getEncoded());
-      } else {
-        certChainObject = CBORObject.NewArray();
-        for (X509Certificate cert : chain) {
-          certChainObject.Add(CBORObject.FromByteArray(cert.getEncoded()));
-        }
-      }
-      msg.addAttribute(
-        HeaderKeys.x5chain,
-        certChainObject,
-        Attribute.UNPROTECTED
-      );
-    }
-
-    msg.sign(key);
+    Sign1COSEObject msg = CBORUtils.sign(toBeSigned, key, algorithmID, kid, chain, protectedKid);
     return msg.EncodeToCBORObject();
   }
 
@@ -275,130 +242,134 @@ public class MobileSecurityObject {
   }
 
   public static MobileSecurityObject deserialize(byte[] cborBytes)
-    throws CoseException, IOException {
+    throws TokenParsingException {
     // Initialize CBORObject from bytes
-    CBORObject cbor = CBORObject.DecodeFromBytes(cborBytes);
-    if (cbor.HasMostOuterTag(24)) {
-      cbor = CBORObject.DecodeFromBytes(cbor.Untag().GetByteString());
-    }
-
-    // Extract values from CBORObject
-    String version = cbor.get("version").AsString();
-    String digestAlgorithm = cbor.get("digestAlgorithm").AsString();
-    String docType = cbor.get("docType").AsString();
-
-    // Populating valueDigests
-    Map<String, Map<Integer, byte[]>> valueDigests = null;
-    if (cbor.ContainsKey("valueDigests")) {
-      valueDigests = new HashMap<>();
-      CBORObject valueDigestsCbor = cbor.get("valueDigests");
-      for (CBORObject key : valueDigestsCbor.getKeys()) {
-        CBORObject innerMapCbor = valueDigestsCbor.get(key);
-        Map<Integer, byte[]> innerMap = new HashMap<>();
-        for (CBORObject digestId : innerMapCbor.getKeys()) {
-          byte[] itemBytes = innerMapCbor.get(digestId).GetByteString();
-          innerMap.put(digestId.AsInt32(), itemBytes);
-        }
-        valueDigests.put(key.AsString(), innerMap);
+    try {
+      CBORObject cbor = CBORObject.DecodeFromBytes(cborBytes);
+      if (cbor.HasMostOuterTag(24)) {
+        cbor = CBORObject.DecodeFromBytes(cbor.Untag().GetByteString());
       }
-    }
 
-    DeviceKeyInfo deviceKeyInfo = null;
-    if (cbor.ContainsKey("deviceKeyInfo")) {
-      CBORObject deviceKeyInfoCbor = cbor.get("deviceKeyInfo");
-      COSEKey deviceKey = new COSEKey(deviceKeyInfoCbor.get("deviceKey"));
-      KeyAuthorizations keyAuthorizations = null;
-      if (deviceKeyInfoCbor.ContainsKey("keyAuthorizations")) {
-        CBORObject keyAuthorizationsCbor = deviceKeyInfoCbor.get(
-          "keyAuthorizations"
-        );
-        List<String> dataElements = null;
-        if (keyAuthorizationsCbor.ContainsKey("dataElements")) {
-          CBORObject dataElementsCbor = keyAuthorizationsCbor.get(
-            "dataElements"
+      // Extract values from CBORObject
+      String version = cbor.get("version").AsString();
+      String digestAlgorithm = cbor.get("digestAlgorithm").AsString();
+      String docType = cbor.get("docType").AsString();
+
+      // Populating valueDigests
+      Map<String, Map<Integer, byte[]>> valueDigests = null;
+      if (cbor.ContainsKey("valueDigests")) {
+        valueDigests = new HashMap<>();
+        CBORObject valueDigestsCbor = cbor.get("valueDigests");
+        for (CBORObject key : valueDigestsCbor.getKeys()) {
+          CBORObject innerMapCbor = valueDigestsCbor.get(key);
+          Map<Integer, byte[]> innerMap = new HashMap<>();
+          for (CBORObject digestId : innerMapCbor.getKeys()) {
+            byte[] itemBytes = innerMapCbor.get(digestId).GetByteString();
+            innerMap.put(digestId.AsInt32(), itemBytes);
+          }
+          valueDigests.put(key.AsString(), innerMap);
+        }
+      }
+
+      DeviceKeyInfo deviceKeyInfo = null;
+      if (cbor.ContainsKey("deviceKeyInfo")) {
+        CBORObject deviceKeyInfoCbor = cbor.get("deviceKeyInfo");
+        COSEKey deviceKey = new COSEKey(deviceKeyInfoCbor.get("deviceKey"));
+        KeyAuthorizations keyAuthorizations = null;
+        if (deviceKeyInfoCbor.ContainsKey("keyAuthorizations")) {
+          CBORObject keyAuthorizationsCbor = deviceKeyInfoCbor.get(
+            "keyAuthorizations"
           );
-          dataElements = new ArrayList<>();
-          for (CBORObject element : dataElementsCbor.getValues()) {
-            dataElements.add(element.AsString());
+          List<String> dataElements = null;
+          if (keyAuthorizationsCbor.ContainsKey("dataElements")) {
+            CBORObject dataElementsCbor = keyAuthorizationsCbor.get(
+              "dataElements"
+            );
+            dataElements = new ArrayList<>();
+            for (CBORObject element : dataElementsCbor.getValues()) {
+              dataElements.add(element.AsString());
+            }
+          }
+          List<String> nameSpaces = null;
+          if (keyAuthorizationsCbor.ContainsKey("nameSpaces")) {
+            nameSpaces = new ArrayList<>();
+            for (CBORObject element : keyAuthorizationsCbor
+              .get("nameSpaces")
+              .getValues()) {
+              nameSpaces.add(element.AsString());
+            }
+          }
+          keyAuthorizations = KeyAuthorizations.builder()
+            .nameSpaces(nameSpaces)
+            .dataElements(dataElements)
+            .build();
+        }
+        Map<Integer, Object> keyInfo = null;
+        if (deviceKeyInfoCbor.ContainsKey("keyInfo")) {
+          keyInfo = new HashMap<>();
+          CBORObject keyInfoCbor = deviceKeyInfoCbor.get("keyInfo");
+          for (CBORObject key : keyInfoCbor.getKeys()) {
+            keyInfo.put(
+              key.AsInt32(),
+              CBORUtils.CBOR_MAPPER.readValue(
+                keyInfoCbor.get(key).EncodeToBytes(),
+                Object.class
+              )
+            );
           }
         }
-        List<String> nameSpaces = null;
-        if (keyAuthorizationsCbor.ContainsKey("nameSpaces")) {
-          nameSpaces = new ArrayList<>();
-          for (CBORObject element : keyAuthorizationsCbor
-            .get("nameSpaces")
-            .getValues()) {
-            nameSpaces.add(element.AsString());
-          }
-        }
-        keyAuthorizations = KeyAuthorizations.builder()
-          .nameSpaces(nameSpaces)
-          .dataElements(dataElements)
+        deviceKeyInfo = DeviceKeyInfo.builder()
+          .deviceKey(deviceKey)
+          .keyAuthorizations(keyAuthorizations)
+          .keyInfo(null)
           .build();
       }
-      Map<Integer, Object> keyInfo = null;
-      if (deviceKeyInfoCbor.ContainsKey("keyInfo")) {
-        keyInfo = new HashMap<>();
-        CBORObject keyInfoCbor = deviceKeyInfoCbor.get("keyInfo");
-        for (CBORObject key : keyInfoCbor.getKeys()) {
-          keyInfo.put(
-            key.AsInt32(),
-            CBORUtils.CBOR_MAPPER.readValue(
-              keyInfoCbor.get(key).EncodeToBytes(),
-              Object.class
+      ValidityInfo validityInfo = null;
+      if (cbor.ContainsKey("validityInfo")) {
+        CBORObject validityInfoCbor = cbor.get("validityInfo");
+        Instant signed = Instant.from(
+          CBORUtils.INSTANT_FORMATTER.parse(
+            validityInfoCbor.get("signed").AsString()
+          )
+        );
+        Instant validFrom = Instant.from(
+          CBORUtils.INSTANT_FORMATTER.parse(
+            validityInfoCbor.get("validFrom").AsString()
+          )
+        );
+        Instant validUntil = Instant.from(
+          CBORUtils.INSTANT_FORMATTER.parse(
+            validityInfoCbor.get("validUntil").AsString()
+          )
+        );
+        Instant expectedUpdate = null;
+        if (validityInfoCbor.ContainsKey("expectedUpdate")) {
+          expectedUpdate = Instant.from(
+            CBORUtils.INSTANT_FORMATTER.parse(
+              validityInfoCbor.get("expectedUpdate").AsString()
             )
           );
         }
+        validityInfo = ValidityInfo.builder()
+          .signed(signed)
+          .validFrom(validFrom)
+          .validUntil(validUntil)
+          .expectedUpdate(expectedUpdate)
+          .build();
       }
-      deviceKeyInfo = DeviceKeyInfo.builder()
-        .deviceKey(deviceKey)
-        .keyAuthorizations(keyAuthorizations)
-        .keyInfo(null)
-        .build();
-    }
-    ValidityInfo validityInfo = null;
-    if (cbor.ContainsKey("validityInfo")) {
-      CBORObject validityInfoCbor = cbor.get("validityInfo");
-      Instant signed = Instant.from(
-        CBORUtils.INSTANT_FORMATTER.parse(
-          validityInfoCbor.get("signed").AsString()
-        )
-      );
-      Instant validFrom = Instant.from(
-        CBORUtils.INSTANT_FORMATTER.parse(
-          validityInfoCbor.get("validFrom").AsString()
-        )
-      );
-      Instant validUntil = Instant.from(
-        CBORUtils.INSTANT_FORMATTER.parse(
-          validityInfoCbor.get("validUntil").AsString()
-        )
-      );
-      Instant expectedUpdate = null;
-      if (validityInfoCbor.ContainsKey("expectedUpdate")) {
-        expectedUpdate = Instant.from(
-          CBORUtils.INSTANT_FORMATTER.parse(
-            validityInfoCbor.get("expectedUpdate").AsString()
-          )
-        );
-      }
-      validityInfo = ValidityInfo.builder()
-        .signed(signed)
-        .validFrom(validFrom)
-        .validUntil(validUntil)
-        .expectedUpdate(expectedUpdate)
-        .build();
-    }
 
-    // Construct and return MobileSecurityObject
-    MobileSecurityObject mobileSecurityObject = new MobileSecurityObject();
-    mobileSecurityObject.setVersion(version);
-    mobileSecurityObject.setDigestAlgorithm(digestAlgorithm);
-    mobileSecurityObject.setValueDigests(valueDigests);
-    mobileSecurityObject.setDeviceKeyInfo(deviceKeyInfo);
-    mobileSecurityObject.setDocType(docType);
-    mobileSecurityObject.setValidityInfo(validityInfo);
+      // Construct and return MobileSecurityObject
+      MobileSecurityObject mobileSecurityObject = new MobileSecurityObject();
+      mobileSecurityObject.setVersion(version);
+      mobileSecurityObject.setDigestAlgorithm(digestAlgorithm);
+      mobileSecurityObject.setValueDigests(valueDigests);
+      mobileSecurityObject.setDeviceKeyInfo(deviceKeyInfo);
+      mobileSecurityObject.setDocType(docType);
+      mobileSecurityObject.setValidityInfo(validityInfo);
 
-    return mobileSecurityObject;
+      return mobileSecurityObject;
+    } catch (Exception e) {
+      throw new TokenParsingException("Error parsing MobileSecurityObject from CBOR", e);
+    }
   }
 }
