@@ -34,5 +34,7 @@ jobs:
       - name: Run tests
         env:
           MAVEN_CLI_OPTS: --batch-mode --no-transfer-progress --errors --fail-at-end -Dstyle.color=always -DinstallAtEnd=true -DdeployAtEnd=true
-        run: mvn $MAVEN_CLI_OPTS test
+          GITHUB_ACTOR: ${{ github.actor }} 
+          PACKAGE_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        run: mvn $MAVEN_CLI_OPTS test -s development/settings.xml
  

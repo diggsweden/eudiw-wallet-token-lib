@@ -26,8 +26,8 @@ import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
 import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
-import se.idsec.cose.AlgorithmID;
-import se.idsec.cose.COSEKey;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.COSEKey;
 import se.swedenconnect.security.credential.PkiCredential;
 
 @Slf4j

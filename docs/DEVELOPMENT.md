@@ -1,5 +1,12 @@
 # Development Guide Lines
 
+## Build
+
+Example:
+
+```shell
+mvn clean verify -s development/settings.xml
+```
 TO-DO
 
 ## Tag and Release a new version
@@ -18,5 +25,5 @@ Currently only publishing to GitHub-packages
 ## Run same code quality tests locally as in CI
 
 ```shell
-./developement/codequality.sh
+./development/codequality.sh
 ```
