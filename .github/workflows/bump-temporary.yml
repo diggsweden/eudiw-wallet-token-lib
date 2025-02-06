@@ -74,7 +74,7 @@
             with:
               fetch-depth: 0
               ref: ${{ inputs.branch }} 
-              token: ${{ secrets.GITHUB_TOKEN }} 
+              token: ${{ secrets.OSPO_BOT_GHTOKEN }} 
     
           - name: Import GPG key
             id: import-gpg
@@ -90,7 +90,7 @@
             if: ${{ inputs.updatePom }}
             env:
               GITHUB_ACTOR: ${{ github.actor }}
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              PACKAGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             run: |
               echo "Tag: ${GITHUB_REF_NAME}"
               TAG="${GITHUB_REF_NAME#v}"
