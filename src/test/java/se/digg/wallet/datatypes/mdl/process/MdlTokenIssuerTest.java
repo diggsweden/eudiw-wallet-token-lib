@@ -16,8 +16,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.*;
-import se.idsec.cose.AlgorithmID;
-import se.idsec.cose.COSEKey;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.COSEKey;
 import se.swedenconnect.security.credential.PkiCredential;
 
 @Slf4j

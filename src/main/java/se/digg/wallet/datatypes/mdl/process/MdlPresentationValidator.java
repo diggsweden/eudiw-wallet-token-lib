@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.*;
-import se.idsec.cose.COSEObjectTag;
-import se.idsec.cose.CoseException;
-import se.idsec.cose.Sign1COSEObject;
+import se.digg.cose.COSEObjectTag;
+import se.digg.cose.CoseException;
+import se.digg.cose.Sign1COSEObject;
 
 import java.time.Duration;
 import java.util.List;

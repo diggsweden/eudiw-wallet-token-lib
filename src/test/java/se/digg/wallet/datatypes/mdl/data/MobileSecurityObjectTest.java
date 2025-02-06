@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import se.idsec.cose.AlgorithmID;
-import se.idsec.cose.COSEKey;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.COSEKey;
 
 @Slf4j
 class MobileSecurityObjectTest {

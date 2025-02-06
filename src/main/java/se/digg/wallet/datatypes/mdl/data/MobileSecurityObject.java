@@ -26,7 +26,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import se.digg.wallet.datatypes.common.TokenParsingException;
-import se.idsec.cose.*;
+import se.digg.cose.*;
 
 @Data
 @AllArgsConstructor

@@ -21,7 +21,7 @@ import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.digg.wallet.datatypes.mdl.data.CBORUtils;
 import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
 import se.digg.wallet.datatypes.mdl.data.IssuerSignedItem;
-import se.idsec.cose.CoseException;
+import se.digg.cose.CoseException;
 
 /**
  * mDL token issuer implementing the common TokenIssuer interface producing the IssuerSigned part

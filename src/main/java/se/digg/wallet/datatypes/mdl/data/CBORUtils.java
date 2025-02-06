@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.idsec.cose.*;
+import se.digg.cose.*;
 
 /**
  * Utility class for handling CBOR (Concise Binary Object Representation) encoding,

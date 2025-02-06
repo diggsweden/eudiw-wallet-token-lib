@@ -3,7 +3,7 @@ package se.digg.wallet.datatypes.mdl.process;
 import com.upokecenter.cbor.CBORObject;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.*;
-import se.idsec.cose.*;
+import se.digg.cose.*;
 
 import java.io.IOException;
 import java.security.PrivateKey;

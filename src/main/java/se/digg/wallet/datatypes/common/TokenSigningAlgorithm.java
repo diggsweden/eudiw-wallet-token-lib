@@ -21,8 +21,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import se.idsec.cose.AlgorithmID;
-import se.idsec.cose.COSEKey;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.COSEKey;
 
 /**
  * Supported Mdl

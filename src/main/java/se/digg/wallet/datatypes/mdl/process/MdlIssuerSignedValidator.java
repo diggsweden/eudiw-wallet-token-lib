@@ -22,7 +22,7 @@ import java.time.Instant;
 import java.util.*;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.*;
-import se.idsec.cose.*;
+import se.digg.cose.*;
 
 /**
  * Validator for validating @{link {@link IssuerSigned} tokens.

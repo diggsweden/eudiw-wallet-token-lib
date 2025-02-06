@@ -23,8 +23,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import se.digg.wallet.datatypes.common.TokenParsingException;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.idsec.cose.COSEKey;
-import se.idsec.cose.CoseException;
+import se.digg.cose.COSEKey;
+import se.digg.cose.CoseException;
 import se.swedenconnect.security.credential.PkiCredential;
 
 @Data

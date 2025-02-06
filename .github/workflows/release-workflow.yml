@@ -17,7 +17,7 @@ jobs:
     secrets: inherit
     permissions:
       contents: write
-    uses: diggsweden/.github/.github/workflows/version-bump-changelog.yml@main
+    uses: ./.github/workflows/bump-temporary.yml
     with:
       updatePom: true
       file_pattern: pom.xml CHANGELOG.md
