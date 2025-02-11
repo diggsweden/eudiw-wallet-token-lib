@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.upokecenter.cbor.CBORException;
 import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.cbor.CBORType;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.*;
 import se.digg.cose.*;
@@ -30,13 +32,13 @@ import se.digg.cose.*;
  * This is then completed in the Wallet to produce a complete verifiable credential presentation in the form of a mDoc
  *
  * <p>
- *   The user attributes in the IssuerSigned object is not masked, but individually signed by the signature.
- *   Selective disclosure is achieved by deleting the attributes that should not be revealed from this token.
- *   This then does not break the signature.
+ * The user attributes in the IssuerSigned object is not masked, but individually signed by the signature.
+ * Selective disclosure is achieved by deleting the attributes that should not be revealed from this token.
+ * This then does not break the signature.
  * </p>
  *
  * <p>
- *   Validation of an IssuerSigned token includes the following steps.
+ * Validation of an IssuerSigned token includes the following steps.
  * </p>
  *
  * <ul>
@@ -69,7 +71,7 @@ public class MdlIssuerSignedValidator implements TokenValidator {
   /**
    * Validates an IssuerSigned token issued by a EUDI wallet PID issuer or attestation issuer
    *
-   * @param token the CBOR encoded token to be validated as a byte array.
+   * @param token       the CBOR encoded token to be validated as a byte array.
    * @param trustedKeys optional list of trusted keys used for validation.
    * @return TokenValidationResult containing information about the validated token
    * @throws TokenValidationException if there are any failures during the token validation process
@@ -167,8 +169,8 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    *
    * @param mso the MobileSecurityObject to validate
    * @throws TokenValidationException if the MobileSecurityObject does not contain validity information,
-   * the signing time is not declared, the valid from time is not declared, the expiration time is not declared,
-   * the token declares signing time in the future, the token is not yet valid, or the token has expired
+   *                                  the signing time is not declared, the valid from time is not declared, the expiration time is not declared,
+   *                                  the token declares signing time in the future, the token is not yet valid, or the token has expired
    */
   private void timeValidation(MobileSecurityObject mso)
     throws TokenValidationException {
@@ -211,9 +213,9 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * Validates the attributes of a MobileSecurityObject against a map of namespaces and signed items.
    *
    * @param nameSpaces a map containing namespace strings as keys and lists of IssuerSignedItems as values
-   * @param mso the MobileSecurityObject to validate the attributes against
+   * @param mso        the MobileSecurityObject to validate the attributes against
    * @throws TokenValidationException if there are validation errors during attribute validation
-   * @throws IOException if an I/O error occurs
+   * @throws IOException              if an I/O error occurs
    * @throws NoSuchAlgorithmException if a required cryptographic algorithm is not available
    */
   private void validateAttributes(
@@ -224,52 +226,30 @@ public class MdlIssuerSignedValidator implements TokenValidator {
     if (nameSpaces == null) {
       throw new TokenValidationException("Token has no attribute information");
     }
-    Map<String, Map<Integer, byte[]>> tokenParsedIssuerSignedItemBytes =
-      parseTokenIssuerSignedItems(token);
-    for (Map.Entry<
-      String,
-      List<IssuerSignedItem>
-    > entry : nameSpaces.entrySet()) {
+    Map<String, Map<Integer, byte[]>> tokenParsedIssuerSignedItemBytes = parseTokenIssuerSignedItems(token);
+    for (Map.Entry<String, List<IssuerSignedItem>> entry : nameSpaces.entrySet()) {
       String namespace = entry.getKey();
-      Map<Integer, byte[]> tokenParsedNameSpace =
-        tokenParsedIssuerSignedItemBytes.get(namespace);
+      Map<Integer, byte[]> tokenParsedNameSpace = tokenParsedIssuerSignedItemBytes.get(namespace);
       List<IssuerSignedItem> items = entry.getValue();
       for (IssuerSignedItem item : items) {
         byte[] hashedBytes = tokenParsedNameSpace.get(item.getDigestID());
-        MessageDigest digest = MessageDigest.getInstance(
-          TokenDigestAlgorithm.fromMdlName(
-            mso.getDigestAlgorithm()
-          ).getJdkName()
-        );
+        MessageDigest digest = MessageDigest.getInstance(TokenDigestAlgorithm
+            .fromMdlName(mso.getDigestAlgorithm())
+            .getJdkName());
         byte[] signedItemHash = digest.digest(hashedBytes);
-        byte[] msoHash = getMsoHash(
-          mso.getValueDigests(),
-          namespace,
-          item.getDigestID()
-        );
+        byte[] msoHash = getMsoHash(mso.getValueDigests(), namespace, item.getDigestID());
         if (msoHash == null) {
-          throw new TokenValidationException(
-            "No hash available for present attribute " +
-            item.getDigestID() +
-            "for name space " +
-            namespace
-          );
+          throw new TokenValidationException("No hash available for present attribute " +
+              item.getDigestID() + "for name space " + namespace);
         }
-        if (!Arrays.equals(signedItemHash, msoHash)) {
-          throw new TokenValidationException(
-            "Hash mismatch for attribute " +
-            item.getDigestID() +
-            " in namespace " +
-            namespace
-          );
+        if (!Arrays.equals(signedItemHash, msoHash)) {throw new TokenValidationException(
+            "Hash mismatch for attribute " + item.getDigestID() + " in namespace " + namespace);
         }
       }
     }
   }
 
-  private Map<String, Map<Integer, byte[]>> parseTokenIssuerSignedItems(
-    byte[] token
-  ) throws TokenValidationException {
+  private Map<String, Map<Integer, byte[]>> parseTokenIssuerSignedItems(byte[] token) throws TokenValidationException {
     try {
       Map<String, Map<Integer, byte[]>> valueDigests = new HashMap<>();
       CBORObject issuerSigned = CBORObject.DecodeFromBytes(token);
@@ -292,15 +272,9 @@ public class MdlIssuerSignedValidator implements TokenValidator {
       }
       return valueDigests;
     } catch (CBORException e) {
-      throw new TokenValidationException(
-        "Failed to parse Issuer Signed Items",
-        e
-      );
+      throw new TokenValidationException("Failed to parse Issuer Signed Items", e);
     } catch (IOException e) {
-      throw new TokenValidationException(
-        "Unable to parse Issuer Signed Item bytes to object",
-        e
-      );
+      throw new TokenValidationException("Unable to parse Issuer Signed Item bytes to object", e);
     }
   }
 
@@ -308,8 +282,8 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * Retrieves the hash value corresponding to a given name space and digest ID from the provided value digests map.
    *
    * @param valueDigests a map containing signed hash values over provided attributes
-   * @param nameSpace the provided user attributes under defined name spaces
-   * @param digestID the ID of the signed digest for which the hash value is requested
+   * @param nameSpace    the provided user attributes under defined name spaces
+   * @param digestID     the ID of the signed digest for which the hash value is requested
    * @return the byte array representing the hash value, or null if the value digests map is null, the nameSpace is not found,
    * or the digest ID is not found within the specified nameSpace
    */
@@ -331,9 +305,9 @@ public class MdlIssuerSignedValidator implements TokenValidator {
   /**
    * Retrieves the validation key required for token validation.
    *
-   * @param chain the list of X509 certificates in the signature chain
+   * @param chain                 the list of X509 certificates in the signature chain
    * @param parsedSignatureObject the parsed signature object to extract key information from
-   * @param trustedKeys the list of trusted keys to validate against or null if all keys are trusted
+   * @param trustedKeys           the list of trusted keys to validate against or null if all keys are trusted
    * @return the validation key if found or null if not found
    * @throws TokenValidationException if no validation key is found or there is a validation error
    */
@@ -375,9 +349,9 @@ public class MdlIssuerSignedValidator implements TokenValidator {
    * preferring the key from protected attributes if present or else from unprotected attributes.
    *
    * <p>
-   *   Note that the COSE standard states that KID can be stored in unprotected attributes but does not forbid
-   *   storing it in protected attributes. The reason to look in protected attributes first, is because that information
-   *   is signed and hence more trustworthy.
+   * Note that the COSE standard states that KID can be stored in unprotected attributes but does not forbid
+   * storing it in protected attributes. The reason to look in protected attributes first, is because that information
+   * is signed and hence more trustworthy.
    * </p>
    *
    * @param parsedSignatureObject the Sign1COSEObject containing the signature attributes

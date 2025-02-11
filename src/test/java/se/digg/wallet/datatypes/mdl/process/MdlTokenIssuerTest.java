@@ -95,7 +95,10 @@ class MdlTokenIssuerTest {
       new MdlPresentationValidationInput((MdlPresentationInput) presentationInput),
       null
     );
-
     log.info("Validated and pared presentation token content:\n{}", CBORUtils.cborToPrettyJson(presentedToken));
+    log.info("Disclosed attributes:\n{}", String.join("\n", tokenValidationResult.getDisclosedAttributes().entrySet().stream()
+      .map(e -> e.getKey() + " -> " + e.getValue())
+      .toList()));
+
   }
 }

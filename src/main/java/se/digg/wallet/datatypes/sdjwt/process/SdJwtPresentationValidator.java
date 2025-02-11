@@ -1,11 +1,14 @@
 package se.digg.wallet.datatypes.sdjwt.process;
 
+import com.nimbusds.jose.Payload;
 import lombok.extern.slf4j.Slf4j;
 import se.digg.wallet.datatypes.common.*;
+import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwtPresentationValidationInput;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the PresentationValidator interface for validating SD JWT (Selective Disclosure JSON Web Token) presentations.
@@ -89,6 +92,9 @@ public class SdJwtPresentationValidator implements PresentationValidator {
         throw new TokenValidationException("Token is not issued for the intended audience");
       }
 
+      Map<TokenAttributeType, Object> disclosedAttributes = getDisclosedAttributes(sdJwtTokenValidationResult.getDisclosedTokenPayload());
+      sdJwtTokenValidationResult.setDisclosedAttributes(disclosedAttributes);
+
       return sdJwtTokenValidationResult;
     }
     catch (TokenValidationException e) {
@@ -97,5 +103,17 @@ public class SdJwtPresentationValidator implements PresentationValidator {
     catch (Exception e) {
       throw new TokenValidationException("Failed to validate SD JWT presentation", e);
     }
+  }
+
+  private Map<TokenAttributeType, Object> getDisclosedAttributes(Payload disclosedTokenPayload) {
+    Map<TokenAttributeType, Object> disclosedAttributes = new java.util.HashMap<>();
+    if (disclosedTokenPayload == null) {
+      return disclosedAttributes;
+    }
+    disclosedTokenPayload.toJSONObject().entrySet().stream()
+      .filter(entry -> !SdJwt.STD_CLAIMS.contains(entry.getKey()))
+      .filter(entry -> !"_sd".equals(entry.getKey()))
+      .forEach(entry -> disclosedAttributes.put(new TokenAttributeType(entry.getKey()), entry.getValue()));
+    return disclosedAttributes;
   }
 }

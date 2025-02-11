@@ -8,6 +8,8 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,4 +29,5 @@ public class TokenValidationResult{
   protected Instant issueTime;
   protected Instant expirationTime;
   protected String presentationRequestNonce;
+  protected Map<TokenAttributeType, Object> disclosedAttributes;
 }

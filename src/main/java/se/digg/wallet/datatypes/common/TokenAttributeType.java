@@ -16,4 +16,12 @@ public class TokenAttributeType {
     this.attributeName = attributeName;
     this.nameSpace = null;
   }
+
+  @Override
+  public String toString() {
+    if (nameSpace == null) {
+      return attributeName;
+    }
+    return nameSpace + ":" + attributeName;
+  }
 }

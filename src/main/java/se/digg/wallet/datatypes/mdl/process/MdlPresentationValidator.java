@@ -12,6 +12,7 @@ import se.digg.cose.Sign1COSEObject;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the {@link PresentationValidator} interface that validates
@@ -121,12 +122,14 @@ public class MdlPresentationValidator implements PresentationValidator {
       }
       // Signature is valid. Provide result data
       log.debug("Device signature is valid");
+      Map<TokenAttributeType, Object> disclosedAttributes = getDisclosedAttributes(issuerSigned.getNameSpaces());
       issuerSignedValidationResult.setPresentationRequestNonce(input.getRequestNonce());
       MdlPresentationValidationResult result = new MdlPresentationValidationResult(
         issuerSignedValidationResult,
         deviceResponse.getDocType(),
         deviceResponse.getStatus(),
-        deviceResponse.getVersion()
+        deviceResponse.getVersion(),
+        disclosedAttributes
       );
       result.setPresentationRequestNonce(input.getRequestNonce());
       return result;
@@ -135,5 +138,22 @@ public class MdlPresentationValidator implements PresentationValidator {
     } catch (Exception e) {
       throw new TokenValidationException("Error validating the mDL presentation token", e);
     }
+  }
+
+  private Map<TokenAttributeType, Object> getDisclosedAttributes(Map<String, List<IssuerSignedItem>> nameSpaces) {
+    Map<TokenAttributeType, Object> disclosedAttributes = new java.util.HashMap<>();
+    if (nameSpaces == null || nameSpaces.isEmpty()) {
+      return disclosedAttributes;
+    }
+    nameSpaces.forEach((namespace, nsAttributes) -> {
+      if (nsAttributes != null) {
+        nsAttributes.forEach(issuerSignedItem -> {
+          disclosedAttributes.put(
+            new TokenAttributeType(namespace, issuerSignedItem.getElementIdentifier()),
+            issuerSignedItem.getElementValue());
+        });
+      }
+    });
+    return disclosedAttributes;
   }
 }

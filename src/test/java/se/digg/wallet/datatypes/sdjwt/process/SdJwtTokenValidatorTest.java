@@ -112,7 +112,13 @@ class SdJwtTokenValidatorTest {
     log.info("Validation Certificate: {}", validationResult.getValidationCertificate());
     log.info("Validation Key: {}", validationResult.getValidationKey());
     log.info("VC Token: {}", validationResult.getVcToken().getIssuerSigned().serialize().replace("\n", "\\n"));
-    log.info("Disclosed Token Payload: {}", JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(validationResult.getDisclosedTokenPayload().toJSONObject()));
+    log.info("Undisclosed payload:\n{}", JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(
+      validationResult.getVcToken().getIssuerSigned().getJWTClaimsSet().getClaims()
+    ));
+    validationResult.getVcToken().getDisclosures().forEach(disclosure -> {
+      log.info("Disclosure - attr: {}, value: {}, salt {}", disclosure.getName(), disclosure.getValue(), disclosure.getSalt().toString());
+    });
+    log.info("Disclosed Token Payload:\n{}", JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(validationResult.getDisclosedTokenPayload().toJSONObject()));
     log.info("Audience: {}", validationResult.getAudience());
     log.info("Issue Time: {}", validationResult.getIssueTime());
     log.info("Expiration Time: {}", validationResult.getExpirationTime());

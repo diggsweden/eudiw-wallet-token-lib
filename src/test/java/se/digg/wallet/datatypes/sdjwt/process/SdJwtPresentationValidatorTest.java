@@ -3,15 +3,13 @@ package se.digg.wallet.datatypes.sdjwt.process;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import se.digg.wallet.datatypes.common.TestCredentials;
-import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.digg.wallet.datatypes.common.TokenValidationException;
-import se.digg.wallet.datatypes.common.TrustedKey;
+import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwtPresentationInput;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwtPresentationValidationInput;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.time.Duration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -102,6 +100,18 @@ class SdJwtPresentationValidatorTest {
       wrongAudienceInput,
       presentedToken,
       allTrusted, TokenValidationException.class);
+
+    // Ref implementation test
+    SdJwtPresentationValidationInput refValidationInput = new SdJwtPresentationValidationInput(
+      TestData.SD_JWT_EUDI_REF_01_NONCE, TestData.SD_JWT_EUDI_REF_01_AUDIENCE
+    );
+
+    // Set time skew to make sure this never expires
+    SdJwtPresentationValidator refValidator = new SdJwtPresentationValidator(Duration.ofDays(36500));
+    performTestCase("Reference implementation test",
+      refValidator,
+      refValidationInput,
+      TestData.SD_JWT_EUDI_REF_01.getBytes(), null, null);
   }
 
 
@@ -123,6 +133,9 @@ class SdJwtPresentationValidatorTest {
       SdJwtTokenValidationResult validationResult = validator.validatePresentation(presentation, input, trustedKeys);
       assertNotNull(validationResult);
       SdJwtTokenValidatorTest.logValidationResult(validationResult);
+      log.info("Disclosed attributes:\n{}", String.join("\n", validationResult.getDisclosedAttributes().entrySet().stream()
+        .map(e -> e.getKey() + " -> " + e.getValue())
+        .toList()));
       assertNotNull(validationResult.getValidationCertificate());
       assertNotNull(validationResult.getValidationKey());
       assertNotNull(validationResult.getVcToken());

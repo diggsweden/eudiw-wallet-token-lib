@@ -13,7 +13,6 @@ import com.upokecenter.cbor.CBORType;
 import com.upokecenter.numbers.EInteger;
 
 import java.io.IOException;
-import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;

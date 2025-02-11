@@ -103,14 +103,14 @@ class SdJwtTest {
             )
           )
           .arrayEntry(
-            "nationality",
+            "nationalities",
             new Disclosure(TokenAttribute.builder().value("US").build())
           )
           .arrayEntry(
-            "nationality",
+            "nationalities",
             new Disclosure(TokenAttribute.builder().value("DE").build())
           )
-          .arrayEntry("nationality", "SE")
+          .arrayEntry("nationalities", "SE")
           .openClaim("open", "Value")
           .claimsWithDisclosure(
             "address",
