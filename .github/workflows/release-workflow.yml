@@ -7,8 +7,9 @@ name: Release Workflow
 on:
   push:
     tags:
-      - "v[0-9]*.[0-9]*" # Forces at least vX.Y and then allows anything after
-
+#      - "v[0-9]*.[0-9]*" # Forces at least vX.Y and then allows anything after
+      - "v[0-9]*.[0-9]*.[0-9]*-SNAPSHOT" # Matches vX.Y.Z-SNAPSHOT only for now, so we don't release non-snapshots
+      
 permissions:
   contents: read
 
