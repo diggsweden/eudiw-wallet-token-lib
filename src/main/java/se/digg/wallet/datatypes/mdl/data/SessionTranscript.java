@@ -13,10 +13,10 @@ import java.util.Objects;
 @Getter
 public class SessionTranscript {
 
-  private String clientId;
-  private String responseUri;
-  private String nonce;
-  private String mdocGeneratedNonce;
+  private final String clientId;
+  private final String responseUri;
+  private final String nonce;
+  private final String mdocGeneratedNonce;
 
   public SessionTranscript(String clientId, String responseUri, String nonce, String mdocGeneratedNonce) {
     this.clientId = clientId;
@@ -34,7 +34,7 @@ public class SessionTranscript {
     CBORObject handover = CBORObject.NewArray();
     handover.Add(getHashItem(this.clientId, this.mdocGeneratedNonce));
     handover.Add(getHashItem(this.responseUri, this.mdocGeneratedNonce));
-    handover.Add(CBORObject.FromObject(this.nonce));
+    handover.Add(CBORObject.FromString(this.nonce));
 
     CBORObject sessionTranscript = CBORObject.NewArray();
     sessionTranscript.Add(null);

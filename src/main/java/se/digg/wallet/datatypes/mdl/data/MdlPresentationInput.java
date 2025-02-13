@@ -20,7 +20,7 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
 
   public static class MdlPresentationInputBuilder {
 
-    MdlPresentationInput mdlPresentationInput;
+    final MdlPresentationInput mdlPresentationInput;
 
     public MdlPresentationInputBuilder() {
       mdlPresentationInput = new MdlPresentationInput();

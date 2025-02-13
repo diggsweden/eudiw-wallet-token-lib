@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import lombok.Getter;
 import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
+import se.digg.wallet.datatypes.common.Utils;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 
 /**
@@ -63,42 +64,44 @@ public class ClaimsWithDisclosure {
     ClaimsWithDisclosureBuilder cwdBuilder = ClaimsWithDisclosure.builder(
       sdAlg
     );
-    List<String> sd = (List<String>) claimsMap.get("_sd");
-    if (sd != null) {
-      // There are disclosures at this level. Add them to this level
-      for (Disclosure disc : disclosureList) {
-        String hashString = JSONUtils.disclosureHashString(disc, sdAlg.getSdJwtName());
-        if (sd.contains(hashString)) {
-          cwdBuilder.disclosure(disc);
+    if (claimsMap.get("_sd") != null) {
+      if (claimsMap.get("_sd") instanceof List<?> sd) {
+        // There are disclosures at this level. Add them to this level
+        for (Disclosure disc : disclosureList) {
+          String hashString = JSONUtils.disclosureHashString(disc, sdAlg.getSdJwtName());
+          if (sd.contains(hashString)) {
+            cwdBuilder.disclosure(disc);
+          }
         }
-      }
-      Map<String, Object> filteredMap = new HashMap<>(claimsMap);
-      filteredMap.remove("_sd");
-      for (Map.Entry<String, Object> entry : filteredMap.entrySet()) {
-        if (entry.getValue() instanceof Map) {
-          Map<String, Object> subMap = (Map<String, Object>) entry.getValue();
-          if (subMap.containsKey("_sd")) {
-            ClaimsWithDisclosure subCwd = parse(subMap, disclosureList, sdAlg);
-            cwdBuilder.claimsWithDisclosure(entry.getKey(), subCwd);
+        Map<String, Object> filteredMap = new HashMap<>(claimsMap);
+        filteredMap.remove("_sd");
+        for (Map.Entry<String, Object> entry : filteredMap.entrySet()) {
+          if (entry.getValue() instanceof Map<?,?>) {
+            Map<String, Object> subMap = Utils.ensureStringObjectMap(entry.getValue());
+            if (subMap.containsKey("_sd")) {
+              ClaimsWithDisclosure subCwd = parse(subMap, disclosureList, sdAlg);
+              cwdBuilder.claimsWithDisclosure(entry.getKey(), subCwd);
+            } else {
+              subMap
+                .entrySet()
+                .forEach(
+                  subEntry ->
+                    cwdBuilder.openClaim(subEntry.getKey(), subEntry.getValue())
+                );
+            }
+          }
+          if (entry.getValue() instanceof List<?>) {
+            List<Object> valueList = new ArrayList<>();
+            for (Object item : (List<?>) entry.getValue()) {
+              cwdBuilder.arrayEntry(entry.getKey(), item);
+            }
+            cwdBuilder.arrayEntry(entry.getKey(), valueList);
           } else {
-            subMap
-              .entrySet()
-              .stream()
-              .forEach(
-                subEntry ->
-                  cwdBuilder.openClaim(subEntry.getKey(), subEntry.getValue())
-              );
+            cwdBuilder.openClaim(entry.getKey(), entry.getValue());
           }
         }
-        if (entry.getValue() instanceof List<?>) {
-          List<Object> valueList = new ArrayList<>();
-          for (Object item : (List<?>) entry.getValue()) {
-            cwdBuilder.arrayEntry(entry.getKey(), item);
-          }
-          cwdBuilder.arrayEntry(entry.getKey(), valueList);
-        } else {
-          cwdBuilder.openClaim(entry.getKey(), entry.getValue());
-        }
+      } else {
+        throw new IllegalArgumentException("Malformed _sd parameter");
       }
     }
     return cwdBuilder.build();
@@ -157,7 +160,7 @@ public class ClaimsWithDisclosure {
 
   public static class ClaimsWithDisclosureBuilder {
 
-    private ClaimsWithDisclosure claimsWithDisclosure;
+    private final ClaimsWithDisclosure claimsWithDisclosure;
 
     public ClaimsWithDisclosureBuilder(TokenDigestAlgorithm hashAlgo) {
       this.claimsWithDisclosure = new ClaimsWithDisclosure();
@@ -214,4 +217,5 @@ public class ClaimsWithDisclosure {
       return claimsWithDisclosure;
     }
   }
+
 }

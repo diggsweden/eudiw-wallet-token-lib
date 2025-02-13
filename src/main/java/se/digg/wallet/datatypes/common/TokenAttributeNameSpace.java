@@ -9,5 +9,5 @@ public enum TokenAttributeNameSpace {
   EUDI_WALLET_PID("eu.europa.ec.eudi.pid.1"),
   MDOC_MDL("org.iso.18013.5.1");
 
-  String id;
+  final String id;
 }

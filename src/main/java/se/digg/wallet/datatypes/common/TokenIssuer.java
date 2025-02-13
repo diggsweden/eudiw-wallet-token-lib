@@ -5,7 +5,15 @@
 package se.digg.wallet.datatypes.common;
 
 /**
- * Interface for a token issuer
+ * Represents a contract for issuing tokens based on input data.
+ *
+ * This interface defines the method necessary to generate a token given a set of inputs
+ * provided by a class extending from {@link TokenInput}. Implementations of this interface
+ * handle the process of token creation, including applying signing algorithms and
+ * enforcing properties like issuer credentials, validity duration, and selective disclosure.
+ *
+ * @param <T> the type parameter extending {@link TokenInput}, encapsulating the data required
+ *            to issue a token
  */
 public interface TokenIssuer<T extends TokenInput> {
 

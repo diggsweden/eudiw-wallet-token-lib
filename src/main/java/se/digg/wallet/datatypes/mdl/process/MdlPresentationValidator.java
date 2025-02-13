@@ -62,7 +62,7 @@ public class MdlPresentationValidator implements PresentationValidator {
    * @throws TokenParsingException if there are errors in parsing the token data
    */
   @Override
-  public TokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput,
+  public MdlPresentationValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput,
        List<TrustedKey> trustedKeys) throws TokenValidationException, TokenParsingException {
 
     if (log.isTraceEnabled()) {

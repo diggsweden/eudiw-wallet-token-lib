@@ -113,9 +113,9 @@ public class IssuerSigned {
       String version,
       String signingKid
     ) throws CoseException {
-      Objects.requireNonNull(issuerCredential);
-      Objects.requireNonNull(signingAlgorithm);
-      Objects.requireNonNull(validity);
+      Objects.requireNonNull(issuerCredential, "issuerCredential must be set");
+      Objects.requireNonNull(signingAlgorithm, "signingAlgorithm must be set");
+      Objects.requireNonNull(validity, "validity must be set");
       this.issuerCredential = issuerCredential;
       this.signingAlgorithm = signingAlgorithm;
       this.docType = docType;

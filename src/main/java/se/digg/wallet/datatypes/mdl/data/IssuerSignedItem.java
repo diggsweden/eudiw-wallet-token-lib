@@ -80,7 +80,7 @@ public class IssuerSignedItem {
     public IssuerSignedItem deserialize(
       JsonParser gen,
       DeserializationContext ctxt
-    ) throws IOException, JsonProcessingException {
+    ) throws IOException {
       if (gen instanceof CBORParser) {
         byte[] value = gen.getBinaryValue();
         // Parse CBOR

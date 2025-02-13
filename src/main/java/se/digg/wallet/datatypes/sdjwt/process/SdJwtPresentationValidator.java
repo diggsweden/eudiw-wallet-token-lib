@@ -61,10 +61,9 @@ public class SdJwtPresentationValidator implements PresentationValidator {
    * @param trustedKeys an optional list of trusted keys used to verify the presentation's integrity
    * @return A {@code TokenValidationResult} containing the result of the validation process, including status and additional data.
    * @throws TokenValidationException If the validation fails due to invalid or missing values, or key binding issues.
-   * @throws TokenParsingException If the presentation token cannot be parsed successfully.
    */
   @Override
-  public SdJwtTokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput, List<TrustedKey> trustedKeys) throws TokenValidationException, TokenParsingException {
+  public SdJwtTokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput, List<TrustedKey> trustedKeys) throws TokenValidationException {
 
     if (log.isTraceEnabled()) {
       log.trace("Validating SD JWT presentation:\n{}", new String(presentation));

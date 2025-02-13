@@ -19,7 +19,7 @@ public class SdJwtPresentationInput extends PresentationInput<List<String>> {
 
   public static class SdJwtPresentationInputbuilder {
 
-    private SdJwtPresentationInput presentationInput;
+    private final SdJwtPresentationInput presentationInput;
 
     public SdJwtPresentationInputbuilder() {
       presentationInput = new SdJwtPresentationInput();

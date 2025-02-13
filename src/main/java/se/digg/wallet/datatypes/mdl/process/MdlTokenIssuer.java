@@ -113,6 +113,9 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
     } catch (IOException e) {
       throw new TokenIssuingException("Error issuing token",e);
     }
+    catch (NullPointerException e) {
+      throw new TokenIssuingException("Missing required input parameters", e);
+    }
   }
 
   /**

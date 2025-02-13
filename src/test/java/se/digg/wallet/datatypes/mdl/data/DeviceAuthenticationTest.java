@@ -11,7 +11,7 @@ class DeviceAuthenticationTest {
 
 
   @Test
-  void deviceAuthenticationTest() throws Exception {
+  void deviceAuthenticationTest() {
 
 
     DeviceAuthentication deviceAuthentication = new DeviceAuthentication(

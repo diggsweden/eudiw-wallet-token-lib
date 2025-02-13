@@ -131,8 +131,7 @@ public class SdJwtTokenValidator implements TokenValidator {
     );
     String hashAlgo = (String) claims.get("_sd_alg");
     expandClaims(claims, claimsWithDisclosure.getAllDisclosures(), hashAlgo);
-    Payload reconstructedPayload = new Payload(claims);
-    return reconstructedPayload;
+    return new Payload(claims);
   }
 
   private void expandClaims(
@@ -147,7 +146,7 @@ public class SdJwtTokenValidator implements TokenValidator {
       if (entry.getValue() instanceof Map<?, ?> subMap) {
         if (subMap.containsKey("_sd")) {
           expandClaims(
-            (Map<String, Object>) entry.getValue(),
+            Utils.ensureStringObjectMap(entry.getValue()),
             allDisclosures,
             hashAlgo
           );
@@ -161,9 +160,8 @@ public class SdJwtTokenValidator implements TokenValidator {
     // Start with List items
     for (Map.Entry<String, Object> entry : claims.entrySet()) {
       if (
-        entry.getValue() instanceof List<?> && !entry.getKey().equals("_sd")
+        entry.getValue() instanceof List<?> list && !entry.getKey().equals("_sd")
       ) {
-        List<?> list = (List<?>) entry.getValue();
         List<Object> expandedList = new ArrayList<>();
         for (Object item : list) {
           if (item instanceof Map<?, ?>) {
@@ -190,7 +188,7 @@ public class SdJwtTokenValidator implements TokenValidator {
       }
     }
     // And finally, add new MAP items.
-    List<String> sdClaims = (List<String>) claims.get("_sd");
+    List<String> sdClaims = Utils.ensureStringList(claims.get("_sd")) ;
     // sdClaims holds all hashes of potential claims on this level
     for (Disclosure disclosure : allDisclosures) {
       // Iterating through all disclosures relevant to test

@@ -1,5 +1,6 @@
 package se.digg.wallet.datatypes.mdl.process;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.upokecenter.cbor.CBORObject;
 import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.mdl.data.*;
@@ -44,8 +45,14 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
         DeviceResponse deviceResponse = new DeviceResponse(docType, issuerSigned, deviceSignature.EncodeToBytes());
         return CBORUtils.CBOR_MAPPER.writeValueAsBytes(deviceResponse);
 
-      } catch (IOException | TokenParsingException | TokenValidationException | CoseException | CertificateEncodingException e) {
+      }
+      catch (TokenParsingException | TokenValidationException | CoseException | CertificateEncodingException e) {
         throw new TokenPresentationException("Error presenting token", e);
+      }
+      catch (NullPointerException e) {
+        throw new TokenPresentationException("Missing required input", e);
+      } catch (JsonProcessingException e) {
+        throw new TokenPresentationException("Error serializing token", e);
       }
     } else {
       throw new TokenPresentationException("PresentationInput must be of type MdlPresentationInput");

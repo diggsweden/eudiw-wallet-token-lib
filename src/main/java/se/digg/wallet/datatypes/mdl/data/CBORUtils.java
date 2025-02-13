@@ -11,7 +11,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.cbor.CBORType;
 import com.upokecenter.numbers.EInteger;
-
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -23,9 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
-import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.digg.cose.*;
 
 /**
@@ -37,6 +34,16 @@ import se.digg.cose.*;
  */
 @Slf4j
 public class CBORUtils {
+
+  /**
+   * Utility class for handling CBOR (Concise Binary Object Representation) operations.
+   * This class is designed to provide helper methods for processing and managing CBOR data,
+   * ensuring consistency and facilitating interactions with CBOR-encoded structures.
+   *
+   * This class is not intended to be instantiated. It provides only static utility methods for usage.
+   */
+  private CBORUtils() {
+  }
 
   /** ObjectMapper for parsing serializing objects to CBOR */
   public static final ObjectMapper CBOR_MAPPER;
@@ -142,9 +149,8 @@ public class CBORUtils {
    *
    * @param cborBytes the byte array containing CBOR-encoded data
    * @return the JSON string representation of the CBOR data
-   * @throws IOException if an error occurs during CBOR decoding
    */
-  public static String cborToJson(byte[] cborBytes) throws IOException {
+  public static String cborToJson(byte[] cborBytes) {
     // Decode CBOR bytes to a CBOR object
     CBORObject cborObject = CBORObject.DecodeFromBytes(cborBytes);
     if (cborObject.isTagged()) {
@@ -177,7 +183,7 @@ public class CBORUtils {
       .writeValueAsString(objectMapper.readValue(jsonString, Object.class));
   }
 
-  public static Sign1COSEObject sign(byte[] toBeSigned, COSEKey key, AlgorithmID algorithmID, String kid, List<X509Certificate> chain, boolean protectedKid) throws IOException, CoseException, CertificateEncodingException {
+  public static Sign1COSEObject sign(byte[] toBeSigned, COSEKey key, AlgorithmID algorithmID, String kid, List<X509Certificate> chain, boolean protectedKid) throws CoseException, CertificateEncodingException {
     Sign1COSEObject coseSignature = new Sign1COSEObject(false);
     coseSignature.SetContent(toBeSigned);
     coseSignature.addAttribute(

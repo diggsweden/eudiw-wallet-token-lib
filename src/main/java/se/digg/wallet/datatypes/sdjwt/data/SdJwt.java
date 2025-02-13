@@ -20,6 +20,7 @@ import java.util.*;
 import lombok.Data;
 import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
 import se.digg.wallet.datatypes.common.TokenValidationException;
+import se.digg.wallet.datatypes.common.Utils;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.swedenconnect.security.credential.PkiCredential;
 
@@ -397,7 +398,7 @@ public class SdJwt {
     }
     if (cnf instanceof Map<?, ?> confirmationMap) {
       if (confirmationMap.get("jwk") instanceof Map<?, ?> jwkMap) {
-        return JWK.parse((Map<String, Object>) jwkMap);
+        return JWK.parse(Utils.ensureStringObjectMap(jwkMap));
       } else {
         throw new TokenValidationException("No JWK key in cnf claim");
       }

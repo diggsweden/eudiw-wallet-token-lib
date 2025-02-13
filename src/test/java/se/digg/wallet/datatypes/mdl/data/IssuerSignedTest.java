@@ -344,7 +344,7 @@ class IssuerSignedTest {
     log.info("Hash: {}", Hex.toHexString(sha256Hash(toBeHashedBytes)));
   }
 
-  byte[] sha256Hash(byte[] toBeHashedBytes) throws Exception {
+  byte[] sha256Hash(byte[] toBeHashedBytes) {
     Digest digest = new SHA256Digest();
     byte[] hash = new byte[digest.getDigestSize()];
     digest.update(toBeHashedBytes, 0, toBeHashedBytes.length);
@@ -353,7 +353,7 @@ class IssuerSignedTest {
   }
 
   @Test
-  void testIsoNameSpaceExample() throws Exception {
+  void testIsoNameSpaceExample() {
     // To be deleted
     byte[] evcExample = Base64.getUrlDecoder()
       .decode(

@@ -28,6 +28,50 @@ import lombok.NoArgsConstructor;
 import se.digg.wallet.datatypes.common.TokenParsingException;
 import se.digg.cose.*;
 
+/**
+ * Represents the Mobile Security Object (MSO) used for secure verification and digital signatures
+ * with associated metadata, key details, and validity information.
+ * <p>
+ * This class supports serialization and deserialization to/from CBOR format for cross-platform
+ * compatibility and secure communication.
+ * <p>
+ * Features include:
+ * - Representation of key and validity information related to the security of mobile devices.
+ * - CBOR serialization and deserialization for the MSO and its nested objects.
+ * - Signing functionality using cryptographic keys and algorithms.
+ * <p>
+ * An MSO consists of digest information, keys, metadata, and timestamps to ensure secure and
+ * compliant operations.
+ * <p>
+ * The structure includes:
+ * <ul>
+ * <li>Version information.</li>
+ * <li>Digest algorithm details.</li>
+ * <li>Digest values mapped with associated metadata.</li>
+ * <li>Device key data and authorizations.</li>
+ * <li>Document type specification.</li>
+ * <li>Validity timeframes for the MSO.</li>
+ * </ul>
+ *
+ * Nested structures:
+ * <ul>
+ *   <li>{@code DeviceKeyInfo}: Contains key metadata, authorizations, and other key-related details.</li>
+ *   <li>{@code ValidityInfo}: Represents validity timestamps like signed time, valid start, and expiration.</li>
+ *   <li>{@code KeyAuthorizations}: Includes key authorizations pertaining to nameSpaces and data elements.</li>
+ * </ul>
+ *
+ * The MSO can be signed using a digital key and validated for its authenticity.
+ * <p>
+ * API includes:
+ * <ul>
+ *   <li>Methods for signing the object using a key and certificate chain.</li>
+ *   <li>Serialization to CBOR using customized logic.</li>
+ *   <li>Deserialization of the CBOR-encoded MSO.</li>
+ * </ul>
+ *
+ * Custom CBOR serialization is implemented via a nested {@code Serializer} class, ensuring accurate
+ * representation of this object in the CBOR format.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,16 +80,30 @@ import se.digg.cose.*;
 @JsonSerialize(using = MobileSecurityObject.Serializer.class)
 public class MobileSecurityObject {
 
+  /** Version */
   private String version;
+  /** Digest algorithm for digest values */
   private String digestAlgorithm;
+  /** Digest values for attributes provided in the issuer signed structure */
   private Map<String, Map<Integer, byte[]>> valueDigests;
+  /** wallet key */
   private DeviceKeyInfo deviceKeyInfo;
+  /** type of mdoc document */
   private String docType;
+  /** Validation information such as issue time and expiration time */
   private ValidityInfo validityInfo;
 
+  /**
+   * Builder class for creating instances of MobileSecurityObject.
+   */
   public static class MobileSecurityObjectBuilder {} //lombok workaround
 
   // https://stackoverflow.com/questions/51947791/javadoc-cannot-find-symbol-error-when-using-lomboks-builder-annotation
+
+  /**
+   * Represents information related to a device key in the MobileSecurityObject.
+   * This class includes the key itself, associated authorizations, and additional metadata.
+   */
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
