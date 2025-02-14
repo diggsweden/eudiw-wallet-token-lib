@@ -4,13 +4,12 @@
 
 package se.digg.wallet.datatypes.sdjwt;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
-
-import java.util.Base64;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 class JSONUtilsTest {

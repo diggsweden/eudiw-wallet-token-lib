@@ -25,8 +25,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.COSEKey;
+import se.digg.cose.CoseException;
+import se.digg.cose.Sign1COSEObject;
 import se.digg.wallet.datatypes.common.TokenParsingException;
-import se.digg.cose.*;
 
 /**
  * Represents the Mobile Security Object (MSO) used for secure verification and digital signatures
@@ -142,8 +145,7 @@ public class MobileSecurityObject {
     List<X509Certificate> chain,
     COSEKey key,
     AlgorithmID algorithmID
-  )
-    throws IOException, CoseException, CertificateEncodingException {
+  ) throws IOException, CoseException, CertificateEncodingException {
     return sign(chain, key, algorithmID, null, false);
   }
 
@@ -154,10 +156,16 @@ public class MobileSecurityObject {
     AlgorithmID algorithmID,
     String kid,
     boolean protectedKid
-  )
-    throws IOException, CoseException, CertificateEncodingException {
+  ) throws IOException, CoseException, CertificateEncodingException {
     byte[] toBeSigned = CBORUtils.CBOR_MAPPER.writeValueAsBytes(this);
-    Sign1COSEObject msg = CBORUtils.sign(toBeSigned, key, algorithmID, kid, chain, protectedKid);
+    Sign1COSEObject msg = CBORUtils.sign(
+      toBeSigned,
+      key,
+      algorithmID,
+      kid,
+      chain,
+      protectedKid
+    );
     return msg.EncodeToCBORObject();
   }
 
@@ -427,7 +435,10 @@ public class MobileSecurityObject {
 
       return mobileSecurityObject;
     } catch (Exception e) {
-      throw new TokenParsingException("Error parsing MobileSecurityObject from CBOR", e);
+      throw new TokenParsingException(
+        "Error parsing MobileSecurityObject from CBOR",
+        e
+      );
     }
   }
 }

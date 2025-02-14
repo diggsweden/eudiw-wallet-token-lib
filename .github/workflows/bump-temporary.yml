@@ -95,6 +95,7 @@
               echo "Tag: ${GITHUB_REF_NAME}"
               TAG="${GITHUB_REF_NAME#v}"
               echo "Version: ${TAG}"
+              # shellcheck disable=SC2086 
               mvn $MAVEN_CLI_OPTS versions:set -DnewVersion="${TAG}" -DgenerateBackupPoms=false -DskipTests -s development/settings.xml
    
           - name: Generate changelog

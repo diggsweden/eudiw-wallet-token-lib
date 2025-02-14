@@ -4,7 +4,9 @@
 
 package se.digg.wallet.datatypes.mdl.process;
 
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import se.digg.wallet.datatypes.common.TokenValidationResult;
 import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
 import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
@@ -13,6 +15,7 @@ import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
 @Data
 @NoArgsConstructor
 public class MdlIssuerSignedValidationResult extends TokenValidationResult {
+
   protected IssuerSigned issuerSigned;
   protected MobileSecurityObject mso;
 }

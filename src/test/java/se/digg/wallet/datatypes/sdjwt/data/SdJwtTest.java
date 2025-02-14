@@ -4,7 +4,7 @@
 
 package se.digg.wallet.datatypes.sdjwt.data;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSSigner;
@@ -13,7 +13,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jwt.SignedJWT;
-
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -21,17 +20,20 @@ import java.security.interfaces.ECPrivateKey;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import se.digg.wallet.datatypes.common.*;
 import se.digg.wallet.datatypes.common.TestCredentials;
+import se.digg.wallet.datatypes.common.TokenAttribute;
+import se.digg.wallet.datatypes.common.TokenAttributeType;
+import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
+import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
+import se.digg.wallet.datatypes.common.TrustedKey;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
+import se.digg.wallet.datatypes.sdjwt.process.SdJwtPresentationValidator;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenPresenter;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidationResult;
 import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidator;
-import se.digg.wallet.datatypes.sdjwt.process.SdJwtPresentationValidator;
 import se.swedenconnect.security.credential.PkiCredential;
 
 @Slf4j
@@ -55,10 +57,7 @@ class SdJwtTest {
     TokenDigestAlgorithm sdAlgorithm = TokenDigestAlgorithm.SHA_256;
     Duration validity = Duration.ofDays(1);
 
-    SdJwt sdJwt = SdJwt.builder(
-        "https://example.com/pid-issuer",
-        sdAlgorithm
-      )
+    SdJwt sdJwt = SdJwt.builder("https://example.com/pid-issuer", sdAlgorithm)
       .legacySdJwtType(true)
       .confirmationKey(walletKey.toPublicJWK())
       .verifiableCredentialType("https://example.com/identity_credential")
@@ -68,14 +67,16 @@ class SdJwtTest {
             new Disclosure(
               TokenAttribute.builder()
                 .type(new TokenAttributeType("given_name"))
-                .value("John").build()
+                .value("John")
+                .build()
             )
           )
           .disclosure(
             new Disclosure(
               TokenAttribute.builder()
                 .type(new TokenAttributeType("family_name"))
-                .value("Doe").build()
+                .value("Doe")
+                .build()
             )
           )
           .disclosure(
@@ -143,7 +144,8 @@ class SdJwtTest {
                 new Disclosure(
                   TokenAttribute.builder()
                     .type(new TokenAttributeType("country"))
-                    .value("US").build()
+                    .value("US")
+                    .build()
                 )
               )
               .build()
@@ -177,7 +179,9 @@ class SdJwtTest {
     SdJwt parsedSdJwt = SdJwt.parse(unprotectedPresentation);
     assertNotNull(parsedSdJwt);
 
-    String nonce = JSONUtils.base64URLString(new BigInteger(64, RNG).toByteArray());
+    String nonce = JSONUtils.base64URLString(
+      new BigInteger(64, RNG).toByteArray()
+    );
     SdJwtPresentationInput presentationInput = SdJwtPresentationInput.builder()
       .algorithm(TokenSigningAlgorithm.ECDSA_256)
       .token(unprotectedPresentation.getBytes())
@@ -186,10 +190,16 @@ class SdJwtTest {
       .build();
 
     SdJwtTokenPresenter tokenPresenter = new SdJwtTokenPresenter();
-    byte[] presentedToken = tokenPresenter.presentToken(presentationInput, walletKey.toECPrivateKey());
+    byte[] presentedToken = tokenPresenter.presentToken(
+      presentationInput,
+      walletKey.toECPrivateKey()
+    );
     assertNotNull(presentedToken);
 
-    log.info("\nProtected presentation with disclosures:\n{}", new String(presentedToken));
+    log.info(
+      "\nProtected presentation with disclosures:\n{}",
+      new String(presentedToken)
+    );
 
     log.info(
       "Token Payload:\n{}",
@@ -217,24 +227,33 @@ class SdJwtTest {
 
     // Validate and reconstruct disclosed credentials;
     SdJwtTokenValidator validator = new SdJwtTokenValidator();
-    SdJwtTokenValidationResult validationResult =
-      validator.validateToken(presentedToken, null);
+    SdJwtTokenValidationResult validationResult = validator.validateToken(
+      presentedToken,
+      null
+    );
 
     log.info(
       "Disclosed payload:\n{}",
       JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
-        .writeValueAsString(validationResult.getDisclosedTokenPayload().toJSONObject())
+        .writeValueAsString(
+          validationResult.getDisclosedTokenPayload().toJSONObject()
+        )
     );
 
     // Finally testing the presentation validator
-    SdJwtPresentationValidator presentationValidator = new SdJwtPresentationValidator();
-    TokenValidationResult presentationValidationResult = presentationValidator.validatePresentation(
+    SdJwtPresentationValidator presentationValidator =
+      new SdJwtPresentationValidator();
+    presentationValidator.validatePresentation(
       presentedToken,
-      new SdJwtPresentationValidationInput(nonce, "http://example.com/audience"),
-      List.of(TrustedKey.builder()
-        .certificate(issuerCredential.getCertificate())
-        .build())
+      new SdJwtPresentationValidationInput(
+        nonce,
+        "http://example.com/audience"
+      ),
+      List.of(
+        TrustedKey.builder()
+          .certificate(issuerCredential.getCertificate())
+          .build()
+      )
     );
-
   }
 }

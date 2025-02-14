@@ -16,7 +16,6 @@ package se.digg.wallet.datatypes.common;
  *            to issue a token
  */
 public interface TokenIssuer<T extends TokenInput> {
-
   /**
    * Generates a token based on the provided TokenInput.
    *

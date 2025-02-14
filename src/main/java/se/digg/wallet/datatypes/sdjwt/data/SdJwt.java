@@ -5,7 +5,11 @@
 package se.digg.wallet.datatypes.sdjwt.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -16,7 +20,14 @@ import java.security.cert.CertificateEncodingException;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.Data;
 import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
 import se.digg.wallet.datatypes.common.TokenValidationException;
@@ -36,9 +47,11 @@ public class SdJwt {
    * This constant is useful in scenarios where the JOSE header of a JWT is explicitly required
    * to indicate the SD-JWT type for proper parsing, validation, and processing.
    */
-  public static final JOSEObjectType SD_JWT_TYPE = new JOSEObjectType("dc+sd-jwt");
+  public static final JOSEObjectType SD_JWT_TYPE = new JOSEObjectType(
+    "dc+sd-jwt"
+  );
   /**
-   * Represents a legacy SD-JWT (Selective Disclosure JSON Web Token) object type 
+   * Represents a legacy SD-JWT (Selective Disclosure JSON Web Token) object type
    * specifically utilized for compatibility with older implementations.
    * <p>
    * This constant defines the JOSE (JavaScript Object Signing and Encryption) object
@@ -49,9 +62,11 @@ public class SdJwt {
    * Within the SD-JWT process, this type aids in identifying tokens using the legacy
    * structure, distinguishing them from other SD-JWT or verifiable presentation types.
    */
-  public static final JOSEObjectType SD_JWT_TYPE_LEGACY = new JOSEObjectType("vc+sd-jwt");
+  public static final JOSEObjectType SD_JWT_TYPE_LEGACY = new JOSEObjectType(
+    "vc+sd-jwt"
+  );
   /**
-   * Represents the specific JOSE Object Type "kb+jwt" associated with 
+   * Represents the specific JOSE Object Type "kb+jwt" associated with
    * Key Binding JSON Web Tokens.
    */
   public static final JOSEObjectType KB_JWT_TYPE = new JOSEObjectType("kb+jwt");
@@ -106,7 +121,10 @@ public class SdJwt {
   /** Key binding proof signed by the wallet */
   private SignedJWT walletSigned;
 
-  public static SdJwtBuilder builder(String issuer, TokenDigestAlgorithm sdAlg) {
+  public static SdJwtBuilder builder(
+    String issuer,
+    TokenDigestAlgorithm sdAlg
+  ) {
     return new SdJwtBuilder(issuer, sdAlg);
   }
 
@@ -124,7 +142,8 @@ public class SdJwt {
     List<Disclosure> allDisclosures = getDisclosures();
     for (Disclosure disclosure : allDisclosures) {
       String disclosureStr = JSONUtils.base64URLString(
-        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8));
+        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
+      );
       sdJwtVP.append(disclosureStr).append("~");
     }
     return sdJwtVP.toString();
@@ -143,7 +162,7 @@ public class SdJwt {
   }
 
   /**
-   * Generates an unprotected verifiable presentation. 
+   * Generates an unprotected verifiable presentation.
    * <p>
    *   The disclosures is a list of the disclosures that should be included in the verifiable presentation.
    *   This list contains either a list of attribute names, or a list of the complete disclosures (Base64URL encoded).
@@ -154,7 +173,6 @@ public class SdJwt {
    * @return a string representing the verifiable presentation with the specified disclosures
    */
   public String unprotectedPresentation(List<String> disclosures) {
-
     StringBuilder sdJwtVP = new StringBuilder();
     if (disclosures == null) {
       // If null value, then include all attribute disclosures
@@ -165,8 +183,12 @@ public class SdJwt {
       List<String> disclosureImages = new ArrayList<>();
       for (Disclosure disclosure : allDisclosures) {
         String disclosureStr = JSONUtils.base64URLString(
-          disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8));
-        if (disclosures.contains(disclosure.getName()) || disclosures.contains(disclosureStr)) {
+          disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
+        );
+        if (
+          disclosures.contains(disclosure.getName()) ||
+          disclosures.contains(disclosureStr)
+        ) {
           disclosureImages.add(disclosureStr);
         }
       }
@@ -219,9 +241,7 @@ public class SdJwt {
       );
 
     final SignedJWT walletSignedJwt = new SignedJWT(
-      new JWSHeader.Builder(algorithm)
-        .type(KB_JWT_TYPE)
-        .build(),
+      new JWSHeader.Builder(algorithm).type(KB_JWT_TYPE).build(),
       claimsBuilder.build()
     );
     walletSignedJwt.sign(signer);
@@ -270,6 +290,7 @@ public class SdJwt {
       sdJwt.setSubject(subject);
       return this;
     }
+
     public SdJwtBuilder legacySdJwtType(boolean legacySdJwtType) {
       sdJwt.setJwtType(legacySdJwtType ? SD_JWT_TYPE_LEGACY : SD_JWT_TYPE);
       return this;
@@ -302,9 +323,7 @@ public class SdJwt {
         .claim("status", sdJwt.getStatus());
 
       ClaimsWithDisclosure cwd = sdJwt.getClaimsWithDisclosure();
-      cwd
-        .getAllSupportingClaims()
-        .forEach(claimsBuilder::claim);
+      cwd.getAllSupportingClaims().forEach(claimsBuilder::claim);
       // Create JWT
       final SignedJWT jwt = new SignedJWT(
         new JWSHeader.Builder(algorithm)
@@ -330,7 +349,7 @@ public class SdJwt {
    * @param presentation a string representing the verifiable presentation, typically containing
    *                      multiple components separated by `~`, such as the SD-JWT and associated disclosures
    * @return an SdJwt object initialized with the parsed information.
-   * @throws TokenValidationException if the provided presentation is null, improperly formatted, 
+   * @throws TokenValidationException if the provided presentation is null, improperly formatted,
    *                                   or if parsing fails due to invalid data or processing errors.
    */
   public static SdJwt parse(String presentation)
@@ -361,7 +380,9 @@ public class SdJwt {
       JWTClaimsSet claimsSet = issuerSignedJwt.getJWTClaimsSet();
       JWK confirmationKey = parseConfirmationKey(claimsSet.getClaim("cnf"));
       Map<String, Object> claimsMap = new HashMap<>(claimsSet.getClaims());
-      TokenDigestAlgorithm sdAlgo = TokenDigestAlgorithm.fromSdJwtName((String) claimsMap.get("_sd_alg"));
+      TokenDigestAlgorithm sdAlgo = TokenDigestAlgorithm.fromSdJwtName(
+        (String) claimsMap.get("_sd_alg")
+      );
       sdJwt.setSdAlgorithm(sdAlgo);
       sdJwt.setIssuer(claimsSet.getIssuer());
       sdJwt.setSubject(claimsSet.getSubject());

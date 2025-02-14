@@ -1,17 +1,23 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import se.digg.wallet.datatypes.common.PresentationInput;
 import se.digg.wallet.datatypes.common.PresentationValidationInput;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class MdlPresentationValidationInput extends PresentationValidationInput {
+public class MdlPresentationValidationInput
+  extends PresentationValidationInput {
 
-  public MdlPresentationValidationInput(MdlPresentationInput presentationInput) {
+  public MdlPresentationValidationInput(
+    MdlPresentationInput presentationInput
+  ) {
     super(presentationInput.getNonce());
     this.clientId = presentationInput.getClientId();
     this.responseUri = presentationInput.getResponseUri();

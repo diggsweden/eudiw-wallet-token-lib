@@ -4,22 +4,29 @@
 
 package se.digg.wallet.datatypes.mdl.process;
 
-import com.upokecenter.cbor.CBORObject;
-import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.util.encoders.Hex;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import se.digg.wallet.datatypes.common.*;
-import se.swedenconnect.security.credential.PkiCredential;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import com.upokecenter.cbor.CBORObject;
 import java.security.PublicKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.encoders.Hex;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import se.digg.wallet.datatypes.common.TestCredentials;
+import se.digg.wallet.datatypes.common.TestData;
+import se.digg.wallet.datatypes.common.TokenInput;
+import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
+import se.digg.wallet.datatypes.common.TokenValidationException;
+import se.digg.wallet.datatypes.common.TrustedKey;
+import se.swedenconnect.security.credential.PkiCredential;
 
 /**
  * Test of the mDL Issuer Signed Validator
@@ -41,8 +48,10 @@ class MdlIssuerSignedValidatorTest {
         "omppc3N1ZXJBdXRohEOhASahGCFZAukwggLlMIICaqADAgECAhRoQu0mnaibjqEFrDO7g1RxBIyzBDAKBggqhkjOPQQDAjBcMR4wHAYDVQQDDBVQSUQgSXNzdWVyIENBIC0gVVQgMDExLTArBgNVBAoMJEVVREkgV2FsbGV0IFJlZmVyZW5jZSBJbXBsZW1lbnRhdGlvbjELMAkGA1UEBhMCVVQwHhcNMjQwNzAxMTAwMzA2WhcNMjUwOTI0MTAwMzA1WjBUMRYwFAYDVQQDDA1QSUQgRFMgLSAwMDAyMS0wKwYDVQQKDCRFVURJIFdhbGxldCBSZWZlcmVuY2UgSW1wbGVtZW50YXRpb24xCzAJBgNVBAYTAlVUMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE66T6UUJ8d2wrkB_g0zroSJ_boX3LL1wToHmFgFCaVQoS5OQ6gx64rPFJ36iBrfXBZbWUOvORiayYAE6H1XXyVKOCARAwggEMMB8GA1UdIwQYMBaAFLNsuJEXHNekGmYxh0Lhi8BAzJUbMBYGA1UdJQEB_wQMMAoGCCuBAgIAAAECMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHBzOi8vcHJlcHJvZC5wa2kuZXVkaXcuZGV2L2NybC9waWRfQ0FfVVRfMDEuY3JsMB0GA1UdDgQWBBQEfQ5D1-0ZE9VvaFJOS-fzBhMSyjAOBgNVHQ8BAf8EBAMCB4AwXQYDVR0SBFYwVIZSaHR0cHM6Ly9naXRodWIuY29tL2V1LWRpZ2l0YWwtaWRlbnRpdHktd2FsbGV0L2FyY2hpdGVjdHVyZS1hbmQtcmVmZXJlbmNlLWZyYW1ld29yazAKBggqhkjOPQQDAgNpADBmAjEAkfm_P8cc8y1BtYvC4tH1-iB1spuGpMRpYvxZZxpbhoMZ10fyDDwXC-knmtzkP0p7AjEA2l-9N2LXnG-vqaO2rCgylMXMV8L_HHB-fW_WThZoljQc5_XuOihslQXdIyY-BTvbWQJZ2BhZAlSmZ2RvY1R5cGV3ZXUuZXVyb3BhLmVjLmV1ZGkucGlkLjFndmVyc2lvbmMxLjBsdmFsaWRpdHlJbmZvo2ZzaWduZWTAdDIwMjQtMTEtMTlUMDc6NDk6MjJaaXZhbGlkRnJvbcB0MjAyNC0xMS0xOVQwNzo0OToyMlpqdmFsaWRVbnRpbMB0MjAyNS0wMi0xN1QwMDowMDowMFpsdmFsdWVEaWdlc3RzoXdldS5ldXJvcGEuZWMuZXVkaS5waWQuMagAWCCGNciAN9igIeefh-AQ24CTD1s5ORel1XP6hPVz3K3QmQFYINawr_Kdw9G05xrGf1TFQD85TNYkdT60thyE9MrcSoBNAlggBq91GsYxZmah6lMMfvL9CizLxzuw1uAgwDtRIk42pJ4DWCBtTtVrgul7w-q4MZQ0hEMADThV8av9NB3qWvYnsUA8JwRYIK3lQYLuc_Kqz0Tdwh1AYG3GIGEVx3LGmbYsdHBjNP7wBVggGOM7qlE0zCuypNJlRA7kji-bajVG0AjFyb9hH8W8hNsGWCBVss1tDxnZKwHgGstmqCOXquTRUc0mFGIlXPMOS_o07wdYIAju4pNtAereVAFZs5P73nx0gLd7gDEnCrINUFfPFvIUbWRldmljZUtleUluZm-haWRldmljZUtleaQBAiABIVggGrIEwKcz8CGMXiHuLu9_lhhjS3o7CpFMAQig0fsjVAgiWCDtwkQGOvgl5Qwbrf8iHmhkFE_8Xg0OrYUwCNh5jgzaAm9kaWdlc3RBbGdvcml0aG1nU0hBLTI1NlhAq7N4-Y7IRpOmwhoUix4mNNXKwAzyOAPnRsqXofpjWWEGvGoFI8n3u35SoRYRDFHBBhYOH_INJG5tswXXMeKnjmpuYW1lU3BhY2VzoXdldS5ldXJvcGEuZWMuZXVkaS5waWQuMYjYGFhvpGZyYW5kb21YIGVoS8sXJh-ZQ_LQATusxoxaTHZ4Rwdcpd9KWWSu_ULqaGRpZ2VzdElEAGxlbGVtZW50VmFsdWXZA-xqMjAyNC0xMS0xOXFlbGVtZW50SWRlbnRpZmllcm1pc3N1YW5jZV9kYXRl2BhYZqRmcmFuZG9tWCDdaC8sDcj0xRude-HNRYyYSk4DfYcZkqOT_f93BTQPWWhkaWdlc3RJRAFsZWxlbWVudFZhbHVlYkZDcWVsZW1lbnRJZGVudGlmaWVyb2lzc3VpbmdfY291bnRyedgYWGWkZnJhbmRvbVgg2P2y7jnQZSixYYHTEc23U34Hv16jjF98VE_KTdnd1K5oZGlnZXN0SUQCbGVsZW1lbnRWYWx1ZWZKb2hubnlxZWxlbWVudElkZW50aWZpZXJqZ2l2ZW5fbmFtZdgYWGCkZnJhbmRvbVgge5HlU0GvXGjGRtFznX_gBDoDNN221Usojn5f30IZiztoZGlnZXN0SUQDbGVsZW1lbnRWYWx1ZfVxZWxlbWVudElkZW50aWZpZXJrYWdlX292ZXJfMTjYGFhspGZyYW5kb21YIBkLoFfpzjJsL3c92pTNT78-AabhwNJnRl4VO6VGKjfCaGRpZ2VzdElEBGxlbGVtZW50VmFsdWXZA-xqMTk4Ni0wMi0yMXFlbGVtZW50SWRlbnRpZmllcmpiaXJ0aF9kYXRl2BhYbaRmcmFuZG9tWCBwu_EZgKggzK40rVlY84u4yF2fT9ZO_4gdUa5tZuCInWhkaWdlc3RJRAVsZWxlbWVudFZhbHVl2QPsajIwMjUtMDItMTdxZWxlbWVudElkZW50aWZpZXJrZXhwaXJ5X2RhdGXYGFhnpGZyYW5kb21YIBRpZIUVP1qZhWZ54HoFOIGhiAAXXDTveL2sUoz_IDKwaGRpZ2VzdElEBmxlbGVtZW50VmFsdWVnVGh1bGFuZHFlbGVtZW50SWRlbnRpZmllcmtmYW1pbHlfbmFtZdgYWHWkZnJhbmRvbVggznvLq6zlDkRQIKVzyWWzGdcWxgCa3Xl8mlrXBHwEFYNoZGlnZXN0SUQHbGVsZW1lbnRWYWx1ZW9UZXN0IFBJRCBpc3N1ZXJxZWxlbWVudElkZW50aWZpZXJxaXNzdWluZ19hdXRob3JpdHk="
       );
     MdlIssuerSignedValidator validator = new MdlIssuerSignedValidator();
-    MdlIssuerSignedValidationResult validationResult =
-      validator.validateToken(issuerSignedBytes, null);
+    MdlIssuerSignedValidationResult validationResult = validator.validateToken(
+      issuerSignedBytes,
+      null
+    );
 
     log.info(
       "Validation suceeded of token:\n{}",
@@ -89,53 +98,96 @@ class MdlIssuerSignedValidatorTest {
   @Test
   void testCases() throws Exception {
     MdlIssuerSignedValidator defaultValidator = new MdlIssuerSignedValidator();
-    byte[] ecToken = getToken(tokenIssuer, TestCredentials.p256_issuerCredential, TestCredentials.p256_walletKey.toPublicKey());
-    byte[] rsaToken = getToken(tokenIssuer, TestCredentials.rsa_issuerCredential, TestCredentials.p256_walletKey.toPublicKey());
+    byte[] ecToken = getToken(
+      tokenIssuer,
+      TestCredentials.p256_issuerCredential,
+      TestCredentials.p256_walletKey.toPublicKey()
+    );
+    byte[] rsaToken = getToken(
+      tokenIssuer,
+      TestCredentials.rsa_issuerCredential,
+      TestCredentials.p256_walletKey.toPublicKey()
+    );
     List<TrustedKey> allTrusted = List.of(
-      TrustedKey.builder().certificate(TestCredentials.p256_issuerCredential.getCertificate()).build(),
-      TrustedKey.builder().certificate(TestCredentials.rsa_issuerCredential.getCertificate()).build()
+      TrustedKey.builder()
+        .certificate(TestCredentials.p256_issuerCredential.getCertificate())
+        .build(),
+      TrustedKey.builder()
+        .certificate(TestCredentials.rsa_issuerCredential.getCertificate())
+        .build()
     );
     List<TrustedKey> rsaTrusted = List.of(
-      TrustedKey.builder().certificate(TestCredentials.rsa_issuerCredential.getCertificate()).build()
+      TrustedKey.builder()
+        .certificate(TestCredentials.rsa_issuerCredential.getCertificate())
+        .build()
     );
 
     // Default test case
-    assertTrue(performTestCase(
-      "Default test case",
-      defaultValidator, ecToken, allTrusted,
-      null).getValidationCertificate().equals(TestCredentials.p256_issuerCredential.getCertificate()));
-    assertTrue(performTestCase(
-      "No trusted keys",
-      defaultValidator, ecToken, null,
-      null).getValidationCertificate().equals(TestCredentials.p256_issuerCredential.getCertificate()));
-    assertTrue(performTestCase(
-      "RSA test case",
-      defaultValidator, rsaToken, allTrusted,
-      null).getValidationCertificate().equals(TestCredentials.rsa_issuerCredential.getCertificate()));
+    assertTrue(
+      performTestCase(
+        "Default test case",
+        defaultValidator,
+        ecToken,
+        allTrusted,
+        null
+      )
+        .getValidationCertificate()
+        .equals(TestCredentials.p256_issuerCredential.getCertificate())
+    );
+    assertTrue(
+      performTestCase("No trusted keys", defaultValidator, ecToken, null, null)
+        .getValidationCertificate()
+        .equals(TestCredentials.p256_issuerCredential.getCertificate())
+    );
+    assertTrue(
+      performTestCase(
+        "RSA test case",
+        defaultValidator,
+        rsaToken,
+        allTrusted,
+        null
+      )
+        .getValidationCertificate()
+        .equals(TestCredentials.rsa_issuerCredential.getCertificate())
+    );
     performTestCase(
       "Untrusted key",
-      defaultValidator, ecToken, rsaTrusted,
-      TokenValidationException.class);
+      defaultValidator,
+      ecToken,
+      rsaTrusted,
+      TokenValidationException.class
+    );
   }
 
-  public static byte[] getToken(MdlTokenIssuer tokenIssuer, PkiCredential issuerCredential,
-                                PublicKey walletPublic) throws Exception {
-    TokenSigningAlgorithm algorithm = issuerCredential.getPublicKey() instanceof java.security.interfaces.ECPublicKey
+  public static byte[] getToken(
+    MdlTokenIssuer tokenIssuer,
+    PkiCredential issuerCredential,
+    PublicKey walletPublic
+  ) throws Exception {
+    TokenSigningAlgorithm algorithm = issuerCredential.getPublicKey() instanceof
+      java.security.interfaces.ECPublicKey
       ? TokenSigningAlgorithm.ECDSA_256
       : TokenSigningAlgorithm.RSA_PSS_256;
 
-    return tokenIssuer.issueToken(TokenInput.builder()
-      .algorithm(algorithm)
-      .issuer("http://example.com/issuer")
-      .issuerCredential(issuerCredential)
-      .walletPublicKey(walletPublic)
-      .expirationDuration(Duration.ofDays(1))
-      .attributes(TestData.defaultPidUserAttributes)
-      .build());
+    return tokenIssuer.issueToken(
+      TokenInput.builder()
+        .algorithm(algorithm)
+        .issuer("http://example.com/issuer")
+        .issuerCredential(issuerCredential)
+        .walletPublicKey(walletPublic)
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build()
+    );
   }
 
-  MdlIssuerSignedValidationResult performTestCase(String description, MdlIssuerSignedValidator validator, byte[] token, List<TrustedKey> trustedKeys,
-                                             Class<? extends Exception> expectedException) throws Exception {
+  MdlIssuerSignedValidationResult performTestCase(
+    String description,
+    MdlIssuerSignedValidator validator,
+    byte[] token,
+    List<TrustedKey> trustedKeys,
+    Class<? extends Exception> expectedException
+  ) throws Exception {
     log.info("TEST CASE:\n================\n{}\n================", description);
 
     if (expectedException != null) {
@@ -143,12 +195,21 @@ class MdlIssuerSignedValidatorTest {
         validator.validateToken(token, trustedKeys);
         fail("Expected exception not thrown");
       });
-      log.info("Thrown expected exception: {} - {}", exception.getClass().getSimpleName(), exception.getMessage());
-      if (exception.getCause() != null){
-        log.info("Cause: {} - {}", exception.getCause().getClass().getSimpleName(), exception.getCause().toString());
+      log.info(
+        "Thrown expected exception: {} - {}",
+        exception.getClass().getSimpleName(),
+        exception.getMessage()
+      );
+      if (exception.getCause() != null) {
+        log.info(
+          "Cause: {} - {}",
+          exception.getCause().getClass().getSimpleName(),
+          exception.getCause().toString()
+        );
       }
     } else {
-      MdlIssuerSignedValidationResult validationResult = validator.validateToken(token, trustedKeys);
+      MdlIssuerSignedValidationResult validationResult =
+        validator.validateToken(token, trustedKeys);
       logValidationResult(validationResult);
       assertNotNull(validationResult);
       assertNotNull(validationResult.getValidationCertificate());
@@ -156,19 +217,31 @@ class MdlIssuerSignedValidatorTest {
       assertNotNull(validationResult.getMso());
       assertNotNull(validationResult.getIssuerSigned());
       assertTrue(validationResult.getIssueTime().isBefore(Instant.now()));
-      assertTrue(validationResult.getExpirationTime().isAfter(validationResult.getIssueTime()));
+      assertTrue(
+        validationResult
+          .getExpirationTime()
+          .isAfter(validationResult.getIssueTime())
+      );
       assertTrue(validationResult.getExpirationTime().isAfter(Instant.now()));
       return validationResult;
     }
     return null;
   }
 
-  public static void logValidationResult(MdlIssuerSignedValidationResult validationResult) {
+  public static void logValidationResult(
+    MdlIssuerSignedValidationResult validationResult
+  ) {
     log.info("mDL validation successful");
-    log.info("Validation Certificate: {}", validationResult.getValidationCertificate().getSubjectX500Principal());
+    log.info(
+      "Validation Certificate: {}",
+      validationResult.getValidationCertificate().getSubjectX500Principal()
+    );
     log.info("Validation Key: {}", validationResult.getValidationKey());
     log.info("Issue Time: {}", validationResult.getIssueTime());
     log.info("Expiration Time: {}", validationResult.getExpirationTime());
-    log.info("Request nonce: {}", validationResult.getPresentationRequestNonce());
+    log.info(
+      "Request nonce: {}",
+      validationResult.getPresentationRequestNonce()
+    );
   }
 }

@@ -4,8 +4,6 @@
 
 package se.digg.wallet.datatypes.mdl.data;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -13,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import se.digg.cose.AlgorithmID;
 import se.digg.cose.COSEKey;
@@ -105,8 +102,7 @@ class MobileSecurityObjectTest {
       .EncodeToBytes();
     log.info("COSE Signed:\n{}", Hex.toHexString(coseSigned));
 
-    MobileSecurityObject deserializedMobileSecurityObject =
-      MobileSecurityObject.deserialize(msoBytes);
+    MobileSecurityObject.deserialize(msoBytes);
     // TODO compare internal objects of mso and deserialized mso
   }
 }

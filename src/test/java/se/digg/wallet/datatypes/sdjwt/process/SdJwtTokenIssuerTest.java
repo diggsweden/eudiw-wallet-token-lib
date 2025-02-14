@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -19,15 +18,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import se.digg.wallet.datatypes.common.*;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.COSEKey;
 import se.digg.wallet.datatypes.common.TestCredentials;
 import se.digg.wallet.datatypes.common.TestData;
+import se.digg.wallet.datatypes.common.TokenAttribute;
+import se.digg.wallet.datatypes.common.TokenAttributeType;
+import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
+import se.digg.wallet.datatypes.common.TokenIssuingException;
+import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
+import se.digg.wallet.datatypes.common.TrustedKey;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
 import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
-import se.digg.cose.AlgorithmID;
-import se.digg.cose.COSEKey;
 import se.swedenconnect.security.credential.PkiCredential;
 
 @Slf4j
@@ -38,7 +42,6 @@ class SdJwtTokenIssuerTest {
   static PkiCredential issuerCredential;
   static ECKey walletKey;
 
-
   @BeforeAll
   static void setUp() {
     issuerCredential = TestCredentials.p256_issuerCredential;
@@ -47,7 +50,6 @@ class SdJwtTokenIssuerTest {
 
   @Test
   void basicTest() throws Exception {
-
     SdJwtTokenInput tokenInput = SdJwtTokenInput.sdJwtINputBuilder()
       .algorithm(TokenSigningAlgorithm.ECDSA_256)
       .issuer("http://example.com/issuer")
@@ -61,92 +63,129 @@ class SdJwtTokenIssuerTest {
       tokenIssuer.issueToken(tokenInput),
       StandardCharsets.UTF_8
     );
-    logToken(token, tokenInput.getAlgorithm().getDigestAlgorithm().getJdkName());
+    logToken(
+      token,
+      tokenInput.getAlgorithm().getDigestAlgorithm().getJdkName()
+    );
   }
-
 
   @Test
   void testCases() throws Exception {
-
-    performTest("Default EC issuer key setup",
+    performTest(
+      "Default EC issuer key setup",
       SdJwtTokenInput.sdJwtINputBuilder()
-      .algorithm(TokenSigningAlgorithm.ECDSA_256)
-      .issuer("http://example.com/issuer")
-      .issuerCredential(issuerCredential)
-      .walletPublicKey(walletKey.toPublicKey())
-      .expirationDuration(Duration.ofDays(1))
-      .attributes(TestData.defaultPidUserAttributes)
-      .build(), false, null);
+        .algorithm(TokenSigningAlgorithm.ECDSA_256)
+        .issuer("http://example.com/issuer")
+        .issuerCredential(issuerCredential)
+        .walletPublicKey(walletKey.toPublicKey())
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(),
+      false,
+      null
+    );
 
-    performTest("RSA Issuer key",
+    performTest(
+      "RSA Issuer key",
       SdJwtTokenInput.sdJwtINputBuilder()
-      .algorithm(TokenSigningAlgorithm.RSA_PSS_512)
-      .issuer("http://example.com/issuer")
-      .issuerCredential(TestCredentials.rsa_issuerCredential)
-      .walletPublicKey(walletKey.toPublicKey())
-      .expirationDuration(Duration.ofDays(1))
-      .attributes(TestData.defaultPidUserAttributes)
-      .build(), false, null);
+        .algorithm(TokenSigningAlgorithm.RSA_PSS_512)
+        .issuer("http://example.com/issuer")
+        .issuerCredential(TestCredentials.rsa_issuerCredential)
+        .walletPublicKey(walletKey.toPublicKey())
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(),
+      false,
+      null
+    );
 
-    performTest("Legacy SD-JWT type",
+    performTest(
+      "Legacy SD-JWT type",
       SdJwtTokenInput.sdJwtINputBuilder()
-      .algorithm(TokenSigningAlgorithm.ECDSA_256)
-      .issuer("http://example.com/issuer")
-      .issuerCredential(issuerCredential)
-      .walletPublicKey(walletKey.toPublicKey())
-      .expirationDuration(Duration.ofDays(1))
-      .attributes(TestData.defaultPidUserAttributes)
-      .build(), true, null);
+        .algorithm(TokenSigningAlgorithm.ECDSA_256)
+        .issuer("http://example.com/issuer")
+        .issuerCredential(issuerCredential)
+        .walletPublicKey(walletKey.toPublicKey())
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(),
+      true,
+      null
+    );
 
-    performTest("Bad algorithm",
+    performTest(
+      "Bad algorithm",
       SdJwtTokenInput.sdJwtINputBuilder()
-      .algorithm(TokenSigningAlgorithm.RSA_PSS_256)
-      .issuer("http://example.com/issuer")
-      .issuerCredential(issuerCredential)
-      .walletPublicKey(walletKey.toPublicKey())
-      .expirationDuration(Duration.ofDays(1))
-      .attributes(TestData.defaultPidUserAttributes)
-      .build(), true, TokenIssuingException.class);
+        .algorithm(TokenSigningAlgorithm.RSA_PSS_256)
+        .issuer("http://example.com/issuer")
+        .issuerCredential(issuerCredential)
+        .walletPublicKey(walletKey.toPublicKey())
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(),
+      true,
+      TokenIssuingException.class
+    );
 
-    performTest("Null algorithm",
+    performTest(
+      "Null algorithm",
       SdJwtTokenInput.sdJwtINputBuilder()
-      .issuer("http://example.com/issuer")
-      .issuerCredential(issuerCredential)
-      .walletPublicKey(walletKey.toPublicKey())
-      .expirationDuration(Duration.ofDays(1))
-      .attributes(TestData.defaultPidUserAttributes)
-      .build(), true, TokenIssuingException.class);
+        .issuer("http://example.com/issuer")
+        .issuerCredential(issuerCredential)
+        .walletPublicKey(walletKey.toPublicKey())
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(),
+      true,
+      TokenIssuingException.class
+    );
 
-    performTest("Null issuer",
+    performTest(
+      "Null issuer",
       SdJwtTokenInput.sdJwtINputBuilder()
-      .algorithm(TokenSigningAlgorithm.ECDSA_256)
-      .issuerCredential(issuerCredential)
-      .walletPublicKey(walletKey.toPublicKey())
-      .expirationDuration(Duration.ofDays(1))
-      .attributes(TestData.defaultPidUserAttributes)
-      .build(), true, TokenIssuingException.class);
+        .algorithm(TokenSigningAlgorithm.ECDSA_256)
+        .issuerCredential(issuerCredential)
+        .walletPublicKey(walletKey.toPublicKey())
+        .expirationDuration(Duration.ofDays(1))
+        .attributes(TestData.defaultPidUserAttributes)
+        .build(),
+      true,
+      TokenIssuingException.class
+    );
 
-    performTest("No wallet key",
+    performTest(
+      "No wallet key",
       SdJwtTokenInput.sdJwtINputBuilder()
         .algorithm(TokenSigningAlgorithm.ECDSA_256)
         .issuer("http://example.com/issuer")
         .issuerCredential(issuerCredential)
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), false, TokenIssuingException.class);
+        .build(),
+      false,
+      TokenIssuingException.class
+    );
 
-    performTest("No expiration time",
+    performTest(
+      "No expiration time",
       SdJwtTokenInput.sdJwtINputBuilder()
         .algorithm(TokenSigningAlgorithm.ECDSA_256)
         .issuer("http://example.com/issuer")
         .issuerCredential(issuerCredential)
         .walletPublicKey(walletKey.toPublicKey())
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), false, TokenIssuingException.class);
-
+        .build(),
+      false,
+      TokenIssuingException.class
+    );
   }
 
-  void performTest(String description, SdJwtTokenInput tokenInput, boolean legacyType, Class<? extends Exception> exceptionClass) throws Exception {
+  void performTest(
+    String description,
+    SdJwtTokenInput tokenInput,
+    boolean legacyType,
+    Class<? extends Exception> exceptionClass
+  ) throws Exception {
     log.info("TEST CASE:\n================\n{}\n================", description);
     SdJwtTokenIssuer tokenIssuer = new SdJwtTokenIssuer();
     tokenIssuer.setLegacySdJwtHeaderType(legacyType);
@@ -155,27 +194,43 @@ class SdJwtTokenIssuerTest {
         tokenIssuer.issueToken(tokenInput);
         Assertions.fail("Expected exception not thrown");
       });
-      log.info("Thrown expected exception: {} - {}", exception.getClass().getSimpleName(), exception.getMessage());
-      log.info("Cause: {} - {}", exception.getCause().getClass().getSimpleName(), exception.getCause().toString());
+      log.info(
+        "Thrown expected exception: {} - {}",
+        exception.getClass().getSimpleName(),
+        exception.getMessage()
+      );
+      log.info(
+        "Cause: {} - {}",
+        exception.getCause().getClass().getSimpleName(),
+        exception.getCause().toString()
+      );
     } else {
       byte[] issuedToken = tokenIssuer.issueToken(tokenInput);
-      List<TrustedKey> trustedKeys = List.of(TrustedKey.builder()
-        .certificate(tokenInput.getIssuerCredential().getCertificate())
-        .build());
+      List<TrustedKey> trustedKeys = List.of(
+        TrustedKey.builder()
+          .certificate(tokenInput.getIssuerCredential().getCertificate())
+          .build()
+      );
       SdJwtTokenValidator tokenValidator = new SdJwtTokenValidator();
-      SdJwtTokenValidationResult validationResult = tokenValidator.validateToken(issuedToken, trustedKeys);
+      SdJwtTokenValidationResult validationResult =
+        tokenValidator.validateToken(issuedToken, trustedKeys);
       log.info("Token validated OK");
-      logToken(new String(issuedToken, StandardCharsets.UTF_8), tokenInput.getAlgorithm().getDigestAlgorithm().getJdkName());
-      JOSEObjectType type = validationResult.getVcToken().getIssuerSigned().getHeader().getType();
+      logToken(
+        new String(issuedToken, StandardCharsets.UTF_8),
+        tokenInput.getAlgorithm().getDigestAlgorithm().getJdkName()
+      );
+      JOSEObjectType type = validationResult
+        .getVcToken()
+        .getIssuerSigned()
+        .getHeader()
+        .getType();
       if (legacyType) {
         Assertions.assertEquals(SdJwt.SD_JWT_TYPE_LEGACY, type);
       } else {
         Assertions.assertEquals(SdJwt.SD_JWT_TYPE, type);
       }
     }
-
   }
-
 
   @Test
   void dynamicClaimsTest() throws Exception {
@@ -194,14 +249,16 @@ class SdJwtTokenIssuerTest {
             new Disclosure(
               TokenAttribute.builder()
                 .type(new TokenAttributeType("given_name"))
-                .value("John").build()
+                .value("John")
+                .build()
             )
           )
           .disclosure(
             new Disclosure(
               TokenAttribute.builder()
                 .type(new TokenAttributeType("Surname"))
-                .value("Doe").build()
+                .value("Doe")
+                .build()
             )
           )
           .build()
@@ -246,12 +303,17 @@ class SdJwtTokenIssuerTest {
     logToken(token, ecdsa256.getDigestAlgorithm().getJdkName());
 
     //  Selective disclosure in wallet
-    List<String> disclosedAttributes = List.of("given_name", "birth_date", "family_name", "issuing_authority");
+    List<String> disclosedAttributes = List.of(
+      "given_name",
+      "birth_date",
+      "family_name",
+      "issuing_authority"
+    );
     SdJwt parsed = SdJwt.parse(token);
     // Get all available disclosures
     List<Disclosure> allDisclosures = parsed.getDisclosures();
     // Reduce the list of disclosures
-/*
+    /*
     List<String> userDisclosures = filterDisclosure(
       allDisclosures,
       disclosedAttributes
@@ -279,34 +341,45 @@ class SdJwtTokenIssuerTest {
 
     // Check that token validates OK
     SdJwtTokenValidator tokenValidator = new SdJwtTokenValidator();
-    SdJwtTokenValidationResult validationResult =
-      tokenValidator.validateToken(
-        protectededPresentation.getBytes(StandardCharsets.UTF_8),
-        null
-      );
+    SdJwtTokenValidationResult validationResult = tokenValidator.validateToken(
+      protectededPresentation.getBytes(StandardCharsets.UTF_8),
+      null
+    );
 
-    log.info("Reconstructed discolsed token payload:\n{}",
-      JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(
-        validationResult.getDisclosedTokenPayload().toJSONObject()));
+    log.info(
+      "Reconstructed discolsed token payload:\n{}",
+      JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(
+          validationResult.getDisclosedTokenPayload().toJSONObject()
+        )
+    );
 
-    Map<String, Object> disclosedAttrMap = validationResult.getDisclosedTokenPayload().toJSONObject();
+    Map<String, Object> disclosedAttrMap = validationResult
+      .getDisclosedTokenPayload()
+      .toJSONObject();
     for (String attributeName : disclosedAttributes) {
       Assertions.assertTrue(disclosedAttrMap.containsKey(attributeName));
       Assertions.assertNotNull(disclosedAttrMap.get(attributeName));
-      log.info("Disclosed attribute: {} = {}", attributeName, disclosedAttrMap.get(attributeName));
+      log.info(
+        "Disclosed attribute: {} = {}",
+        attributeName,
+        disclosedAttrMap.get(attributeName)
+      );
     }
 
-    List<String> excludedDisclosures = allDisclosures.stream()
+    List<String> excludedDisclosures = allDisclosures
+      .stream()
       .filter(disclosure -> !disclosedAttributes.contains(disclosure.getName()))
       .map(Disclosure::getName)
       .toList();
-    for(String excludedDisclosure : excludedDisclosures) {
+    for (String excludedDisclosure : excludedDisclosures) {
       Assertions.assertFalse(disclosedAttrMap.containsKey(excludedDisclosure));
       log.info("Non disclosed attribute: {}", excludedDisclosure);
     }
   }
 
-  public static void logToken(String token, String digestAlgo) throws Exception {
+  public static void logToken(String token, String digestAlgo)
+    throws Exception {
     log.info("Issued sdJwt token: \n{}", token);
 
     String[] split = token.split("~");

@@ -1,3 +1,10 @@
+<!--
+
+SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 # Development Guide Lines
 
 ## Build
@@ -17,7 +24,7 @@ Example:
 
 ```shell
 git tag -s v0.0.3-SNAPSHOT -m 'v0.0.3-SNAPSHOT'
-git push origin tag v0.0.3
+git push origin tag v0.0.3-SNAPSHOT
 ```
 
 Currently only publishing to GitHub-packages
