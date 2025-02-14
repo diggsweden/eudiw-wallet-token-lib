@@ -4,6 +4,7 @@
 
 package se.digg.wallet.datatypes.mdl.data;
 
+import java.security.PublicKey;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -26,6 +27,10 @@ public class MdlPresentationInput
   private String mdocGeneratedNonce;
   /** The response URL where the presentation response is delivered */
   private String responseUri;
+  /** Client MAC key derivation key **/
+  private PublicKey clientPublicKey;
+  /** Set to true to use MAC device authentication. If set to true clientPublicKey MUST be set */
+  boolean macDeviceAuthentication = false;
 
   /**
    * Creates and returns a new instance of the {@link MdlPresentationInputBuilder} class.
@@ -132,6 +137,32 @@ public class MdlPresentationInput
       TokenSigningAlgorithm algorithm
     ) {
       mdlPresentationInput.algorithm = algorithm;
+      return this;
+    }
+
+    /**
+     * Sets the optional client public key to be used in the {@code MdlPresentationInput} object being built.
+     * If this key is provided, this will enable derivation of a MAC key to provide a MAC device key proof.
+     *
+     * @param clientPublicKey the {@code PublicKey} instance representing the client's public key
+     * @return the {@code MdlPresentationInputBuilder} instance for method chaining
+     */
+    public MdlPresentationInputBuilder clientPublicKey(PublicKey clientPublicKey) {
+      mdlPresentationInput.clientPublicKey = clientPublicKey;
+      return this;
+    }
+
+    /**
+     * Sets whether MAC (Message Authentication Code) device authentication should be enabled
+     * in the {@code MdlPresentationInput} object being built.
+     *
+     * @param macDeviceAuthentication a boolean value indicating whether MAC device authentication
+     *                                 should be enabled. If set to true, MAC device authentication
+     *                                 will be used; otherwise, device signature will be applied (default false).
+     * @return the {@code MdlPresentationInputBuilder} instance for method chaining.
+     */
+    public MdlPresentationInputBuilder macDeviceAuthentication(boolean macDeviceAuthentication) {
+      mdlPresentationInput.macDeviceAuthentication = macDeviceAuthentication;
       return this;
     }
 

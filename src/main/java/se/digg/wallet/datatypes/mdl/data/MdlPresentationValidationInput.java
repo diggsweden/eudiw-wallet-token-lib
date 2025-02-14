@@ -4,6 +4,7 @@
 
 package se.digg.wallet.datatypes.mdl.data;
 
+import java.security.PrivateKey;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -46,4 +47,6 @@ public class MdlPresentationValidationInput
   private String responseUri;
   /** The wallet generated nonce included as the apu header parameter in the presentation response JWT */
   private String mdocGeneratedNonce;
+  /** Optional private key for MAC validation */
+  private PrivateKey clientPrivateKey;
 }

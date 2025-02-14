@@ -26,6 +26,7 @@ public class TestCredentials {
   public static final PkiCredential rsa_issuerCredential;
   public static final ECKey p256_walletKey;
   public static final RSAKey rsa_walletKey;
+  public static final ECKey p256_clientKey;
 
   static {
     if (Security.getProvider("BC") == null) {
@@ -48,6 +49,7 @@ public class TestCredentials {
         "Test1234".toCharArray()
       );
       p256_walletKey = new ECKeyGenerator(Curve.P_256).generate();
+      p256_clientKey = new ECKeyGenerator(Curve.P_256).generate();
       rsa_walletKey = new RSAKeyGenerator(3072).generate();
     } catch (
       KeyStoreException

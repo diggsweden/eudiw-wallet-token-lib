@@ -36,6 +36,7 @@ public class DeviceResponse {
   /**
    * Constructor for the DeviceResponse class.
    * Initializes a new instance of the DeviceResponse with the specified parameters.
+   * including signature device authentication
    *
    * @param docType the document type associated with the response.
    * @param issuerSigned the issuer-signed data associated with the device response.
@@ -55,6 +56,29 @@ public class DeviceResponse {
     this.deviceMac = null;
   }
 
+  /**
+   * Constructor for the DeviceResponse class.
+   * Initializes a new instance of the DeviceResponse with the specified parameters
+   * including MAC device authentication.
+   *
+   * @param deviceMac the byte array representing the device MAC.
+   * @param docType the document type associated with the response.
+   * @param issuerSigned the issuer-signed data associated with the device response.
+   */
+  public DeviceResponse(
+    byte[] deviceMac,
+    String docType,
+    IssuerSigned issuerSigned
+  ) {
+    this.issuerSigned = issuerSigned;
+    this.docType = docType;
+    this.version = "1.0";
+    this.status = 0;
+    this.deviceNameSpaces = CBORObject.NewMap();
+    this.deviceMac = deviceMac;
+    this.deviceSignature = null;
+  }
+
   /** Status code. Default 0 for successful responses */
   private final int status;
   /** DocType for the response document */
@@ -67,7 +91,7 @@ public class DeviceResponse {
   private final CBORObject deviceNameSpaces;
   /** The bytes of the device signature */
   private final byte[] deviceSignature;
-  /** The bytes of a wallet provided MAC (Currently not supported) */
+  /** The bytes of a wallet provided MAC */
   private final byte[] deviceMac;
 
   /**

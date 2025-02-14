@@ -84,12 +84,20 @@ class MdlPresentationValidatorTest {
 
     MdlPresentationInput presentationInput =
       MdlTokenPresenterTest.getInputBuilder(ecToken, nameDisclosure).build();
+    MdlPresentationInput macPresentationInput =
+      MdlTokenPresenterTest.getInputBuilder(ecToken, nameDisclosure)
+        .clientPublicKey(TestCredentials.p256_clientKey.toPublicKey())
+        .macDeviceAuthentication(true)
+        .build();
 
     MdlPresentationInput rsaPresentationInput =
       MdlTokenPresenterTest.getInputBuilder(rsaToken, nameDisclosure).build();
 
     MdlPresentationValidationInput validationInput =
       new MdlPresentationValidationInput(presentationInput);
+    MdlPresentationValidationInput macValidationInput =
+      new MdlPresentationValidationInput(presentationInput);
+    macValidationInput.setClientPrivateKey(TestCredentials.p256_clientKey.toPrivateKey());
     MdlPresentationValidationInput wrongNonceInput =
       new MdlPresentationValidationInput();
     wrongNonceInput.setClientId(presentationInput.getClientId());
@@ -111,6 +119,10 @@ class MdlPresentationValidatorTest {
       presentationInput,
       walletPrivate
     );
+    byte[] macPresentedToken = tokenPresenter.presentToken(
+      macPresentationInput,
+      walletPrivate
+    );
     byte[] rsaPresentedToken = tokenPresenter.presentToken(
       rsaPresentationInput,
       walletPrivate
@@ -123,6 +135,14 @@ class MdlPresentationValidatorTest {
       defaultValidator,
       validationInput,
       presentedToken,
+      allTrusted,
+      null
+    );
+    performTestCase(
+      "MAC test case",
+      defaultValidator,
+      macValidationInput,
+      macPresentedToken,
       allTrusted,
       null
     );

@@ -88,6 +88,16 @@ class MdlTokenPresenterTest {
       null
     );
     performTestCase(
+      "Mac test case",
+      defaultPresenter,
+      getInputBuilder(ecToken, allDisclosure)
+        .clientPublicKey(TestCredentials.p256_clientKey.toPublicKey())
+        .macDeviceAuthentication(true)
+        .build(),
+      walletPrivate,
+      null
+    );
+    performTestCase(
       "RSA issuer key",
       defaultPresenter,
       getInputBuilder(rsaToken, allDisclosure)

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import se.digg.cose.COSEObjectTag;
 import se.digg.cose.CoseException;
+import se.digg.cose.MAC0COSEObject;
 import se.digg.cose.Sign1COSEObject;
 import se.digg.wallet.datatypes.common.PresentationValidationInput;
 import se.digg.wallet.datatypes.common.PresentationValidator;
@@ -124,23 +125,12 @@ public class MdlPresentationValidator implements PresentationValidator {
         new MdlIssuerSignedValidator(timeSkew);
       MdlIssuerSignedValidationResult issuerSignedValidationResult =
         issuerSignedValidator.validateToken(issuerSignedBytes, trustedKeys);
-      // For now only accept device signatures
-      if (deviceResponse.getDeviceMac() != null) {
-        // TODO support device Mac authentication
-        log.debug(
-          "This presentation has a device mac. This is not supported yet and ignored"
-        );
-      }
-      if (deviceResponse.getDeviceSignature() == null) {
-        // As we only support device signature. One must be available
+      // Ensure that device MAC or signature is present
+      if (deviceResponse.getDeviceMac() == null && deviceResponse.getDeviceSignature() == null) {
         throw new TokenValidationException(
-          "Token presentation must have a device signature"
+          "Token presentation must name device mac or device signature"
         );
       }
-      // Get the detached device signature
-      CBORObject deviceSignatureObject = CBORObject.DecodeFromBytes(
-        deviceResponse.getDeviceSignature()
-      );
       // Reconstruct the detached data
       DeviceAuthentication deviceAuthentication = new DeviceAuthentication(
         deviceResponse.getDocType(),
@@ -151,32 +141,73 @@ public class MdlPresentationValidator implements PresentationValidator {
           input.getMdocGeneratedNonce()
         )
       );
-      // Insert the detached data as payload
-      deviceSignatureObject.set(
-        2,
-        CBORObject.FromByteArray(
-          deviceAuthentication.getDeviceAuthenticationBytes()
-        )
-      );
-      // Create the signed object with the restored payload
-      Sign1COSEObject sign1COSEObject =
-        (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
-          deviceSignatureObject.EncodeToBytes(),
-          COSEObjectTag.Sign1
-        );
-      // Get the device key
+      // Get the wallet device key
       MobileSecurityObject.DeviceKeyInfo deviceKeyInfo =
         issuerSignedValidationResult.getMso().getDeviceKeyInfo();
-      // Validate signature against device key
-      boolean deviceSignatureValid = sign1COSEObject.validate(
-        deviceKeyInfo.getDeviceKey()
-      );
-      if (!deviceSignatureValid) {
-        // Device signature was invalid
-        throw new TokenValidationException("Device signature is invalid");
+
+      // Validate MAC if present
+      if (deviceResponse.getDeviceMac() != null) {
+        if (input.getClientPrivateKey() == null) {
+          throw new TokenValidationException(
+            "Client private key must be provided for MAC validation"
+          );
+        }
+        CBORObject deviceMacObject = CBORObject.DecodeFromBytes(
+          deviceResponse.getDeviceMac()
+        );
+        // Insert the detached data as payload
+        deviceMacObject.set(
+          2,
+          CBORObject.FromByteArray(
+            deviceAuthentication.getDeviceAuthenticationBytes()
+          )
+        );
+        MAC0COSEObject mac0COSEObject =
+          (MAC0COSEObject) MAC0COSEObject.DecodeFromBytes(
+            deviceMacObject.EncodeToBytes(),
+            COSEObjectTag.MAC0
+          );
+        boolean validMac = mac0COSEObject.Validate(CBORUtils.deriveEMacKey(
+          CBORUtils.deriveSharedSecret(input.getClientPrivateKey(), deviceKeyInfo.getDeviceKey().AsPublicKey()),
+          deviceAuthentication.getDeviceAuthenticationBytes()
+        ));
+        if (!validMac) {
+          // Device signature was invalid
+          throw new TokenValidationException("Device signature is invalid");
+        }
+        log.debug("Device MAC is valid");
       }
-      // Signature is valid. Provide result data
-      log.debug("Device signature is valid");
+      // Validate device signature if present
+      if (deviceResponse.getDeviceSignature() != null) {
+        // Get the detached device signature
+        CBORObject deviceSignatureObject = CBORObject.DecodeFromBytes(
+          deviceResponse.getDeviceSignature()
+        );
+        // Insert the detached data as payload
+        deviceSignatureObject.set(
+          2,
+          CBORObject.FromByteArray(
+            deviceAuthentication.getDeviceAuthenticationBytes()
+          )
+        );
+        // Create the signed object with the restored payload
+        Sign1COSEObject sign1COSEObject =
+          (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
+            deviceSignatureObject.EncodeToBytes(),
+            COSEObjectTag.Sign1
+          );
+        // Validate signature against device key
+        boolean deviceSignatureValid = sign1COSEObject.validate(
+          deviceKeyInfo.getDeviceKey()
+        );
+        if (!deviceSignatureValid) {
+          // Device signature was invalid
+          throw new TokenValidationException("Device signature is invalid");
+        }
+        // Signature is valid. Provide result data
+        log.debug("Device signature is valid");
+      }
+      // Retrieve disclosed signatures
       Map<TokenAttributeType, Object> disclosedAttributes =
         getDisclosedAttributes(issuerSigned.getNameSpaces());
       issuerSignedValidationResult.setPresentationRequestNonce(

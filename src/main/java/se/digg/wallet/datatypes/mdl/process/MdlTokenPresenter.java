@@ -6,12 +6,14 @@ package se.digg.wallet.datatypes.mdl.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.upokecenter.cbor.CBORObject;
+import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.List;
 import java.util.Map;
 import se.digg.cose.COSEKey;
 import se.digg.cose.CoseException;
+import se.digg.cose.MAC0COSEObject;
 import se.digg.cose.Sign1COSEObject;
 import se.digg.wallet.datatypes.common.PresentationInput;
 import se.digg.wallet.datatypes.common.TokenParsingException;
@@ -76,21 +78,45 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
         );
 
         COSEKey key = new COSEKey(null, privateKey);
-        Sign1COSEObject signedCOSEObject = CBORUtils.sign(
-          deviceAuthentication.getDeviceAuthenticationBytes(),
-          key,
-          input.getAlgorithm().getAlgorithmID(),
-          null,
-          null,
-          false
-        );
-        signedCOSEObject.SetContent((byte[]) null);
-        CBORObject deviceSignature = signedCOSEObject.EncodeToCBORObject();
+        byte[] deviceSignatureCbor = null;
+        byte[] deviceMacCbor = null;
+        if (input.isMacDeviceAuthentication()) {
+          if (input.getClientPublicKey() == null) {
+            throw new TokenPresentationException(
+              "Client public key must be provided for MAC device authentication"
+            );
+          }
+          MAC0COSEObject mac0COSEObject = CBORUtils.deviceComputedMac(
+            deviceAuthentication.getDeviceAuthenticationBytes(),
+            privateKey,
+            input.getClientPublicKey()
+          );
+          mac0COSEObject.SetContent((byte[]) null);
+          deviceMacCbor = mac0COSEObject.EncodeToBytes();
+        } else {
+          Sign1COSEObject signedCOSEObject = CBORUtils.sign(
+            deviceAuthentication.getDeviceAuthenticationBytes(),
+            key,
+            input.getAlgorithm().getAlgorithmID(),
+            null,
+            null,
+            false
+          );
+          signedCOSEObject.SetContent((byte[]) null);
+          CBORObject deviceSignature = signedCOSEObject.EncodeToCBORObject();
+          deviceSignatureCbor = deviceSignature.EncodeToBytes();
+        }
 
-        DeviceResponse deviceResponse = new DeviceResponse(
+        DeviceResponse deviceResponse = deviceSignatureCbor != null
+          ? new DeviceResponse(
           docType,
           issuerSigned,
-          deviceSignature.EncodeToBytes()
+          deviceSignatureCbor
+        )
+          : new DeviceResponse(
+          deviceMacCbor,
+          docType,
+          issuerSigned
         );
         return CBORUtils.CBOR_MAPPER.writeValueAsBytes(deviceResponse);
       } catch (
@@ -104,6 +130,8 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
         throw new TokenPresentationException("Missing required input", e);
       } catch (JsonProcessingException e) {
         throw new TokenPresentationException("Error serializing token", e);
+      } catch (GeneralSecurityException e) {
+        throw new TokenPresentationException("Error creating MAC", e);
       }
     } else {
       throw new TokenPresentationException(
