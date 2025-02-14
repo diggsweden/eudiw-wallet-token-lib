@@ -1,14 +1,21 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.process;
 
 import com.nimbusds.jose.Payload;
-import lombok.extern.slf4j.Slf4j;
-import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
-import se.digg.wallet.datatypes.sdjwt.data.SdJwtPresentationValidationInput;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import se.digg.wallet.datatypes.common.PresentationValidationInput;
+import se.digg.wallet.datatypes.common.PresentationValidator;
+import se.digg.wallet.datatypes.common.TokenAttributeType;
+import se.digg.wallet.datatypes.common.TokenValidationException;
+import se.digg.wallet.datatypes.common.TrustedKey;
+import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
+import se.digg.wallet.datatypes.sdjwt.data.SdJwtPresentationValidationInput;
 
 /**
  * Implementation of the PresentationValidator interface for validating SD JWT (Selective Disclosure JSON Web Token) presentations.
@@ -63,56 +70,94 @@ public class SdJwtPresentationValidator implements PresentationValidator {
    * @throws TokenValidationException If the validation fails due to invalid or missing values, or key binding issues.
    */
   @Override
-  public SdJwtTokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput, List<TrustedKey> trustedKeys) throws TokenValidationException {
-
+  public SdJwtTokenValidationResult validatePresentation(
+    byte[] presentation,
+    PresentationValidationInput presentationValidationInput,
+    List<TrustedKey> trustedKeys
+  ) throws TokenValidationException {
     if (log.isTraceEnabled()) {
-      log.trace("Validating SD JWT presentation:\n{}", new String(presentation));
+      log.trace(
+        "Validating SD JWT presentation:\n{}",
+        new String(presentation)
+      );
     } else {
       log.debug("Validating SD WT presentation");
     }
 
     // Check input type
-    if (!(presentationValidationInput instanceof SdJwtPresentationValidationInput input)) {
-      throw new TokenValidationException("Presentation validation input of SD JWT presentations must be of type " +
-        "SdJwtPresentationValidationInput");
+    if (
+      !(presentationValidationInput instanceof
+        SdJwtPresentationValidationInput input)
+    ) {
+      throw new TokenValidationException(
+        "Presentation validation input of SD JWT presentations must be of type " +
+        "SdJwtPresentationValidationInput"
+      );
     }
 
     try {
       SdJwtTokenValidator tokenValidator = new SdJwtTokenValidator(timeSkew);
-      SdJwtTokenValidationResult sdJwtTokenValidationResult = tokenValidator.validateToken(presentation, trustedKeys);
+      SdJwtTokenValidationResult sdJwtTokenValidationResult =
+        tokenValidator.validateToken(presentation, trustedKeys);
       if (!sdJwtTokenValidationResult.isKeyBindingProtection()) {
-        throw new TokenValidationException("Wallet key binding is missing or invalid");
+        throw new TokenValidationException(
+          "Wallet key binding is missing or invalid"
+        );
       }
-      String keyBindingNonce = sdJwtTokenValidationResult.getPresentationRequestNonce();
-      if (keyBindingNonce == null || !keyBindingNonce.equals(input.getRequestNonce())) {
+      String keyBindingNonce =
+        sdJwtTokenValidationResult.getPresentationRequestNonce();
+      if (
+        keyBindingNonce == null ||
+        !keyBindingNonce.equals(input.getRequestNonce())
+      ) {
         throw new TokenValidationException("Key binding nonce invalid");
       }
-      if (!sdJwtTokenValidationResult.getAudience().contains(input.getAudience())) {
-        throw new TokenValidationException("Token is not issued for the intended audience");
+      if (
+        !sdJwtTokenValidationResult.getAudience().contains(input.getAudience())
+      ) {
+        throw new TokenValidationException(
+          "Token is not issued for the intended audience"
+        );
       }
 
-      Map<TokenAttributeType, Object> disclosedAttributes = getDisclosedAttributes(sdJwtTokenValidationResult.getDisclosedTokenPayload());
+      Map<TokenAttributeType, Object> disclosedAttributes =
+        getDisclosedAttributes(
+          sdJwtTokenValidationResult.getDisclosedTokenPayload()
+        );
       sdJwtTokenValidationResult.setDisclosedAttributes(disclosedAttributes);
 
       return sdJwtTokenValidationResult;
-    }
-    catch (TokenValidationException e) {
+    } catch (TokenValidationException e) {
       throw e;
-    }
-    catch (Exception e) {
-      throw new TokenValidationException("Failed to validate SD JWT presentation", e);
+    } catch (Exception e) {
+      throw new TokenValidationException(
+        "Failed to validate SD JWT presentation",
+        e
+      );
     }
   }
 
-  private Map<TokenAttributeType, Object> getDisclosedAttributes(Payload disclosedTokenPayload) {
-    Map<TokenAttributeType, Object> disclosedAttributes = new java.util.HashMap<>();
+  private Map<TokenAttributeType, Object> getDisclosedAttributes(
+    Payload disclosedTokenPayload
+  ) {
+    Map<TokenAttributeType, Object> disclosedAttributes =
+      new java.util.HashMap<>();
     if (disclosedTokenPayload == null) {
       return disclosedAttributes;
     }
-    disclosedTokenPayload.toJSONObject().entrySet().stream()
+    disclosedTokenPayload
+      .toJSONObject()
+      .entrySet()
+      .stream()
       .filter(entry -> !SdJwt.STD_CLAIMS.contains(entry.getKey()))
       .filter(entry -> !"_sd".equals(entry.getKey()))
-      .forEach(entry -> disclosedAttributes.put(new TokenAttributeType(entry.getKey()), entry.getValue()));
+      .forEach(
+        entry ->
+          disclosedAttributes.put(
+            new TokenAttributeType(entry.getKey()),
+            entry.getValue()
+          )
+      );
     return disclosedAttributes;
   }
 }

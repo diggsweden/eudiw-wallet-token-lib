@@ -5,10 +5,8 @@
 package se.digg.wallet.datatypes.mdl.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
@@ -16,12 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Setter;
-import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
+import se.digg.cose.CoseException;
+import se.digg.wallet.datatypes.common.TokenAttribute;
+import se.digg.wallet.datatypes.common.TokenInput;
+import se.digg.wallet.datatypes.common.TokenIssuer;
+import se.digg.wallet.datatypes.common.TokenIssuingException;
 import se.digg.wallet.datatypes.mdl.data.CBORUtils;
 import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
 import se.digg.wallet.datatypes.mdl.data.IssuerSignedItem;
-import se.digg.cose.CoseException;
 
 /**
  * mDL token issuer implementing the common TokenIssuer interface producing the IssuerSigned part
@@ -111,9 +111,8 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         e
       );
     } catch (IOException e) {
-      throw new TokenIssuingException("Error issuing token",e);
-    }
-    catch (NullPointerException e) {
+      throw new TokenIssuingException("Error issuing token", e);
+    } catch (NullPointerException e) {
       throw new TokenIssuingException("Missing required input parameters", e);
     }
   }
@@ -152,7 +151,10 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         .elementValue(attribute.getValue())
         .build();
       nameSpaces
-        .computeIfAbsent(attribute.getType().getNameSpace(), k -> new ArrayList<>())
+        .computeIfAbsent(
+          attribute.getType().getNameSpace(),
+          k -> new ArrayList<>()
+        )
         .add(issuerSignedItem);
     }
     return nameSpaces;

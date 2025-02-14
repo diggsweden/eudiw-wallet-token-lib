@@ -12,9 +12,12 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.Setter;
-import se.digg.wallet.datatypes.common.*;
+import se.digg.wallet.datatypes.common.TokenAttribute;
+import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
+import se.digg.wallet.datatypes.common.TokenIssuer;
+import se.digg.wallet.datatypes.common.TokenIssuingException;
+import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.digg.wallet.datatypes.sdjwt.JSONUtils;
 import se.digg.wallet.datatypes.sdjwt.data.ClaimsWithDisclosure;
 import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
@@ -60,10 +63,7 @@ public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
       }
 
       PkiCredential issuerCredential = tokenInput.getIssuerCredential();
-      SdJwt sdJwt = SdJwt.builder(
-        tokenInput.getIssuer(),
-        digestAlgorithm
-      )
+      SdJwt sdJwt = SdJwt.builder(tokenInput.getIssuer(), digestAlgorithm)
         .legacySdJwtType(legacySdJwtHeaderType)
         .claimsWithDisclosure(claimsWithDisclosure)
         .confirmationKey(

@@ -4,32 +4,35 @@
 
 package se.digg.wallet.datatypes.mdl.process;
 
+import com.nimbusds.jose.jwk.ECKey;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.jwk.ECKey;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.mdl.data.*;
 import se.digg.cose.AlgorithmID;
 import se.digg.cose.COSEKey;
-import se.digg.wallet.datatypes.sdjwt.JSONUtils;
-import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
-import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenInput;
-import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenIssuer;
-import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidationResult;
-import se.digg.wallet.datatypes.sdjwt.process.SdJwtTokenValidator;
+import se.digg.wallet.datatypes.common.PresentationInput;
+import se.digg.wallet.datatypes.common.TestCredentials;
+import se.digg.wallet.datatypes.common.TestData;
+import se.digg.wallet.datatypes.common.TokenInput;
+import se.digg.wallet.datatypes.common.TokenIssuingException;
+import se.digg.wallet.datatypes.common.TokenPresenter;
+import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
+import se.digg.wallet.datatypes.common.TokenValidationResult;
+import se.digg.wallet.datatypes.common.TrustedKey;
+import se.digg.wallet.datatypes.mdl.data.CBORUtils;
+import se.digg.wallet.datatypes.mdl.data.DeviceResponse;
+import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
+import se.digg.wallet.datatypes.mdl.data.MdlPresentationInput;
+import se.digg.wallet.datatypes.mdl.data.MdlPresentationValidationInput;
+import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
 import se.swedenconnect.security.credential.PkiCredential;
 
 @Slf4j
@@ -40,18 +43,20 @@ class MdlTokenIssuerTest {
   static Map<String, List<String>> selectedDisclosures;
   static ECKey walletKey;
 
-
   @BeforeAll
   static void setUp() {
     issuerCredential = TestCredentials.p256_issuerCredential;
     pidNameSpace = "eu.europa.ec.eudi.pid.1";
-    selectedDisclosures = Collections.singletonMap("eu.europa.ec.eudi.pid.1", List.of(
-      "issuance_date",
-      "issuing_country",
-      "given_name",
-      "family_name",
-      "issuing_authority"
-    ));
+    selectedDisclosures = Collections.singletonMap(
+      "eu.europa.ec.eudi.pid.1",
+      List.of(
+        "issuance_date",
+        "issuing_country",
+        "given_name",
+        "family_name",
+        "issuing_authority"
+      )
+    );
     walletKey = TestCredentials.p256_walletKey;
   }
 
@@ -72,15 +77,14 @@ class MdlTokenIssuerTest {
 
     // Validate Issuer Signed Token
     MdlIssuerSignedValidator validator = new MdlIssuerSignedValidator();
-    TokenValidationResult validationResult =
-      validator.validateToken(
-        token,
-        List.of(
-          TrustedKey.builder()
-            .certificate(issuerCredential.getCertificate())
-            .build()
-        )
-      );
+    validator.validateToken(
+      token,
+      List.of(
+        TrustedKey.builder()
+          .certificate(issuerCredential.getCertificate())
+          .build()
+      )
+    );
     log.info("Token validation passed");
 
     // Make presentation
@@ -94,36 +98,58 @@ class MdlTokenIssuerTest {
       .disclosures(selectedDisclosures)
       .build();
     TokenPresenter<?> tokenPresenter = new MdlTokenPresenter();
-    byte[] presentedToken = tokenPresenter.presentToken(presentationInput, deviceKey.AsPrivateKey());
+    byte[] presentedToken = tokenPresenter.presentToken(
+      presentationInput,
+      deviceKey.AsPrivateKey()
+    );
     log.info("Presented mdL token: \n{}", Hex.toHexString(presentedToken));
 
     // Parse presentation
     DeviceResponse deviceResponse = DeviceResponse.deserialize(presentedToken);
-    byte[] parseResponseCbor = CBORUtils.CBOR_MAPPER.writeValueAsBytes(deviceResponse);
-    log.info("Parsed presentation token CBOR:\n{}", Hex.toHexString(parseResponseCbor));
+    byte[] parseResponseCbor = CBORUtils.CBOR_MAPPER.writeValueAsBytes(
+      deviceResponse
+    );
+    log.info(
+      "Parsed presentation token CBOR:\n{}",
+      Hex.toHexString(parseResponseCbor)
+    );
     Assertions.assertArrayEquals(presentedToken, parseResponseCbor);
     log.info("Presentation token parsed");
 
-    MdlPresentationValidator presentationValidator = new MdlPresentationValidator();
-    TokenValidationResult tokenValidationResult = presentationValidator.validatePresentation(
-      presentedToken,
-      new MdlPresentationValidationInput((MdlPresentationInput) presentationInput),
-      null
+    MdlPresentationValidator presentationValidator =
+      new MdlPresentationValidator();
+    TokenValidationResult tokenValidationResult =
+      presentationValidator.validatePresentation(
+        presentedToken,
+        new MdlPresentationValidationInput(
+          (MdlPresentationInput) presentationInput
+        ),
+        null
+      );
+    log.info(
+      "Validated and pared presentation token content:\n{}",
+      CBORUtils.cborToPrettyJson(presentedToken)
     );
-    log.info("Validated and pared presentation token content:\n{}", CBORUtils.cborToPrettyJson(presentedToken));
-    log.info("Disclosed attributes:\n{}", String.join("\n", tokenValidationResult.getDisclosedAttributes().entrySet().stream()
-      .map(e -> e.getKey() + " -> " + e.getValue())
-      .toList()));
-
+    log.info(
+      "Disclosed attributes:\n{}",
+      String.join(
+        "\n",
+        tokenValidationResult
+          .getDisclosedAttributes()
+          .entrySet()
+          .stream()
+          .map(e -> e.getKey() + " -> " + e.getValue())
+          .toList()
+      )
+    );
   }
-
 
   // Test cases
 
   @Test
   void testCases() throws Exception {
-
-    performTest("Default EC issuer key setup",
+    performTest(
+      "Default EC issuer key setup",
       TokenInput.builder()
         .algorithm(TokenSigningAlgorithm.ECDSA_256)
         .issuer("http://example.com/issuer")
@@ -131,9 +157,12 @@ class MdlTokenIssuerTest {
         .walletPublicKey(walletKey.toPublicKey())
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), null);
+        .build(),
+      null
+    );
 
-    performTest("RSA Issuer key",
+    performTest(
+      "RSA Issuer key",
       TokenInput.builder()
         .algorithm(TokenSigningAlgorithm.RSA_PSS_512)
         .issuer("http://example.com/issuer")
@@ -141,9 +170,12 @@ class MdlTokenIssuerTest {
         .walletPublicKey(walletKey.toPublicKey())
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), null);
+        .build(),
+      null
+    );
 
-    performTest("Legacy SD-JWT type",
+    performTest(
+      "Legacy SD-JWT type",
       TokenInput.builder()
         .algorithm(TokenSigningAlgorithm.ECDSA_256)
         .issuer("http://example.com/issuer")
@@ -151,9 +183,12 @@ class MdlTokenIssuerTest {
         .walletPublicKey(walletKey.toPublicKey())
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), null);
+        .build(),
+      null
+    );
 
-    performTest("Bad algorithm",
+    performTest(
+      "Bad algorithm",
       TokenInput.builder()
         .algorithm(TokenSigningAlgorithm.RSA_PSS_256)
         .issuer("http://example.com/issuer")
@@ -161,37 +196,52 @@ class MdlTokenIssuerTest {
         .walletPublicKey(walletKey.toPublicKey())
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), TokenIssuingException.class);
+        .build(),
+      TokenIssuingException.class
+    );
 
-    performTest("Null algorithm",
+    performTest(
+      "Null algorithm",
       TokenInput.builder()
         .issuer("http://example.com/issuer")
         .issuerCredential(issuerCredential)
         .walletPublicKey(walletKey.toPublicKey())
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), TokenIssuingException.class);
+        .build(),
+      TokenIssuingException.class
+    );
 
-    performTest("No wallet key",
+    performTest(
+      "No wallet key",
       TokenInput.builder()
         .algorithm(TokenSigningAlgorithm.ECDSA_256)
         .issuer("http://example.com/issuer")
         .issuerCredential(issuerCredential)
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), null);
+        .build(),
+      null
+    );
 
-    performTest("No expiration time",
+    performTest(
+      "No expiration time",
       TokenInput.builder()
         .algorithm(TokenSigningAlgorithm.ECDSA_256)
         .issuer("http://example.com/issuer")
         .issuerCredential(issuerCredential)
         .walletPublicKey(walletKey.toPublicKey())
         .attributes(TestData.defaultPidUserAttributes)
-        .build(), TokenIssuingException.class);
+        .build(),
+      TokenIssuingException.class
+    );
   }
 
-  void performTest(String description, TokenInput tokenInput, Class<? extends Exception> exceptionClass) throws Exception {
+  void performTest(
+    String description,
+    TokenInput tokenInput,
+    Class<? extends Exception> exceptionClass
+  ) throws Exception {
     log.info("TEST CASE:\n================\n{}\n================", description);
     MdlTokenIssuer tokenIssuer = new MdlTokenIssuer(false);
     if (exceptionClass != null) {
@@ -199,39 +249,61 @@ class MdlTokenIssuerTest {
         tokenIssuer.issueToken(tokenInput);
         Assertions.fail("Expected exception not thrown");
       });
-      log.info("Thrown expected exception: {} - {}", exception.getClass().getSimpleName(), exception.getMessage());
-      log.info("Cause: {} - {}", exception.getCause().getClass().getSimpleName(), exception.getCause().toString());
+      log.info(
+        "Thrown expected exception: {} - {}",
+        exception.getClass().getSimpleName(),
+        exception.getMessage()
+      );
+      log.info(
+        "Cause: {} - {}",
+        exception.getCause().getClass().getSimpleName(),
+        exception.getCause().toString()
+      );
     } else {
       byte[] issuedToken = tokenIssuer.issueToken(tokenInput);
-      List<TrustedKey> trustedKeys = List.of(TrustedKey.builder()
-        .certificate(tokenInput.getIssuerCredential().getCertificate())
-        .build());
+      List<TrustedKey> trustedKeys = List.of(
+        TrustedKey.builder()
+          .certificate(tokenInput.getIssuerCredential().getCertificate())
+          .build()
+      );
       MdlIssuerSignedValidator tokenValidator = new MdlIssuerSignedValidator();
-      MdlIssuerSignedValidationResult validationResult = tokenValidator.validateToken(issuedToken, trustedKeys);
+      MdlIssuerSignedValidationResult validationResult =
+        tokenValidator.validateToken(issuedToken, trustedKeys);
       log.info("Token validated OK");
       logIssuerSignedToken(issuedToken, validationResult.getMso());
     }
-
   }
 
-  public static void logIssuerSignedToken(byte[] issuedToken, MobileSecurityObject mso) throws Exception {
+  public static void logIssuerSignedToken(
+    byte[] issuedToken,
+    MobileSecurityObject mso
+  ) throws Exception {
     log.info("Token CBOR:\n{}", Hex.toHexString(issuedToken));
     IssuerSigned issuerSigned = IssuerSigned.deserialize(issuedToken);
-    issuerSigned.getNameSpaces().forEach((ns, v) -> {
-      List<String> attributeValPrints = new ArrayList<>();
-      v.forEach(issuerSignedItem -> {
-        try {
-          attributeValPrints.add(CBORUtils.cborToPrettyJson(
-          CBORUtils.CBOR_MAPPER.writeValueAsBytes(issuerSignedItem)));
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
+    issuerSigned
+      .getNameSpaces()
+      .forEach((ns, v) -> {
+        List<String> attributeValPrints = new ArrayList<>();
+        v.forEach(issuerSignedItem -> {
+          try {
+            attributeValPrints.add(
+              CBORUtils.cborToPrettyJson(
+                CBORUtils.CBOR_MAPPER.writeValueAsBytes(issuerSignedItem)
+              )
+            );
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+        log.info(
+          "Name space: {}\n{}",
+          ns,
+          String.join("\n", attributeValPrints)
+        );
       });
-      log.info("Name space: {}\n{}", ns, String.join("\n", attributeValPrints));
-    });
-    log.info("Mobile security object:\n{}", CBORUtils.cborToPrettyJson(CBORUtils.CBOR_MAPPER.writeValueAsBytes(mso)));
+    log.info(
+      "Mobile security object:\n{}",
+      CBORUtils.cborToPrettyJson(CBORUtils.CBOR_MAPPER.writeValueAsBytes(mso))
+    );
   }
-
-
-
 }

@@ -1,7 +1,7 @@
 <!--
 SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
 
-SPDX-License-Identifier: EUPL-1.2
+SPDX-License-Identifier: CC0-1.0
 -->
 
 # EUDIW Wallet Token Library

@@ -19,5 +19,4 @@ public class TokenAttribute {
   private TokenAttributeType type;
   /** The attribute value. For most attributes, this is either a String, Integer or LocalDate object */
   private Object value;
-
 }

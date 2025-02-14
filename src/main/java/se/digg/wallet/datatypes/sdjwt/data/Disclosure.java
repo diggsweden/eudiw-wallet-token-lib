@@ -38,7 +38,9 @@ public class Disclosure {
     this.salt = Base64.getUrlEncoder()
       .withoutPadding()
       .encodeToString(new BigInteger(128, RNG).toByteArray());
-    this.name = tokenAttribute.getType() != null ? tokenAttribute.getType().getAttributeName() : null;
+    this.name = tokenAttribute.getType() != null
+      ? tokenAttribute.getType().getAttributeName()
+      : null;
     this.value = tokenAttribute.getValue();
     this.disclosure = name != null
       ? JSONUtils.JSON_MAPPER.writeValueAsString(
@@ -80,5 +82,4 @@ public class Disclosure {
         throw new TokenValidationException("Invalid disclosure format");
     }
   }
-
 }

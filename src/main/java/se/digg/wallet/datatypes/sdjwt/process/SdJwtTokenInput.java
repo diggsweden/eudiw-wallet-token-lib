@@ -4,7 +4,6 @@
 
 package se.digg.wallet.datatypes.sdjwt.process;
 
-import com.nimbusds.jose.JWSAlgorithm;
 import java.security.PublicKey;
 import java.time.Duration;
 import java.util.List;

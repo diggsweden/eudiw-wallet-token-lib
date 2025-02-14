@@ -5,7 +5,11 @@
 package se.digg.wallet.datatypes.sdjwt.data;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
 import se.digg.wallet.datatypes.common.Utils;
@@ -61,14 +65,15 @@ public class ClaimsWithDisclosure {
     List<Disclosure> disclosureList,
     TokenDigestAlgorithm sdAlg
   ) throws NoSuchAlgorithmException {
-    ClaimsWithDisclosureBuilder cwdBuilder = ClaimsWithDisclosure.builder(
-      sdAlg
-    );
+    ClaimsWithDisclosureBuilder cwdBuilder = builder(sdAlg);
     if (claimsMap.get("_sd") != null) {
       if (claimsMap.get("_sd") instanceof List<?> sd) {
         // There are disclosures at this level. Add them to this level
         for (Disclosure disc : disclosureList) {
-          String hashString = JSONUtils.disclosureHashString(disc, sdAlg.getSdJwtName());
+          String hashString = JSONUtils.disclosureHashString(
+            disc,
+            sdAlg.getSdJwtName()
+          );
           if (sd.contains(hashString)) {
             cwdBuilder.disclosure(disc);
           }
@@ -76,10 +81,16 @@ public class ClaimsWithDisclosure {
         Map<String, Object> filteredMap = new HashMap<>(claimsMap);
         filteredMap.remove("_sd");
         for (Map.Entry<String, Object> entry : filteredMap.entrySet()) {
-          if (entry.getValue() instanceof Map<?,?>) {
-            Map<String, Object> subMap = Utils.ensureStringObjectMap(entry.getValue());
+          if (entry.getValue() instanceof Map<?, ?>) {
+            Map<String, Object> subMap = Utils.ensureStringObjectMap(
+              entry.getValue()
+            );
             if (subMap.containsKey("_sd")) {
-              ClaimsWithDisclosure subCwd = parse(subMap, disclosureList, sdAlg);
+              ClaimsWithDisclosure subCwd = parse(
+                subMap,
+                disclosureList,
+                sdAlg
+              );
               cwdBuilder.claimsWithDisclosure(entry.getKey(), subCwd);
             } else {
               subMap
@@ -154,7 +165,9 @@ public class ClaimsWithDisclosure {
     return allSupportingClaims;
   }
 
-  public static ClaimsWithDisclosureBuilder builder(TokenDigestAlgorithm hashAlgo) {
+  public static ClaimsWithDisclosureBuilder builder(
+    TokenDigestAlgorithm hashAlgo
+  ) {
     return new ClaimsWithDisclosureBuilder(hashAlgo);
   }
 
@@ -217,5 +230,4 @@ public class ClaimsWithDisclosure {
       return claimsWithDisclosure;
     }
   }
-
 }

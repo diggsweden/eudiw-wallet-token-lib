@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.common;
 
 import java.util.List;
@@ -18,7 +22,6 @@ import java.util.List;
  * Methods in this interface may throw exceptions indicating issues with the token's integrity, parsing, or validation.
  */
 public interface PresentationValidator {
-
   /**
    * Validates a verifiable presentation and ensures its integrity, authenticity, and adherence to the required structure.
    * The validation process involves verifying the structural correctness of the presentation, checking the expiration time,
@@ -33,7 +36,9 @@ public interface PresentationValidator {
    * @throws TokenValidationException if the presentation validation fails due to structural or cryptographic errors.
    * @throws TokenParsingException if an error occurs during parsing of the presentation.
    */
-  TokenValidationResult validatePresentation(byte[] presentation, PresentationValidationInput presentationValidationInput,
-    List<TrustedKey> trustedKeys) throws TokenValidationException, TokenParsingException;
-
+  TokenValidationResult validatePresentation(
+    byte[] presentation,
+    PresentationValidationInput presentationValidationInput,
+    List<TrustedKey> trustedKeys
+  ) throws TokenValidationException, TokenParsingException;
 }

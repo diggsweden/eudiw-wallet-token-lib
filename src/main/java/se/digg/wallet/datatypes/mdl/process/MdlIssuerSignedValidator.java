@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.upokecenter.cbor.CBORException;
 import com.upokecenter.cbor.CBORObject;
 import com.upokecenter.cbor.CBORType;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,11 +19,26 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
-
-import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.mdl.data.*;
-import se.digg.cose.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import se.digg.cose.COSEKey;
+import se.digg.cose.COSEObjectTag;
+import se.digg.cose.CoseException;
+import se.digg.cose.HeaderKeys;
+import se.digg.cose.Sign1COSEObject;
+import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
+import se.digg.wallet.datatypes.common.TokenParsingException;
+import se.digg.wallet.datatypes.common.TokenValidationException;
+import se.digg.wallet.datatypes.common.TokenValidator;
+import se.digg.wallet.datatypes.common.TrustedKey;
+import se.digg.wallet.datatypes.mdl.data.CBORUtils;
+import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
+import se.digg.wallet.datatypes.mdl.data.IssuerSignedItem;
+import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
 
 /**
  * Validator for validating @{link {@link IssuerSigned} tokens.
@@ -226,30 +240,52 @@ public class MdlIssuerSignedValidator implements TokenValidator {
     if (nameSpaces == null) {
       throw new TokenValidationException("Token has no attribute information");
     }
-    Map<String, Map<Integer, byte[]>> tokenParsedIssuerSignedItemBytes = parseTokenIssuerSignedItems(token);
-    for (Map.Entry<String, List<IssuerSignedItem>> entry : nameSpaces.entrySet()) {
+    Map<String, Map<Integer, byte[]>> tokenParsedIssuerSignedItemBytes =
+      parseTokenIssuerSignedItems(token);
+    for (Map.Entry<
+      String,
+      List<IssuerSignedItem>
+    > entry : nameSpaces.entrySet()) {
       String namespace = entry.getKey();
-      Map<Integer, byte[]> tokenParsedNameSpace = tokenParsedIssuerSignedItemBytes.get(namespace);
+      Map<Integer, byte[]> tokenParsedNameSpace =
+        tokenParsedIssuerSignedItemBytes.get(namespace);
       List<IssuerSignedItem> items = entry.getValue();
       for (IssuerSignedItem item : items) {
         byte[] hashedBytes = tokenParsedNameSpace.get(item.getDigestID());
-        MessageDigest digest = MessageDigest.getInstance(TokenDigestAlgorithm
-            .fromMdlName(mso.getDigestAlgorithm())
-            .getJdkName());
+        MessageDigest digest = MessageDigest.getInstance(
+          TokenDigestAlgorithm.fromMdlName(
+            mso.getDigestAlgorithm()
+          ).getJdkName()
+        );
         byte[] signedItemHash = digest.digest(hashedBytes);
-        byte[] msoHash = getMsoHash(mso.getValueDigests(), namespace, item.getDigestID());
+        byte[] msoHash = getMsoHash(
+          mso.getValueDigests(),
+          namespace,
+          item.getDigestID()
+        );
         if (msoHash == null) {
-          throw new TokenValidationException("No hash available for present attribute " +
-              item.getDigestID() + "for name space " + namespace);
+          throw new TokenValidationException(
+            "No hash available for present attribute " +
+            item.getDigestID() +
+            "for name space " +
+            namespace
+          );
         }
-        if (!Arrays.equals(signedItemHash, msoHash)) {throw new TokenValidationException(
-            "Hash mismatch for attribute " + item.getDigestID() + " in namespace " + namespace);
+        if (!Arrays.equals(signedItemHash, msoHash)) {
+          throw new TokenValidationException(
+            "Hash mismatch for attribute " +
+            item.getDigestID() +
+            " in namespace " +
+            namespace
+          );
         }
       }
     }
   }
 
-  private Map<String, Map<Integer, byte[]>> parseTokenIssuerSignedItems(byte[] token) throws TokenValidationException {
+  private Map<String, Map<Integer, byte[]>> parseTokenIssuerSignedItems(
+    byte[] token
+  ) throws TokenValidationException {
     try {
       Map<String, Map<Integer, byte[]>> valueDigests = new HashMap<>();
       CBORObject issuerSigned = CBORObject.DecodeFromBytes(token);
@@ -272,9 +308,15 @@ public class MdlIssuerSignedValidator implements TokenValidator {
       }
       return valueDigests;
     } catch (CBORException e) {
-      throw new TokenValidationException("Failed to parse Issuer Signed Items", e);
+      throw new TokenValidationException(
+        "Failed to parse Issuer Signed Items",
+        e
+      );
     } catch (IOException e) {
-      throw new TokenValidationException("Unable to parse Issuer Signed Item bytes to object", e);
+      throw new TokenValidationException(
+        "Unable to parse Issuer Signed Item bytes to object",
+        e
+      );
     }
   }
 

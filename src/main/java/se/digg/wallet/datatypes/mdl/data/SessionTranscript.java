@@ -1,11 +1,14 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import com.upokecenter.cbor.CBORObject;
-import lombok.Getter;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
+import lombok.Getter;
 
 /**
  * Provides a session transcript for use with OpenID4VP
@@ -18,7 +21,12 @@ public class SessionTranscript {
   private final String nonce;
   private final String mdocGeneratedNonce;
 
-  public SessionTranscript(String clientId, String responseUri, String nonce, String mdocGeneratedNonce) {
+  public SessionTranscript(
+    String clientId,
+    String responseUri,
+    String nonce,
+    String mdocGeneratedNonce
+  ) {
     this.clientId = clientId;
     this.responseUri = responseUri;
     this.nonce = nonce;
@@ -29,7 +37,10 @@ public class SessionTranscript {
     Objects.requireNonNull(this.clientId, "clientId must not be null");
     Objects.requireNonNull(this.responseUri, "responseUri must not be null");
     Objects.requireNonNull(this.nonce, "nonce must not be null");
-    Objects.requireNonNull(this.mdocGeneratedNonce, "mdocGeneratedNonce must not be null");
+    Objects.requireNonNull(
+      this.mdocGeneratedNonce,
+      "mdocGeneratedNonce must not be null"
+    );
 
     CBORObject handover = CBORObject.NewArray();
     handover.Add(getHashItem(this.clientId, this.mdocGeneratedNonce));
@@ -56,5 +67,4 @@ public class SessionTranscript {
       throw new RuntimeException(e);
     }
   }
-
 }

@@ -9,9 +9,6 @@ import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +17,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class TokenValidationResult{
+public class TokenValidationResult {
 
   protected PublicKey validationKey;
   protected X509Certificate validationCertificate;

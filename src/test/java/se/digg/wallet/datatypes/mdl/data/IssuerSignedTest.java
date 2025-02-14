@@ -18,7 +18,9 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
@@ -27,9 +29,13 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.COSEKey;
+import se.digg.cose.COSEObjectTag;
+import se.digg.cose.HeaderKeys;
+import se.digg.cose.Sign1COSEObject;
 import se.digg.wallet.datatypes.common.TestCredentials;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
-import se.digg.cose.*;
 
 @Slf4j
 class IssuerSignedTest {
@@ -325,10 +331,7 @@ class IssuerSignedTest {
     );
     Assertions.assertTrue(valid);
     byte[] parsedMsoBytes = parsedSignatureObject.GetContent();
-    MobileSecurityObject parsedMso = MobileSecurityObject.deserialize(
-      parsedMsoBytes
-    );
-    int sdf = 0;
+    MobileSecurityObject.deserialize(parsedMsoBytes);
   }
 
   private void logIssuerSignedItem(IssuerSignedItem item, String nameSpace)

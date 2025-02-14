@@ -1,14 +1,18 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
 import se.digg.wallet.datatypes.common.PresentationInput;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 
-import java.util.List;
-import java.util.Map;
-
 @Getter
-public class MdlPresentationInput extends PresentationInput<Map<String, List<String>>> {
+public class MdlPresentationInput
+  extends PresentationInput<Map<String, List<String>>> {
 
   private String clientId;
   private String mdocGeneratedNonce;
@@ -41,7 +45,9 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
       return this;
     }
 
-    public MdlPresentationInputBuilder mdocGeneratedNonce(String mdocGeneratedNonce) {
+    public MdlPresentationInputBuilder mdocGeneratedNonce(
+      String mdocGeneratedNonce
+    ) {
       mdlPresentationInput.mdocGeneratedNonce = mdocGeneratedNonce;
       return this;
     }
@@ -51,12 +57,16 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
       return this;
     }
 
-    public MdlPresentationInputBuilder disclosures(Map<String, List<String>> disclosures) {
+    public MdlPresentationInputBuilder disclosures(
+      Map<String, List<String>> disclosures
+    ) {
       mdlPresentationInput.disclosures = disclosures;
       return this;
     }
 
-    public MdlPresentationInputBuilder algorithm(TokenSigningAlgorithm algorithm) {
+    public MdlPresentationInputBuilder algorithm(
+      TokenSigningAlgorithm algorithm
+    ) {
       mdlPresentationInput.algorithm = algorithm;
       return this;
     }
@@ -65,5 +75,4 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
       return mdlPresentationInput;
     }
   }
-
 }
