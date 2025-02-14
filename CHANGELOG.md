@@ -1,15 +1,20 @@
-<!--
-SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
-
-SPDX-License-Identifier: CC0-1.0
--->
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.0.7-SNAPSHOT] - 2025-02-14
+
+### Changed
+
+- Update javadoc
+- Make all checks pass
+
+### Fixed
+
+- Make project pass lint and ci
 
 ## [0.0.6-SNAPSHOT] - 2025-02-13
 
@@ -19,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- V0.0.6-SNAPSHOT
 - Update COSE-lib dependency
 
 ### Fixed
@@ -105,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update dependency credentials-support to v2.0.2
 - Fix missing perm for test
 
+[0.0.7-SNAPSHOT]: https://github.com/diggsweden/eudiw-wallet-token-lib/compare/v0.0.6-SNAPSHOT..v0.0.7-SNAPSHOT
 [0.0.6-SNAPSHOT]: https://github.com/diggsweden/eudiw-wallet-token-lib/compare/v0.0.5-SNAPSHOT..v0.0.6-SNAPSHOT
 [0.0.5-SNAPSHOT]: https://github.com/diggsweden/eudiw-wallet-token-lib/compare/v0.0.4-SNAPSHOT..v0.0.5-SNAPSHOT
 [0.0.4-SNAPSHOT]: https://github.com/diggsweden/eudiw-wallet-token-lib/compare/v0.0.3-SNAPSHOT..v0.0.4-SNAPSHOT
