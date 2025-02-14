@@ -12,12 +12,28 @@ import java.security.cert.CertificateEncodingException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * MdlTokenPresenter is an implementation of the {@code TokenPresenter} interface
+ * specialized for processing mDL (mobile Driver's License) tokens. This class is responsible
+ * for verifying the provided mDL token, applying selective disclosures, and producing
+ * a cryptographically signed response suitable for presentation.
+ *
+ * The class validates the token and disclosures provided in the {@code MdlPresentationInput},
+ * ensures the integrity of the token data, and generates a presentation response using the given
+ * wallet private key. Additionally, it utilizes namespaces and selective disclosures to construct a
+ * tailored response based on the disclosed attributes, ensuring privacy and compliance with the
+ * specifications.
+ */
 public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
 
 
+  /**
+   * Default constructor for the MdlTokenPresenter class.
+   */
   public MdlTokenPresenter() {
   }
 
+  /** {@inheritDoc} */
   @Override
   public byte[] presentToken(PresentationInput<?> presentationInput, PrivateKey privateKey) throws TokenPresentationException {
 
@@ -59,6 +75,13 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
     }
   }
 
+  /**
+   * Filters and returns a subset of the provided namespaces based on the disclosed element identifiers.
+   *
+   * @param nameSpaces a map where keys represent namespace names, and values are lists of IssuerSignedItem instances representing signed attributes in those namespaces
+   * @param disclosures a map where keys represent namespace names, and values are lists of attribute name identifiers that should be disclosed
+   * @return a map containing only the entries from the input nameSpaces that match the disclosed namespaces and element identifiers provided in disclosures
+   */
   private Map<String, List<IssuerSignedItem>> getDisclosedNameSpaces(Map<String, List<IssuerSignedItem>> nameSpaces, Map<String, List<String>> disclosures) {
     if (disclosures == null || disclosures.isEmpty()) {
       return nameSpaces;

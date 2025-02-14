@@ -109,34 +109,62 @@ public class MobileSecurityObject {
   @NoArgsConstructor
   @Builder
   public static class DeviceKeyInfo {
-
+    /** Wallet public key */
     private COSEKey deviceKey;
+    /** Key authorizations */
     private KeyAuthorizations keyAuthorizations;
+    /** Optional key info */
     private Map<Integer, Object> keyInfo;
   }
 
+  /**
+   * Represents the validity information of a digital security object.
+   * This class contains the timestamps related to the signing, validity period,
+   * and expected update of the associated security object.
+   */
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
   @Builder
   public static class ValidityInfo {
 
+    /** Signing time */
     private Instant signed;
+    /** Valid from time */
     private Instant validFrom;
+    /** Expiration time */
     private Instant validUntil;
+    /** Optional time for expected update */
     private Instant expectedUpdate;
   }
 
+  /**
+   * The KeyAuthorizations class represents key authorization details,
+   * specifying access permissions for certain namespaces and data elements.
+   */
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
   @Builder
   public static class KeyAuthorizations {
 
+    /** Name spaces this key is authorized for */
     private List<String> nameSpaces;
+    /** Data element this key is authorized for */
     private List<String> dataElements;
   }
 
+  /**
+   * Signs the Mobile Security Object (MSO) using the specified certificate chain, key, and algorithm ID.
+   *
+   * @param chain the list of {@link X509Certificate} representing the certificate chain used for signing
+   * @param key the {@link COSEKey} used to create the digital signature
+   * @param algorithmID the {@link AlgorithmID} representing the algorithm used for signing
+   * @return the signed object as a {@link CBORObject}
+   * @throws IOException if an I/O error occurs during the signing process
+   * @throws CoseException if an error related to the COSE signing process occurs
+   * @throws CertificateEncodingException if an error occurs while encoding the certificates in the chain
+   */
   @JsonIgnore
   public CBORObject sign(
     List<X509Certificate> chain,
@@ -147,6 +175,20 @@ public class MobileSecurityObject {
     return sign(chain, key, algorithmID, null, false);
   }
 
+  /**
+   * Signs the Mobile Security Object (MSO) using the specified certificate chain, key, algorithm ID,
+   * key identifier (KID), and KID protection flag.
+   *
+   * @param chain the list of {@link X509Certificate} representing the certificate chain used for signing
+   * @param key the {@link COSEKey} used to create the digital signature
+   * @param algorithmID the {@link AlgorithmID} representing the algorithm used for signing
+   * @param kid a string that specifies the Key Identifier (KID) to include in the COSE structure
+   * @param protectedKid a boolean flag indicating whether the KID is included as a protected attribute
+   * @return the signed object as a {@link CBORObject}
+   * @throws IOException if an I/O error occurs during the signing process
+   * @throws CoseException if an error related to the COSE signing process occurs
+   * @throws CertificateEncodingException if an error occurs while encoding the certificates in the chain
+   */
   @JsonIgnore
   public CBORObject sign(
     List<X509Certificate> chain,
@@ -161,8 +203,27 @@ public class MobileSecurityObject {
     return msg.EncodeToCBORObject();
   }
 
+  /**
+   * The Serializer class is a custom implementation of the {@link JsonSerializer}
+   * specifically for the {@link MobileSecurityObject} class. It is responsible for
+   * serializing an instance of {@link MobileSecurityObject} into a CBOR encoded
+   * representation using the {@link JsonGenerator}.
+   * <p>
+   * The serialization process involves encoding various fields of the
+   * {@link MobileSecurityObject}, such as version, digest algorithm, value digests,
+   * device key information, document type, and validity information, into their
+   * respective CBOR representations.
+   * <p>
+   * This class ensures that the serialization adheres to the required format and
+   * structure, and includes detailed handling of nested objects like
+   * {@link MobileSecurityObject.DeviceKeyInfo} and
+   * {@link MobileSecurityObject.KeyAuthorizations}. It also takes care of encoding
+   * maps, lists, and byte arrays in a structured and deterministic manner using
+   * CBOR utilities.
+   */
   public static class Serializer extends JsonSerializer<MobileSecurityObject> {
 
+    /** {@inheritDoc} */
     @Override
     public void serialize(
       MobileSecurityObject mso,
@@ -299,6 +360,13 @@ public class MobileSecurityObject {
     }
   }
 
+  /**
+   * Deserializes the provided CBOR-encoded byte array into a MobileSecurityObject instance.
+   *
+   * @param cborBytes the CBOR-encoded byte array containing the data to be deserialized
+   * @return the deserialized MobileSecurityObject
+   * @throws TokenParsingException if an error occurs while parsing the CBOR byte array
+   */
   public static MobileSecurityObject deserialize(byte[] cborBytes)
     throws TokenParsingException {
     // Initialize CBORObject from bytes

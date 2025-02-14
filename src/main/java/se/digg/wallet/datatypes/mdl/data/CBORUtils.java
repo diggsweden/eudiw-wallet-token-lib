@@ -183,6 +183,19 @@ public class CBORUtils {
       .writeValueAsString(objectMapper.readValue(jsonString, Object.class));
   }
 
+  /**
+   * Signs the provided data using the specified key and algorithm, producing a Sign1 COSE signature.
+   *
+   * @param toBeSigned the byte array representing the content to be signed
+   * @param key the COSEKey used for signing the content
+   * @param algorithmID the algorithm identifier specifying the signing algorithm
+   * @param kid the key identifier to be added to the COSE header, or null if not applicable
+   * @param chain a list of X509Certificates representing the certificate chain to be added to the COSE header, or null if not applicable
+   * @param protectedKid a flag indicating whether the key identifier should be placed in the protected header
+   * @return a Sign1COSEObject representing the signed content with associated headers
+   * @throws CoseException if an error occurs during the COSE signing process
+   * @throws CertificateEncodingException if an encoding error occurs with the provided certificates
+   */
   public static Sign1COSEObject sign(byte[] toBeSigned, COSEKey key, AlgorithmID algorithmID, String kid, List<X509Certificate> chain, boolean protectedKid) throws CoseException, CertificateEncodingException {
     Sign1COSEObject coseSignature = new Sign1COSEObject(false);
     coseSignature.SetContent(toBeSigned);

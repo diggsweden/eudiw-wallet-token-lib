@@ -106,6 +106,13 @@ public class SdJwt {
   /** Key binding proof signed by the wallet */
   private SignedJWT walletSigned;
 
+  /**
+   * Creates a new instance of SdJwtBuilder to initialize and build an SdJwt object.
+   *
+   * @param issuer the issuer of the SD-JWT, which must not be null.
+   * @param sdAlg the token digest algorithm to be used for the SD-JWT, which must not be null.
+   * @return an SdJwtBuilder instance for configuring and building an SdJwt object.
+   */
   public static SdJwtBuilder builder(String issuer, TokenDigestAlgorithm sdAlg) {
     return new SdJwtBuilder(issuer, sdAlg);
   }
@@ -234,8 +241,16 @@ public class SdJwt {
    */
   public static class SdJwtBuilder {
 
+    /** The object being built */
     private final SdJwt sdJwt;
 
+    /**
+     * Constructs a new SdJwtBuilder with the specified issuer and token digest algorithm.
+     *
+     * @param issuer the identifier of the entity issuing the SD-JWT. Must not be null.
+     * @param sdAlg the token digest algorithm to be used in the SD-JWT. Must not be null.
+     * @throws NullPointerException if the issuer or sdAlg is null.
+     */
     public SdJwtBuilder(String issuer, TokenDigestAlgorithm sdAlg) {
       Objects.requireNonNull(issuer, "issuer must not be null");
       Objects.requireNonNull(sdAlg, "sd_alg must not be null");
@@ -244,6 +259,14 @@ public class SdJwt {
       sdJwt.setSdAlgorithm(sdAlg);
     }
 
+    /**
+     * Sets the ClaimsWithDisclosure object for the SdJwt being built.
+     * The ClaimsWithDisclosure represents the claims and their corresponding disclosures
+     * to be included in the token.
+     *
+     * @param claimsWithDisclosure the ClaimsWithDisclosure object containing claims and disclosures
+     * @return the current SdJwtBuilder instance
+     */
     public SdJwtBuilder claimsWithDisclosure(
       ClaimsWithDisclosure claimsWithDisclosure
     ) {
@@ -251,30 +274,86 @@ public class SdJwt {
       return this;
     }
 
+    /**
+     * Sets the confirmation key for the SD-JWT being built.
+     * The confirmation key typically corresponds to a public key from a wallet or other entity
+     * and is used to bind the token to a specific cryptographic key.
+     *
+     * @param walletPublic the JWK (JSON Web Key) object representing the public key to be set as the confirmation key
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder confirmationKey(JWK walletPublic) {
       sdJwt.setConfirmationKey(walletPublic);
       return this;
     }
 
+    /**
+     * Sets the Verifiable Credential (VC) type for the SD-JWT being built.
+     * The VC type specifies the classification or schema of the verifiable credential
+     * associated with this SD-JWT.
+     *
+     * @param vcType the type of verifiable credential to be associated with the SD-JWT
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder verifiableCredentialType(String vcType) {
       sdJwt.setVcType(vcType);
       return this;
     }
 
+    /**
+     * Sets the status for the SD-JWT being built.
+     * The status represents a user-defined object to indicate the state or condition
+     * of the SD-JWT.
+     *
+     * @param status the status object to be set for the SD-JWT
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder status(Object status) {
       sdJwt.setStatus(status);
       return this;
     }
 
+    /**
+     * Sets the optional subject for the SD-JWT being built.
+     * The subject typically represents the entity that the token is issued to
+     * and serves as a key claim in the SD-JWT payload.
+     *
+     * @param subject the subject to associate with the SD-JWT
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder subject(String subject) {
       sdJwt.setSubject(subject);
       return this;
     }
+
+    /**
+     * Configures the SD-JWT being built to use either the legacy or standard JWT type.
+     * The method determines the JWT type based on the provided boolean flag.
+     *
+     * @param legacySdJwtType a boolean indicating whether the legacy SD-JWT type should be used.
+     *                        If true, the legacy type is set; otherwise, the standard type is used.
+     * @return the current SdJwtBuilder instance, allowing for method chaining.
+     */
     public SdJwtBuilder legacySdJwtType(boolean legacySdJwtType) {
       sdJwt.setJwtType(legacySdJwtType ? SD_JWT_TYPE_LEGACY : SD_JWT_TYPE);
       return this;
     }
 
+    /**
+     * Builds and signs an SD-JWT (Selective Disclosure JWT) using the provided configuration.
+     * The method prepares the claims, adds necessary metadata, signs the token using the provided
+     * signer, and returns the constructed SD-JWT object.
+     *
+     * @param issuerCredential the PKI credential of the issuer, used to provide the signing certificate
+     * @param validity the duration for which the token is valid, from the current time
+     * @param algorithm the JWS (JSON Web Signature) algorithm used for signing the token
+     * @param signer the JWS signer instance responsible for signing the token
+     * @param kid the Key ID (KID) used to identify the signing key
+     * @return the constructed and signed SdJwt object
+     * @throws JOSEException if an error occurs during the signing process
+     * @throws NoSuchAlgorithmException if a specified algorithm is not available in the environment
+     * @throws CertificateEncodingException if an error occurs encoding the certificate
+     */
     public SdJwt build(
       PkiCredential issuerCredential,
       Duration validity,

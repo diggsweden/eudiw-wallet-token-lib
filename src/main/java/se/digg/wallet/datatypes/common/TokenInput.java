@@ -4,7 +4,6 @@
 
 package se.digg.wallet.datatypes.common;
 
-import com.nimbusds.jose.JWSAlgorithm;
 import java.security.PublicKey;
 import java.time.Duration;
 import java.util.List;
@@ -14,12 +13,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import se.swedenconnect.security.credential.PkiCredential;
 
+/**
+ * Represents the input data required for issuing a token.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class TokenInput {
 
+  /** Issuer name */
   protected String issuer;
   /** Attributes enabled for selective disclosure */
   protected List<TokenAttribute> attributes;

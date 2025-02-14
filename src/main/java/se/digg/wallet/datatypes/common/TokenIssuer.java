@@ -23,6 +23,7 @@ public interface TokenIssuer<T extends TokenInput> {
    * @param tokenInput the token input object containing attributes, issuer credential, expiration duration,
    *                   signing algorithm, and wallet public key
    * @return a byte array representing the issued token
+   * @throws TokenIssuingException if an error occurs during token issuance
    */
   byte[] issueToken(T tokenInput) throws TokenIssuingException;
 }

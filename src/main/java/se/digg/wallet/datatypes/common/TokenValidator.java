@@ -18,6 +18,7 @@ public interface TokenValidator {
    * @param token The token to be validated as a byte array.
    * @param trustedKeys optional list of trusted keys used for validation.
    * @return An instance of TokenValidationResult containing information about the validation result.
+   * @throws TokenValidationException if the token validation process fails.
    */
   TokenValidationResult validateToken(
     byte[] token,

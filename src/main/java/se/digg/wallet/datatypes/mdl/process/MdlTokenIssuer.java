@@ -5,23 +5,20 @@
 package se.digg.wallet.datatypes.mdl.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.Setter;
-import se.digg.wallet.datatypes.common.*;
-import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
+import org.bouncycastle.crypto.CryptoServicesRegistrar;
+import se.digg.cose.CoseException;
+import se.digg.wallet.datatypes.common.TokenAttribute;
+import se.digg.wallet.datatypes.common.TokenInput;
+import se.digg.wallet.datatypes.common.TokenIssuer;
+import se.digg.wallet.datatypes.common.TokenIssuingException;
 import se.digg.wallet.datatypes.mdl.data.CBORUtils;
 import se.digg.wallet.datatypes.mdl.data.IssuerSigned;
 import se.digg.wallet.datatypes.mdl.data.IssuerSignedItem;
-import se.digg.cose.CoseException;
 
 /**
  * mDL token issuer implementing the common TokenIssuer interface producing the IssuerSigned part
@@ -30,7 +27,7 @@ import se.digg.cose.CoseException;
 public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
 
   /** Random source for hash salts */
-  private static final SecureRandom RNG = new SecureRandom();
+  private static final Random RNG = CryptoServicesRegistrar.getSecureRandom();
 
   /** mDL version for this token issuer */
   private static final String MDL_VERSION = "1.0";

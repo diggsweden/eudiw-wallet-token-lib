@@ -7,19 +7,28 @@ package se.digg.wallet.datatypes.common;
 import java.io.Serial;
 
 /**
- * Exception caugth while issuing a token
+ * Exception caught while issuing a token
  */
 public class TokenIssuingException extends Exception {
 
   @Serial
   private static final long serialVersionUID = -3234309120112902779L;
 
-  /** {@inheritDoc} */
+  /**
+   * Constructs a new TokenIssuingException with the specified detail message.
+   *
+   * @param message the detail message explaining the reason for the exception
+   */
   public TokenIssuingException(String message) {
     super(message);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * Constructs a new TokenIssuingException with the specified detail message and cause.
+   *
+   * @param message the detail message explaining the reason for the exception
+   * @param cause the cause of the exception, which can be retrieved later using the {@code getCause()} method
+   */
   public TokenIssuingException(String message, Throwable cause) {
     super(message, cause);
   }

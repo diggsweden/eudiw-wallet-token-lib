@@ -14,12 +14,22 @@ public class TokenValidationException extends Exception {
   @Serial
   private static final long serialVersionUID = -3706726881712381049L;
 
-  /** {@inheritDoc} */
+  /**
+   * Constructs a new TokenValidationException with the specified detail message.
+   *
+   * @param message the detail message explaining the reason for the exception
+   */
   public TokenValidationException(String message) {
     super(message);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * Constructs a new TokenValidationException with the specified detail message and cause.
+   *
+   * @param message the detail message explaining the reason for the exception
+   * @param cause the cause of the exception, which can be retrieved later by the
+   *        {@link Throwable#getCause()} method
+   */
   public TokenValidationException(String message, Throwable cause) {
     super(message, cause);
   }

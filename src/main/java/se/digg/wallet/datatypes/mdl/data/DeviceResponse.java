@@ -14,11 +14,30 @@ import se.digg.wallet.datatypes.common.TokenParsingException;
 
 import java.io.IOException;
 
+/**
+ * The DeviceResponse class represents a mDL presentation token as it is returned as response to a presentation request
+ * with information such as document type, status, version, and associated cryptographic data.
+ * It provides functionality for serialization and deserialization using CBOR (Concise Binary Object Representation).
+ * The object can be converted into and parsed from a CBOR-encoded byte array for data transmission.
+ * <p>
+ * This class includes the following key components:
+ * - Metadata about the response, such as document type, version, and status.
+ * - Cryptographic elements, including issuer-signed data, device signature, and optional device MAC key.
+ * - A serializer implementation for converting the object to CBOR format.
+ */
 @Data
 @AllArgsConstructor
 @JsonSerialize(using = DeviceResponse.Serializer.class)
 public class DeviceResponse {
 
+  /**
+   * Constructor for the DeviceResponse class.
+   * Initializes a new instance of the DeviceResponse with the specified parameters.
+   *
+   * @param docType the document type associated with the response.
+   * @param issuerSigned the issuer-signed data associated with the device response.
+   * @param deviceSignature the byte array representing the device signature.
+   */
   public DeviceResponse(String docType, IssuerSigned issuerSigned, byte[] deviceSignature) {
     this.issuerSigned = issuerSigned;
     this.deviceSignature = deviceSignature;
@@ -29,16 +48,42 @@ public class DeviceResponse {
     this.deviceMac = null;
   }
 
-  int status;
-  String docType;
-  String version;
-  IssuerSigned issuerSigned;
-  CBORObject deviceNameSpaces;
-  byte[] deviceSignature;
-  byte[] deviceMac;
+  /** Status code. Default 0 for successful responses */
+  private final int status;
+  /** DocType for the response document */
+  private final String docType;
+  /** Version. Shall be 1.0 */
+  private final String version;
+  /** The IssuerSigned object */
+  private final IssuerSigned issuerSigned;
+  /** The object providing the name spaces data for the device signature. By default, this is an empty map. */
+  private final CBORObject deviceNameSpaces;
+  /** The bytes of the device signature */
+  private final byte[] deviceSignature;
+  /** The bytes of a wallet provided MAC (Currently not supported) */
+  private final byte[] deviceMac;
 
+  /**
+   * A custom serializer for the {@code DeviceResponse} class that converts a {@code DeviceResponse}
+   * object into its CBOR representation. This class extends the {@code JsonSerializer} to provide 
+   * specific serialization logic for {@code DeviceResponse} objects.
+   * <p>
+   * The serialization process involves the creation and encoding of a CBOR object that encapsulates 
+   * key fields from the {@code DeviceResponse} instance, including device signature, device MAC, 
+   * namespaces, document type, issuer-signed data, and version details.
+   * <p>
+   * The serializer explicitly supports CBOR output, leveraging a {@code CBORGenerator} to output 
+   * the serialized bytes. If a non-CBOR generator is provided, an exception is thrown.
+   * <p>
+   * Exception Handling:
+   * <ul>
+   * <li>Throws {@link IOException} for errors during the serialization process or CBOR encoding.</li>
+   * <li>Throws {@link JsonGenerationException} if a non-CBOR generator is used.</li>
+   * </ul>
+   */
   public static class Serializer extends JsonSerializer<DeviceResponse> {
 
+    /** {@inheritDoc} **/
     @Override
     public void serialize(
       DeviceResponse deviceResponse,
@@ -87,6 +132,13 @@ public class DeviceResponse {
     }
   }
 
+  /**
+   * Deserializes a CBOR-encoded byte array into a DeviceResponse object.
+   *
+   * @param cborEncoded the byte array containing the CBOR-encoded data to be deserialized.
+   * @return a DeviceResponse object with the deserialized data.
+   * @throws TokenParsingException if an error occurs during the deserialization process.
+   */
   public static DeviceResponse deserialize(byte[] cborEncoded)
     throws TokenParsingException {
 

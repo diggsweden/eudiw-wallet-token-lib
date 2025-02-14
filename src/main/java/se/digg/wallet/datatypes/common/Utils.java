@@ -24,6 +24,16 @@ public class Utils {
     throw new IllegalArgumentException("Invalid Map structure: keys must be Strings");
   }
 
+  /**
+   * Ensures that the provided object is a List containing only String elements
+   * and returns it as a {@code List<String>}. If the input object is not a List
+   * with all String elements, an IllegalArgumentException is thrown.
+   *
+   * @param value the object to validate and cast
+   * @return the validated and cast {@code List<String>}
+   * @throws IllegalArgumentException if the provided object is not a List or if the List's
+   *         elements are not all Strings
+   */
   @SuppressWarnings("unchecked")
   public static List<String> ensureStringList(Object value) {
     if (value instanceof List<?> list && list.stream().allMatch(item -> item instanceof String)) {
