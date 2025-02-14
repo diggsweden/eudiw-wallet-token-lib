@@ -19,6 +19,7 @@ import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 @Data
 @NoArgsConstructor
 public class SdJwtTokenValidationResult extends TokenValidationResult {
+
   /** The parsed validated token */
   private SdJwt vcToken;
   /** The payload with disclosed data */

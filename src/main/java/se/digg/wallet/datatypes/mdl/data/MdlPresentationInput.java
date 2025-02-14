@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import java.util.List;
@@ -13,7 +17,8 @@ import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
  * This class also provides a builder for convenient construction of its instances.
  */
 @Getter
-public class MdlPresentationInput extends PresentationInput<Map<String, List<String>>> {
+public class MdlPresentationInput
+  extends PresentationInput<Map<String, List<String>>> {
 
   /** The presentation requester client ID (See OpenID4VP) */
   private String clientId;
@@ -86,7 +91,9 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
      * @param mdocGeneratedNonce the string value representing the mdoc generated nonce
      * @return the {@code MdlPresentationInputBuilder} instance for method chaining
      */
-    public MdlPresentationInputBuilder mdocGeneratedNonce(String mdocGeneratedNonce) {
+    public MdlPresentationInputBuilder mdocGeneratedNonce(
+      String mdocGeneratedNonce
+    ) {
       mdlPresentationInput.mdocGeneratedNonce = mdocGeneratedNonce;
       return this;
     }
@@ -108,7 +115,9 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
      * @param disclosures a map where the key is a namespace, and the value is a list of attribute names being disclosed
      * @return the {@code MdlPresentationInputBuilder} instance for method chaining
      */
-    public MdlPresentationInputBuilder disclosures(Map<String, List<String>> disclosures) {
+    public MdlPresentationInputBuilder disclosures(
+      Map<String, List<String>> disclosures
+    ) {
       mdlPresentationInput.disclosures = disclosures;
       return this;
     }
@@ -119,7 +128,9 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
      * @param algorithm the {@code TokenSigningAlgorithm} specifying the signing algorithm to be used by the wallet
      * @return the {@code MdlPresentationInputBuilder} instance for method chaining
      */
-    public MdlPresentationInputBuilder algorithm(TokenSigningAlgorithm algorithm) {
+    public MdlPresentationInputBuilder algorithm(
+      TokenSigningAlgorithm algorithm
+    ) {
       mdlPresentationInput.algorithm = algorithm;
       return this;
     }
@@ -133,5 +144,4 @@ public class MdlPresentationInput extends PresentationInput<Map<String, List<Str
       return mdlPresentationInput;
     }
   }
-
 }

@@ -4,7 +4,6 @@
 
 package se.digg.wallet.datatypes.common;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
@@ -45,7 +44,9 @@ public enum TokenDigestAlgorithm {
           tokenDigestAlgorithm.getMdlName().equalsIgnoreCase(mdlName)
       )
       .findFirst()
-      .orElseThrow(() -> new NoSuchAlgorithmException("Unsupported mDL hash algorithm"));
+      .orElseThrow(
+        () -> new NoSuchAlgorithmException("Unsupported mDL hash algorithm")
+      );
   }
 
   /**
@@ -55,14 +56,16 @@ public enum TokenDigestAlgorithm {
    * @return the corresponding {@code TokenDigestAlgorithm} instance.
    * @throws NoSuchAlgorithmException if the provided SD-JWT hash algorithm name is not supported.
    */
-  public static TokenDigestAlgorithm fromSdJwtName(String sdJwtName) throws NoSuchAlgorithmException {
+  public static TokenDigestAlgorithm fromSdJwtName(String sdJwtName)
+    throws NoSuchAlgorithmException {
     return Arrays.stream(values())
       .filter(
         tokenDigestAlgorithm ->
           tokenDigestAlgorithm.getSdJwtName().equalsIgnoreCase(sdJwtName)
       )
       .findFirst()
-      .orElseThrow(() -> new NoSuchAlgorithmException("Unsupported SD-JWT hash algorithm"));
+      .orElseThrow(
+        () -> new NoSuchAlgorithmException("Unsupported SD-JWT hash algorithm")
+      );
   }
-
 }

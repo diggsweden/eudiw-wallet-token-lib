@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.data;
 
 import java.util.List;
@@ -74,7 +78,9 @@ public class SdJwtPresentationInput extends PresentationInput<List<String>> {
      * @param algorithm the cryptographic signing algorithm to set, represented as an instance of {@link TokenSigningAlgorithm}
      * @return the current instance of {@code SdJwtPresentationInputbuilder} for method chaining
      */
-    public SdJwtPresentationInputbuilder algorithm(TokenSigningAlgorithm algorithm) {
+    public SdJwtPresentationInputbuilder algorithm(
+      TokenSigningAlgorithm algorithm
+    ) {
       presentationInput.algorithm = algorithm;
       return this;
     }
@@ -110,6 +116,4 @@ public class SdJwtPresentationInput extends PresentationInput<List<String>> {
       return presentationInput;
     }
   }
-
-
 }

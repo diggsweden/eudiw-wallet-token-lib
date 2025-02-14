@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -37,7 +41,11 @@ public class DeviceResponse {
    * @param issuerSigned the issuer-signed data associated with the device response.
    * @param deviceSignature the byte array representing the device signature.
    */
-  public DeviceResponse(String docType, IssuerSigned issuerSigned, byte[] deviceSignature) {
+  public DeviceResponse(
+    String docType,
+    IssuerSigned issuerSigned,
+    byte[] deviceSignature
+  ) {
     this.issuerSigned = issuerSigned;
     this.deviceSignature = deviceSignature;
     this.docType = docType;
@@ -64,14 +72,14 @@ public class DeviceResponse {
 
   /**
    * A custom serializer for the {@code DeviceResponse} class that converts a {@code DeviceResponse}
-   * object into its CBOR representation. This class extends the {@code JsonSerializer} to provide 
+   * object into its CBOR representation. This class extends the {@code JsonSerializer} to provide
    * specific serialization logic for {@code DeviceResponse} objects.
    * <p>
-   * The serialization process involves the creation and encoding of a CBOR object that encapsulates 
-   * key fields from the {@code DeviceResponse} instance, including device signature, device MAC, 
+   * The serialization process involves the creation and encoding of a CBOR object that encapsulates
+   * key fields from the {@code DeviceResponse} instance, including device signature, device MAC,
    * namespaces, document type, issuer-signed data, and version details.
    * <p>
-   * The serializer explicitly supports CBOR output, leveraging a {@code CBORGenerator} to output 
+   * The serializer explicitly supports CBOR output, leveraging a {@code CBORGenerator} to output
    * the serialized bytes. If a non-CBOR generator is provided, an exception is thrown.
    * <p>
    * Exception Handling:
@@ -89,35 +97,59 @@ public class DeviceResponse {
       JsonGenerator gen,
       SerializerProvider serializers
     ) throws IOException {
-
       CBORObject deviceSignatureMap = CBORObject.NewMap();
       if (deviceResponse.getDeviceSignature() != null) {
-        deviceSignatureMap.Add(CBORObject.FromString("deviceSignature"),
-          CBORObject.DecodeFromBytes(deviceResponse.getDeviceSignature()));
+        deviceSignatureMap.Add(
+          CBORObject.FromString("deviceSignature"),
+          CBORObject.DecodeFromBytes(deviceResponse.getDeviceSignature())
+        );
       }
       if (deviceResponse.getDeviceMac() != null) {
-        deviceSignatureMap.Add(CBORObject.FromString("deviceMac"),
-          CBORObject.DecodeFromBytes(deviceResponse.getDeviceMac()));
+        deviceSignatureMap.Add(
+          CBORObject.FromString("deviceMac"),
+          CBORObject.DecodeFromBytes(deviceResponse.getDeviceMac())
+        );
       }
 
       CBORObject deviceSigned = CBORObject.NewOrderedMap();
-      deviceSigned.Add(CBORObject.FromString("nameSpaces"),
-        CBORObject.FromCBORObjectAndTag(CBORObject.FromByteArray(deviceResponse.getDeviceNameSpaces().EncodeToBytes()),
-          EInteger.FromInt32(24)));
+      deviceSigned.Add(
+        CBORObject.FromString("nameSpaces"),
+        CBORObject.FromCBORObjectAndTag(
+          CBORObject.FromByteArray(
+            deviceResponse.getDeviceNameSpaces().EncodeToBytes()
+          ),
+          EInteger.FromInt32(24)
+        )
+      );
       deviceSigned.Add(CBORObject.FromString("deviceAuth"), deviceSignatureMap);
 
       CBORObject docArray = CBORObject.NewArray();
       CBORObject mdoc = CBORObject.NewOrderedMap();
-      mdoc.Add(CBORObject.FromString("docType"), CBORObject.FromString(deviceResponse.getDocType()));
-      mdoc.Add(CBORObject.FromString("issuerSigned"),
-        CBORObject.DecodeFromBytes(CBORUtils.CBOR_MAPPER.writeValueAsBytes(deviceResponse.getIssuerSigned())));
+      mdoc.Add(
+        CBORObject.FromString("docType"),
+        CBORObject.FromString(deviceResponse.getDocType())
+      );
+      mdoc.Add(
+        CBORObject.FromString("issuerSigned"),
+        CBORObject.DecodeFromBytes(
+          CBORUtils.CBOR_MAPPER.writeValueAsBytes(
+            deviceResponse.getIssuerSigned()
+          )
+        )
+      );
       mdoc.Add(CBORObject.FromString("deviceSigned"), deviceSigned);
       docArray.Add(mdoc);
 
       CBORObject deviceResponseCbor = CBORObject.NewOrderedMap();
-      deviceResponseCbor.Add(CBORObject.FromString("version"), CBORObject.FromString(deviceResponse.getVersion()));
+      deviceResponseCbor.Add(
+        CBORObject.FromString("version"),
+        CBORObject.FromString(deviceResponse.getVersion())
+      );
       deviceResponseCbor.Add(CBORObject.FromString("documents"), docArray);
-      deviceResponseCbor.Add(CBORObject.FromString("status"), CBORObject.FromInt32(0));
+      deviceResponseCbor.Add(
+        CBORObject.FromString("status"),
+        CBORObject.FromInt32(0)
+      );
 
       // Generate serialized CBOR bytes
       byte[] value = deviceResponseCbor.EncodeToBytes();
@@ -140,22 +172,27 @@ public class DeviceResponse {
    */
   public static DeviceResponse deserialize(byte[] cborEncoded)
     throws TokenParsingException {
-
     try {
       CBORObject deviceResponseObject = CBORObject.DecodeFromBytes(cborEncoded);
       String version = deviceResponseObject.get("version").AsString();
       int status = deviceResponseObject.get("status").AsInt32();
       CBORObject documents = deviceResponseObject.get("documents");
       CBORObject doc = documents.get(0);
-      IssuerSigned issuerSigned = IssuerSigned.deserialize(doc.get("issuerSigned").EncodeToBytes());
+      IssuerSigned issuerSigned = IssuerSigned.deserialize(
+        doc.get("issuerSigned").EncodeToBytes()
+      );
       String docType = doc.get("docType").AsString();
       CBORObject deviceSigned = doc.get("deviceSigned");
-      CBORObject deviceNameSpaces = CBORObject.DecodeFromBytes(deviceSigned.get("nameSpaces").Untag().GetByteString());
+      CBORObject deviceNameSpaces = CBORObject.DecodeFromBytes(
+        deviceSigned.get("nameSpaces").Untag().GetByteString()
+      );
       CBORObject deviceAuth = deviceSigned.get("deviceAuth");
       byte[] deviceSignature = deviceAuth.get("deviceSignature") != null
-        ? deviceAuth.get("deviceSignature").EncodeToBytes() : null;
+        ? deviceAuth.get("deviceSignature").EncodeToBytes()
+        : null;
       byte[] deviceMac = deviceAuth.get("deviceMac") != null
-        ? deviceAuth.get("deviceMac").EncodeToBytes() : null;
+        ? deviceAuth.get("deviceMac").EncodeToBytes()
+        : null;
 
       return new DeviceResponse(
         status,
@@ -164,10 +201,10 @@ public class DeviceResponse {
         issuerSigned,
         deviceNameSpaces,
         deviceSignature,
-        deviceMac);
+        deviceMac
+      );
     } catch (Exception e) {
       throw new TokenParsingException("Failed to parse Device Response", e);
     }
   }
 }
-

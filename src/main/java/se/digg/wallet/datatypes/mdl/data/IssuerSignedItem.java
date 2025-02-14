@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Represents an issuer-signed item containing an instance of disclosed attribute data associated with an mDL document.
  * This class is serialized and deserialized using CBOR (Concise Binary Object Representation),
- * adhering to specific encoding and decoding mechanisms provided via custom serializers 
+ * adhering to specific encoding and decoding mechanisms provided via custom serializers
  * and deserializers.
  * <p>
  * Fields:
@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * Nested Classes:
  * <ul>
- * <li>`Serializer`: Custom serializer for transforming an IssuerSignedItem instance 
+ * <li>`Serializer`: Custom serializer for transforming an IssuerSignedItem instance
  * into the CBOR binary format, implementing {@link JsonSerializer}.</li>
  * <li>`Deserializer`: Custom deserializer for reconstructing an IssuerSignedItem instance
  * from the CBOR binary format, implementing {@link JsonDeserializer}.</li>

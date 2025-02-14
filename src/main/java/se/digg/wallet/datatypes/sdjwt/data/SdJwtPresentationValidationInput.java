@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.sdjwt.data;
 
 import lombok.Data;
@@ -11,7 +15,8 @@ import se.digg.wallet.datatypes.common.PresentationValidationInput;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SdJwtPresentationValidationInput extends PresentationValidationInput {
+public class SdJwtPresentationValidationInput
+  extends PresentationValidationInput {
 
   /**
    * Constructs an instance of SdJwtPresentationValidationInput, initializing the input
@@ -22,12 +27,14 @@ public class SdJwtPresentationValidationInput extends PresentationValidationInpu
    * @param audience     the intended recipient or audience for the SD-JWT, used to
    *                     validate that the token is presented to the correct party.
    */
-  public SdJwtPresentationValidationInput(String requestNonce, String audience) {
+  public SdJwtPresentationValidationInput(
+    String requestNonce,
+    String audience
+  ) {
     super(requestNonce);
     this.audience = audience;
   }
 
   /** The intended recipient or audience for the SD-JWT */
   private String audience;
-
 }

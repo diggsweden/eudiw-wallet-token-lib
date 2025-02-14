@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.common;
 
 import java.io.Serial;
@@ -11,6 +15,7 @@ import java.io.Serial;
  * for specifying detailed error messages and causes.
  */
 public class TokenPresentationException extends Exception {
+
   @Serial
   private static final long serialVersionUID = 942635978985209161L;
 
@@ -20,8 +25,7 @@ public class TokenPresentationException extends Exception {
    * specific message or cause, indicating a generic error during the token
    * presentation process.
    */
-  public TokenPresentationException() {
-  }
+  public TokenPresentationException() {}
 
   /**
    * Constructs a new TokenPresentationException with the specified detail message.

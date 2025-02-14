@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.common;
 
 import java.io.Serial;
@@ -9,9 +13,9 @@ import java.io.Serial;
  * parsing failures, or other errors encountered while processing a token.
  */
 public class TokenParsingException extends Exception {
+
   @Serial
   private static final long serialVersionUID = -150091799709439631L;
-
 
   /**
    * Default constructor for the TokenParsingException class.
@@ -20,8 +24,7 @@ public class TokenParsingException extends Exception {
    * specific error message or cause. It is typically used when there is a token
    * parsing error that does not require additional context.
    */
-  public TokenParsingException() {
-  }
+  public TokenParsingException() {}
 
   /**
    * Constructs a new TokenParsingException with the specified detail message.

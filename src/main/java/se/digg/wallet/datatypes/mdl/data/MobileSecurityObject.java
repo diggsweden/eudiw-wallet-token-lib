@@ -112,6 +112,7 @@ public class MobileSecurityObject {
   @NoArgsConstructor
   @Builder
   public static class DeviceKeyInfo {
+
     /** Wallet public key */
     private COSEKey deviceKey;
     /** Key authorizations */

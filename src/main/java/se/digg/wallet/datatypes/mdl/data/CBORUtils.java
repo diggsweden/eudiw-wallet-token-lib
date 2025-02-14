@@ -23,7 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import se.digg.cose.*;
+import se.digg.cose.AlgorithmID;
+import se.digg.cose.Attribute;
+import se.digg.cose.COSEKey;
+import se.digg.cose.CoseException;
+import se.digg.cose.HeaderKeys;
+import se.digg.cose.Sign1COSEObject;
 
 /**
  * Utility class for handling CBOR (Concise Binary Object Representation) encoding,
@@ -32,6 +37,7 @@ import se.digg.cose.*;
  * data into JSON or other formats. The utility also provides a signing mechanism
  * for CBOR data using a COSE-based signing process.
  */
+@SuppressWarnings("PMD.CollapsibleIfStatements")
 @Slf4j
 public class CBORUtils {
 
@@ -42,8 +48,7 @@ public class CBORUtils {
    *
    * This class is not intended to be instantiated. It provides only static utility methods for usage.
    */
-  private CBORUtils() {
-  }
+  private CBORUtils() {}
 
   /** ObjectMapper for parsing serializing objects to CBOR */
   public static final ObjectMapper CBOR_MAPPER;
@@ -196,7 +201,14 @@ public class CBORUtils {
    * @throws CoseException if an error occurs during the COSE signing process
    * @throws CertificateEncodingException if an encoding error occurs with the provided certificates
    */
-  public static Sign1COSEObject sign(byte[] toBeSigned, COSEKey key, AlgorithmID algorithmID, String kid, List<X509Certificate> chain, boolean protectedKid) throws CoseException, CertificateEncodingException {
+  public static Sign1COSEObject sign(
+    byte[] toBeSigned,
+    COSEKey key,
+    AlgorithmID algorithmID,
+    String kid,
+    List<X509Certificate> chain,
+    boolean protectedKid
+  ) throws CoseException, CertificateEncodingException {
     Sign1COSEObject coseSignature = new Sign1COSEObject(false);
     coseSignature.SetContent(toBeSigned);
     coseSignature.addAttribute(
@@ -230,6 +242,4 @@ public class CBORUtils {
     coseSignature.sign(key);
     return coseSignature;
   }
-
-
 }

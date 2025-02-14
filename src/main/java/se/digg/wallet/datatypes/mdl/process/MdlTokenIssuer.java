@@ -108,9 +108,8 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         e
       );
     } catch (IOException e) {
-      throw new TokenIssuingException("Error issuing token",e);
-    }
-    catch (NullPointerException e) {
+      throw new TokenIssuingException("Error issuing token", e);
+    } catch (NullPointerException e) {
       throw new TokenIssuingException("Missing required input parameters", e);
     }
   }
@@ -149,7 +148,10 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         .elementValue(attribute.getValue())
         .build();
       nameSpaces
-        .computeIfAbsent(attribute.getType().getNameSpace(), k -> new ArrayList<>())
+        .computeIfAbsent(
+          attribute.getType().getNameSpace(),
+          k -> new ArrayList<>()
+        )
         .add(issuerSignedItem);
     }
     return nameSpaces;

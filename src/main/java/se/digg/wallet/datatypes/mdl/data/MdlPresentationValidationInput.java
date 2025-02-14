@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.mdl.data;
 
 import lombok.Data;
@@ -14,7 +18,8 @@ import se.digg.wallet.datatypes.common.PresentationValidationInput;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class MdlPresentationValidationInput extends PresentationValidationInput {
+public class MdlPresentationValidationInput
+  extends PresentationValidationInput {
 
   /**
    * Constructs a new instance of {@code MdlPresentationValidationInput} by extracting relevant
@@ -26,7 +31,9 @@ public class MdlPresentationValidationInput extends PresentationValidationInput 
    *                          required to initialize this instance, including the client ID,
    *                          response URI, and mdoc generated nonce
    */
-  public MdlPresentationValidationInput(MdlPresentationInput presentationInput) {
+  public MdlPresentationValidationInput(
+    MdlPresentationInput presentationInput
+  ) {
     super(presentationInput.getNonce());
     this.clientId = presentationInput.getClientId();
     this.responseUri = presentationInput.getResponseUri();
