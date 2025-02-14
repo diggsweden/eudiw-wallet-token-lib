@@ -33,6 +33,13 @@ import se.digg.wallet.datatypes.common.TokenParsingException;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.swedenconnect.security.credential.PkiCredential;
 
+/**
+ * Represents an issuer-signed data structure representing the token issuer contribution to the
+ * presentation of a token with disclosure data. The Issuer-signed object contains a map of namespaces
+ * and their corresponding attributes, along with a COSE signature.
+ * This class is designed to serialize and deserialize data in CBOR format
+ * while maintaining cryptographic integrity through COSE signatures.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,28 +51,57 @@ public class IssuerSigned {
   /** Utagged Sign1 COSE signature where payload is CBOR encoding of @{@link MobileSecurityObject} */
   byte[] issuerAuth;
 
+  /**
+   * Creates a new builder instance for constructing an {@code IssuerSigned} object.
+   *
+   * @return a new {@code IssuerSignedBuilder} instance for building an {@code IssuerSigned} object
+   */
   public static IssuerSignedBuilder builder() {
     return new IssuerSignedBuilder();
   }
 
+  /**
+   * A builder class for constructing instances of {@code IssuerSigned}. This builder enables the configuration
+   * of namespaces, issuer authentication details, document type, version, signing key, and other related
+   * properties. It provides an encapsulated approach to creating and initializing an {@code IssuerSigned} object,
+   * ensuring the consistency of its configuration.
+   */
   public static class IssuerSignedBuilder {
 
+    /** The object being built */
     private final IssuerSigned issuerSigned;
+    /** The credential of the issuer being used to sign data */
     private PkiCredential issuerCredential;
+    /** The signing algorithm */
     private TokenSigningAlgorithm signingAlgorithm;
+    /** A builder for creating the data to be signed by the issuer */
     private MobileSecurityObject.MobileSecurityObjectBuilder msoBuilder;
-
+    /** Version information for the issuer-signed object */
     private String version;
+    /** DocType declaration */
     private String docType;
-
+    /** Key identifier to include in the signature header */
     private String signingKid;
-
+    /** true if the key identifier should be present in a protected header */
     private boolean protectedKid = false;
 
+    /**
+     * Default private constructor for IssuerSignedBuilder.
+     * Initializes the builder by creating a new instance of the IssuerSigned object.
+     * This constructor is used internally and prevents direct instantiation of the IssuerSignedBuilder class
+     * from outside the class. Use the provided public methods to configure and build an IssuerSigned object.
+     */
     private IssuerSignedBuilder() {
       this.issuerSigned = new IssuerSigned();
     }
 
+    /**
+     * Adds or updates a namespace in the issuerSigned object with the provided list of IssuerSignedItem objects.
+     *
+     * @param namespace the name of the namespace to be added or updated
+     * @param issuerSignedItems the list of IssuerSignedItem objects to associate with the specified namespace
+     * @return the current instance of the IssuerSignedBuilder with the updated namespace configuration
+     */
     public IssuerSignedBuilder nameSpace(
       String namespace,
       List<IssuerSignedItem> issuerSignedItems
@@ -92,6 +128,18 @@ public class IssuerSigned {
       return this;
     }
 
+    /**
+     * Provide the necessary input required to create the issuer signature in the issuerAuth component of the
+     * IssuerSigned object.
+     *
+     * @param issuerCredential the PKI credential of the issuer, which is required to sign the objects
+     * @param signingAlgorithm the cryptographic signing algorithm to be used for token signing
+     * @param walletPublicKey the public key of the wallet used for the authentication process
+     * @param validity the duration for which the signed object will remain valid
+     * @param signingKid the key identifier (KID) for the signing key
+     * @return the updated instance of IssuerSignedBuilder after applying the authentication input configuration
+     * @throws CoseException if an error occurs during the construction of cryptographic components
+     */
     public IssuerSignedBuilder issuerAuthInput(
       PkiCredential issuerCredential,
       TokenSigningAlgorithm signingAlgorithm,
@@ -110,6 +158,20 @@ public class IssuerSigned {
       );
     }
 
+    /**
+     * Configures the issuer authentication inputs required to create the issuer signature
+     * in the issuerAuth component of the IssuerSigned object.
+     *
+     * @param issuerCredential the PKI credential of the issuer, necessary for signing objects
+     * @param signingAlgorithm the cryptographic signing algorithm to be used for token signing
+     * @param walletPublicKey the public key of the wallet used in the authentication process; can be null
+     * @param validity the duration for which the signed object will remain valid
+     * @param docType the document type associated with the IssuerSigned object
+     * @param version the version of the document to be signed
+     * @param signingKid the key identifier (KID) for the signing key
+     * @return the updated instance of IssuerSignedBuilder with the configured issuer authentication inputs
+     * @throws CoseException if an error occurs during the construction of cryptographic components
+     */
     public IssuerSignedBuilder issuerAuthInput(
       PkiCredential issuerCredential,
       TokenSigningAlgorithm signingAlgorithm,
@@ -155,6 +217,16 @@ public class IssuerSigned {
       return this;
     }
 
+    /**
+     * Builds and returns the {@link IssuerSigned} object using the provided configurations.
+     * Validates that all necessary fields have been set and computes any required cryptographic
+     * signatures using the issuer credentials and signing algorithm if provided.
+     *
+     * @return the fully constructed {@link IssuerSigned} object
+     * @throws CoseException if an error occurs during the creation or signing of cryptographic components
+     * @throws IOException if an input/output error occurs
+     * @throws CertificateEncodingException if there is an error in encoding the issuer's certificate
+     */
     public IssuerSigned build()
       throws CoseException, IOException, CertificateEncodingException {
       Map<String, List<IssuerSignedItem>> nameSpaces =
@@ -217,8 +289,14 @@ public class IssuerSigned {
     }
   }
 
+  /**
+   * Serializer class for serializing {@link IssuerSigned} objects into CBOR format.
+   * This class extends the {@link JsonSerializer} to provide custom serialization logic
+   * for {@code IssuerSigned} objects.
+   */
   public static class Serializer extends JsonSerializer<IssuerSigned> {
 
+    /** {@inheritDoc} */
     @Override
     public void serialize(
       IssuerSigned issuerSigned,
@@ -256,6 +334,13 @@ public class IssuerSigned {
     }
   }
 
+  /**
+   * Deserializes a CBOR-encoded byte array into an {@code IssuerSigned} object.
+   *
+   * @param cborEncoded the CBOR-encoded byte array representing the {@code IssuerSigned} object
+   * @return the deserialized {@code IssuerSigned} object
+   * @throws TokenParsingException if the byte array could not be parsed or if the deserialization process fails
+   */
   public static IssuerSigned deserialize(byte[] cborEncoded)
     throws TokenParsingException {
     // Parse CBOR

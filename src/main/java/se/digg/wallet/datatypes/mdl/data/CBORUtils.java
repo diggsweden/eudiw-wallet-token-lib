@@ -23,12 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import se.digg.cose.AlgorithmID;
-import se.digg.cose.Attribute;
-import se.digg.cose.COSEKey;
-import se.digg.cose.CoseException;
-import se.digg.cose.HeaderKeys;
-import se.digg.cose.Sign1COSEObject;
+import se.digg.cose.*;
 
 /**
  * Utility class for handling CBOR (Concise Binary Object Representation) encoding,
@@ -47,7 +42,8 @@ public class CBORUtils {
    *
    * This class is not intended to be instantiated. It provides only static utility methods for usage.
    */
-  private CBORUtils() {}
+  private CBORUtils() {
+  }
 
   /** ObjectMapper for parsing serializing objects to CBOR */
   public static final ObjectMapper CBOR_MAPPER;
@@ -157,13 +153,12 @@ public class CBORUtils {
   public static String cborToJson(byte[] cborBytes) {
     // Decode CBOR bytes to a CBOR object
     CBORObject cborObject = CBORObject.DecodeFromBytes(cborBytes);
-    if (
-      cborObject.isTagged() &&
-      cborObject.getMostOuterTag().equals(EInteger.FromInt32(24))
-    ) {
-      cborObject = cborObject.Untag();
-      if (cborObject.getType().equals(CBORType.ByteString)) {
-        cborObject = CBORObject.DecodeFromBytes(cborObject.GetByteString());
+    if (cborObject.isTagged()) {
+      if (cborObject.getMostOuterTag().equals(EInteger.FromInt32(24))) {
+        cborObject = cborObject.Untag();
+        if (cborObject.getType().equals(CBORType.ByteString)) {
+          cborObject = CBORObject.DecodeFromBytes(cborObject.GetByteString());
+        }
       }
     }
     return cborObject.ToJSONString();
@@ -188,14 +183,20 @@ public class CBORUtils {
       .writeValueAsString(objectMapper.readValue(jsonString, Object.class));
   }
 
-  public static Sign1COSEObject sign(
-    byte[] toBeSigned,
-    COSEKey key,
-    AlgorithmID algorithmID,
-    String kid,
-    List<X509Certificate> chain,
-    boolean protectedKid
-  ) throws CoseException, CertificateEncodingException {
+  /**
+   * Signs the provided data using the specified key and algorithm, producing a Sign1 COSE signature.
+   *
+   * @param toBeSigned the byte array representing the content to be signed
+   * @param key the COSEKey used for signing the content
+   * @param algorithmID the algorithm identifier specifying the signing algorithm
+   * @param kid the key identifier to be added to the COSE header, or null if not applicable
+   * @param chain a list of X509Certificates representing the certificate chain to be added to the COSE header, or null if not applicable
+   * @param protectedKid a flag indicating whether the key identifier should be placed in the protected header
+   * @return a Sign1COSEObject representing the signed content with associated headers
+   * @throws CoseException if an error occurs during the COSE signing process
+   * @throws CertificateEncodingException if an encoding error occurs with the provided certificates
+   */
+  public static Sign1COSEObject sign(byte[] toBeSigned, COSEKey key, AlgorithmID algorithmID, String kid, List<X509Certificate> chain, boolean protectedKid) throws CoseException, CertificateEncodingException {
     Sign1COSEObject coseSignature = new Sign1COSEObject(false);
     coseSignature.SetContent(toBeSigned);
     coseSignature.addAttribute(
@@ -229,4 +230,6 @@ public class CBORUtils {
     coseSignature.sign(key);
     return coseSignature;
   }
+
+
 }

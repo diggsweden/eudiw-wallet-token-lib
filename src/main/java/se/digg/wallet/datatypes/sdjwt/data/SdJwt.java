@@ -5,11 +5,7 @@
 package se.digg.wallet.datatypes.sdjwt.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -20,14 +16,7 @@ import java.security.cert.CertificateEncodingException;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import lombok.Data;
 import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
 import se.digg.wallet.datatypes.common.TokenValidationException;
@@ -47,11 +36,9 @@ public class SdJwt {
    * This constant is useful in scenarios where the JOSE header of a JWT is explicitly required
    * to indicate the SD-JWT type for proper parsing, validation, and processing.
    */
-  public static final JOSEObjectType SD_JWT_TYPE = new JOSEObjectType(
-    "dc+sd-jwt"
-  );
+  public static final JOSEObjectType SD_JWT_TYPE = new JOSEObjectType("dc+sd-jwt");
   /**
-   * Represents a legacy SD-JWT (Selective Disclosure JSON Web Token) object type
+   * Represents a legacy SD-JWT (Selective Disclosure JSON Web Token) object type 
    * specifically utilized for compatibility with older implementations.
    * <p>
    * This constant defines the JOSE (JavaScript Object Signing and Encryption) object
@@ -62,11 +49,9 @@ public class SdJwt {
    * Within the SD-JWT process, this type aids in identifying tokens using the legacy
    * structure, distinguishing them from other SD-JWT or verifiable presentation types.
    */
-  public static final JOSEObjectType SD_JWT_TYPE_LEGACY = new JOSEObjectType(
-    "vc+sd-jwt"
-  );
+  public static final JOSEObjectType SD_JWT_TYPE_LEGACY = new JOSEObjectType("vc+sd-jwt");
   /**
-   * Represents the specific JOSE Object Type "kb+jwt" associated with
+   * Represents the specific JOSE Object Type "kb+jwt" associated with 
    * Key Binding JSON Web Tokens.
    */
   public static final JOSEObjectType KB_JWT_TYPE = new JOSEObjectType("kb+jwt");
@@ -121,10 +106,14 @@ public class SdJwt {
   /** Key binding proof signed by the wallet */
   private SignedJWT walletSigned;
 
-  public static SdJwtBuilder builder(
-    String issuer,
-    TokenDigestAlgorithm sdAlg
-  ) {
+  /**
+   * Creates a new instance of SdJwtBuilder to initialize and build an SdJwt object.
+   *
+   * @param issuer the issuer of the SD-JWT, which must not be null.
+   * @param sdAlg the token digest algorithm to be used for the SD-JWT, which must not be null.
+   * @return an SdJwtBuilder instance for configuring and building an SdJwt object.
+   */
+  public static SdJwtBuilder builder(String issuer, TokenDigestAlgorithm sdAlg) {
     return new SdJwtBuilder(issuer, sdAlg);
   }
 
@@ -142,8 +131,7 @@ public class SdJwt {
     List<Disclosure> allDisclosures = getDisclosures();
     for (Disclosure disclosure : allDisclosures) {
       String disclosureStr = JSONUtils.base64URLString(
-        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
-      );
+        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8));
       sdJwtVP.append(disclosureStr).append("~");
     }
     return sdJwtVP.toString();
@@ -162,7 +150,7 @@ public class SdJwt {
   }
 
   /**
-   * Generates an unprotected verifiable presentation.
+   * Generates an unprotected verifiable presentation. 
    * <p>
    *   The disclosures is a list of the disclosures that should be included in the verifiable presentation.
    *   This list contains either a list of attribute names, or a list of the complete disclosures (Base64URL encoded).
@@ -173,6 +161,7 @@ public class SdJwt {
    * @return a string representing the verifiable presentation with the specified disclosures
    */
   public String unprotectedPresentation(List<String> disclosures) {
+
     StringBuilder sdJwtVP = new StringBuilder();
     if (disclosures == null) {
       // If null value, then include all attribute disclosures
@@ -183,12 +172,8 @@ public class SdJwt {
       List<String> disclosureImages = new ArrayList<>();
       for (Disclosure disclosure : allDisclosures) {
         String disclosureStr = JSONUtils.base64URLString(
-          disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
-        );
-        if (
-          disclosures.contains(disclosure.getName()) ||
-          disclosures.contains(disclosureStr)
-        ) {
+          disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8));
+        if (disclosures.contains(disclosure.getName()) || disclosures.contains(disclosureStr)) {
           disclosureImages.add(disclosureStr);
         }
       }
@@ -241,7 +226,9 @@ public class SdJwt {
       );
 
     final SignedJWT walletSignedJwt = new SignedJWT(
-      new JWSHeader.Builder(algorithm).type(KB_JWT_TYPE).build(),
+      new JWSHeader.Builder(algorithm)
+        .type(KB_JWT_TYPE)
+        .build(),
       claimsBuilder.build()
     );
     walletSignedJwt.sign(signer);
@@ -254,8 +241,16 @@ public class SdJwt {
    */
   public static class SdJwtBuilder {
 
+    /** The object being built */
     private final SdJwt sdJwt;
 
+    /**
+     * Constructs a new SdJwtBuilder with the specified issuer and token digest algorithm.
+     *
+     * @param issuer the identifier of the entity issuing the SD-JWT. Must not be null.
+     * @param sdAlg the token digest algorithm to be used in the SD-JWT. Must not be null.
+     * @throws NullPointerException if the issuer or sdAlg is null.
+     */
     public SdJwtBuilder(String issuer, TokenDigestAlgorithm sdAlg) {
       Objects.requireNonNull(issuer, "issuer must not be null");
       Objects.requireNonNull(sdAlg, "sd_alg must not be null");
@@ -264,6 +259,14 @@ public class SdJwt {
       sdJwt.setSdAlgorithm(sdAlg);
     }
 
+    /**
+     * Sets the ClaimsWithDisclosure object for the SdJwt being built.
+     * The ClaimsWithDisclosure represents the claims and their corresponding disclosures
+     * to be included in the token.
+     *
+     * @param claimsWithDisclosure the ClaimsWithDisclosure object containing claims and disclosures
+     * @return the current SdJwtBuilder instance
+     */
     public SdJwtBuilder claimsWithDisclosure(
       ClaimsWithDisclosure claimsWithDisclosure
     ) {
@@ -271,31 +274,86 @@ public class SdJwt {
       return this;
     }
 
+    /**
+     * Sets the confirmation key for the SD-JWT being built.
+     * The confirmation key typically corresponds to a public key from a wallet or other entity
+     * and is used to bind the token to a specific cryptographic key.
+     *
+     * @param walletPublic the JWK (JSON Web Key) object representing the public key to be set as the confirmation key
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder confirmationKey(JWK walletPublic) {
       sdJwt.setConfirmationKey(walletPublic);
       return this;
     }
 
+    /**
+     * Sets the Verifiable Credential (VC) type for the SD-JWT being built.
+     * The VC type specifies the classification or schema of the verifiable credential
+     * associated with this SD-JWT.
+     *
+     * @param vcType the type of verifiable credential to be associated with the SD-JWT
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder verifiableCredentialType(String vcType) {
       sdJwt.setVcType(vcType);
       return this;
     }
 
+    /**
+     * Sets the status for the SD-JWT being built.
+     * The status represents a user-defined object to indicate the state or condition
+     * of the SD-JWT.
+     *
+     * @param status the status object to be set for the SD-JWT
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder status(Object status) {
       sdJwt.setStatus(status);
       return this;
     }
 
+    /**
+     * Sets the optional subject for the SD-JWT being built.
+     * The subject typically represents the entity that the token is issued to
+     * and serves as a key claim in the SD-JWT payload.
+     *
+     * @param subject the subject to associate with the SD-JWT
+     * @return the current SdJwtBuilder instance, allowing for method chaining
+     */
     public SdJwtBuilder subject(String subject) {
       sdJwt.setSubject(subject);
       return this;
     }
 
+    /**
+     * Configures the SD-JWT being built to use either the legacy or standard JWT type.
+     * The method determines the JWT type based on the provided boolean flag.
+     *
+     * @param legacySdJwtType a boolean indicating whether the legacy SD-JWT type should be used.
+     *                        If true, the legacy type is set; otherwise, the standard type is used.
+     * @return the current SdJwtBuilder instance, allowing for method chaining.
+     */
     public SdJwtBuilder legacySdJwtType(boolean legacySdJwtType) {
       sdJwt.setJwtType(legacySdJwtType ? SD_JWT_TYPE_LEGACY : SD_JWT_TYPE);
       return this;
     }
 
+    /**
+     * Builds and signs an SD-JWT (Selective Disclosure JWT) using the provided configuration.
+     * The method prepares the claims, adds necessary metadata, signs the token using the provided
+     * signer, and returns the constructed SD-JWT object.
+     *
+     * @param issuerCredential the PKI credential of the issuer, used to provide the signing certificate
+     * @param validity the duration for which the token is valid, from the current time
+     * @param algorithm the JWS (JSON Web Signature) algorithm used for signing the token
+     * @param signer the JWS signer instance responsible for signing the token
+     * @param kid the Key ID (KID) used to identify the signing key
+     * @return the constructed and signed SdJwt object
+     * @throws JOSEException if an error occurs during the signing process
+     * @throws NoSuchAlgorithmException if a specified algorithm is not available in the environment
+     * @throws CertificateEncodingException if an error occurs encoding the certificate
+     */
     public SdJwt build(
       PkiCredential issuerCredential,
       Duration validity,
@@ -323,7 +381,9 @@ public class SdJwt {
         .claim("status", sdJwt.getStatus());
 
       ClaimsWithDisclosure cwd = sdJwt.getClaimsWithDisclosure();
-      cwd.getAllSupportingClaims().forEach(claimsBuilder::claim);
+      cwd
+        .getAllSupportingClaims()
+        .forEach(claimsBuilder::claim);
       // Create JWT
       final SignedJWT jwt = new SignedJWT(
         new JWSHeader.Builder(algorithm)
@@ -349,7 +409,7 @@ public class SdJwt {
    * @param presentation a string representing the verifiable presentation, typically containing
    *                      multiple components separated by `~`, such as the SD-JWT and associated disclosures
    * @return an SdJwt object initialized with the parsed information.
-   * @throws TokenValidationException if the provided presentation is null, improperly formatted,
+   * @throws TokenValidationException if the provided presentation is null, improperly formatted, 
    *                                   or if parsing fails due to invalid data or processing errors.
    */
   public static SdJwt parse(String presentation)
@@ -380,9 +440,7 @@ public class SdJwt {
       JWTClaimsSet claimsSet = issuerSignedJwt.getJWTClaimsSet();
       JWK confirmationKey = parseConfirmationKey(claimsSet.getClaim("cnf"));
       Map<String, Object> claimsMap = new HashMap<>(claimsSet.getClaims());
-      TokenDigestAlgorithm sdAlgo = TokenDigestAlgorithm.fromSdJwtName(
-        (String) claimsMap.get("_sd_alg")
-      );
+      TokenDigestAlgorithm sdAlgo = TokenDigestAlgorithm.fromSdJwtName((String) claimsMap.get("_sd_alg"));
       sdJwt.setSdAlgorithm(sdAlgo);
       sdJwt.setIssuer(claimsSet.getIssuer());
       sdJwt.setSubject(claimsSet.getSubject());

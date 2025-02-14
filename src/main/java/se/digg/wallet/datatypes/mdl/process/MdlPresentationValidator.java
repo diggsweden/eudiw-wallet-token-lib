@@ -55,12 +55,21 @@ import se.digg.wallet.datatypes.mdl.data.SessionTranscript;
 @Slf4j
 public class MdlPresentationValidator implements PresentationValidator {
 
+  /** The maximum allowed time deviation (Duration) for verifying the validity of the data */
   private final Duration timeSkew;
 
+  /**
+   * Constructs a new instance of the MdlPresentationValidator with a default timeout duration of 30 seconds.
+   */
   public MdlPresentationValidator() {
     this(Duration.ofSeconds(30));
   }
 
+  /**
+   * Constructs a new instance of the MdlPresentationValidator with the specified time skew.
+   *
+   * @param timeSkew the maximum allowed time deviation (Duration) for verifying the validity of the data.
+   */
   public MdlPresentationValidator(Duration timeSkew) {
     this.timeSkew = timeSkew;
   }

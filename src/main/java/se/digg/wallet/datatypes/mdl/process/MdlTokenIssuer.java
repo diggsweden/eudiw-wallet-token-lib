@@ -7,13 +7,10 @@ package se.digg.wallet.datatypes.mdl.process;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.Setter;
+import org.bouncycastle.crypto.CryptoServicesRegistrar;
 import se.digg.cose.CoseException;
 import se.digg.wallet.datatypes.common.TokenAttribute;
 import se.digg.wallet.datatypes.common.TokenInput;
@@ -30,7 +27,7 @@ import se.digg.wallet.datatypes.mdl.data.IssuerSignedItem;
 public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
 
   /** Random source for hash salts */
-  private static final SecureRandom RNG = new SecureRandom();
+  private static final Random RNG = CryptoServicesRegistrar.getSecureRandom();
 
   /** mDL version for this token issuer */
   private static final String MDL_VERSION = "1.0";
@@ -111,8 +108,9 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         e
       );
     } catch (IOException e) {
-      throw new TokenIssuingException("Error issuing token", e);
-    } catch (NullPointerException e) {
+      throw new TokenIssuingException("Error issuing token",e);
+    }
+    catch (NullPointerException e) {
       throw new TokenIssuingException("Missing required input parameters", e);
     }
   }
@@ -151,10 +149,7 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
         .elementValue(attribute.getValue())
         .build();
       nameSpaces
-        .computeIfAbsent(
-          attribute.getType().getNameSpace(),
-          k -> new ArrayList<>()
-        )
+        .computeIfAbsent(attribute.getType().getNameSpace(), k -> new ArrayList<>())
         .add(issuerSignedItem);
     }
     return nameSpaces;

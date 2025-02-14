@@ -24,6 +24,14 @@ import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 import se.digg.wallet.datatypes.sdjwt.data.SdJwt;
 import se.swedenconnect.security.credential.PkiCredential;
 
+/**
+ * A concrete implementation of the {@link TokenIssuer} interface responsible for issuing SD-JWT tokens.
+ * <p>
+ * This class handles the generation of signed (SD-JWT) tokens with selective disclosure.
+ * The implementation ensures tokens are generated in compliance with the specified signing algorithm,
+ * issuer credentials, and attributes provided in the {@link SdJwtTokenInput}. It supports customizing
+ * legacy behavior for the SD-JWT header type.
+ */
 @Setter
 public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
 

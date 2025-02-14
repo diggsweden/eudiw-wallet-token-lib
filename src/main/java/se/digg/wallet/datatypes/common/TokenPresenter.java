@@ -19,7 +19,10 @@ public interface TokenPresenter<T extends PresentationInput<?>> {
    * Creates a presentation token with selective disclosures
    *
    * @param presentationInput the verifiable presentation token input
+   * @param privateKey the wallet private key used for generating device proof signature
    * @return token with disclosures and device provided key proof
+   * @throws TokenPresentationException if the presentation process fails due to invalid input, cryptographic
+   * errors, or any other processing issues
    */
   byte[] presentToken(
     PresentationInput<?> presentationInput,

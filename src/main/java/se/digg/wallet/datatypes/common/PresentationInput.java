@@ -7,6 +7,13 @@ package se.digg.wallet.datatypes.common;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * A generic class representing input data required for a presentation. This class is used to encapsulate
+ * details such as tokens, cryptographic parameters, and disclosures that may be needed during the
+ * presentation process.
+ *
+ * @param <T> the type of the disclosures associated with this presentation input
+ */
 @Getter
 @NoArgsConstructor
 public class PresentationInput<T> {
