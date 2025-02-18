@@ -27,7 +27,8 @@ public class TokenIssuingException extends Exception {
    * Constructs a new TokenIssuingException with the specified detail message and cause.
    *
    * @param message the detail message explaining the reason for the exception
-   * @param cause the cause of the exception, which can be retrieved later using the {@code getCause()} method
+   * @param cause the cause of the exception, which can be retrieved later using the
+   *        {@code getCause()} method
    */
   public TokenIssuingException(String message, Throwable cause) {
     super(message, cause);

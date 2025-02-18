@@ -8,8 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * Enum representing different types of document identifiers.
- * Each enum constant has an associated identifier string.
+ * Enum representing different types of document identifiers. Each enum constant has an associated
+ * identifier string.
  */
 @Getter
 @AllArgsConstructor

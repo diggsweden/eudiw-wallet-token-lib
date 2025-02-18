@@ -26,7 +26,9 @@ public class TokenInput {
   protected String issuer;
   /** Attributes enabled for selective disclosure */
   protected List<TokenAttribute> attributes;
-  /** Attributes that appear in clear and do not require selective disclosure support */
+  /**
+   * Attributes that appear in clear and do not require selective disclosure support
+   */
   protected List<TokenAttribute> openAttributes;
   /** Issuing credential */
   protected PkiCredential issuerCredential;

@@ -30,42 +30,38 @@ public enum TokenDigestAlgorithm {
   private final String sdJwtName;
 
   /**
-   * Converts a given mDL hash algorithm name to a corresponding {@code TokenDigestAlgorithm} instance.
+   * Converts a given mDL hash algorithm name to a corresponding {@code TokenDigestAlgorithm}
+   * instance.
    *
    * @param mdlName the name of the hash algorithm as specified in mDL documents.
    * @return the corresponding {@code TokenDigestAlgorithm} instance.
    * @throws NoSuchAlgorithmException if the provided mDL hash algorithm name is not supported.
    */
   public static TokenDigestAlgorithm fromMdlName(String mdlName)
-    throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     return Arrays.stream(values())
-      .filter(
-        tokenDigestAlgorithm ->
-          tokenDigestAlgorithm.getMdlName().equalsIgnoreCase(mdlName)
-      )
-      .findFirst()
-      .orElseThrow(
-        () -> new NoSuchAlgorithmException("Unsupported mDL hash algorithm")
-      );
+        .filter(
+            tokenDigestAlgorithm -> tokenDigestAlgorithm.getMdlName().equalsIgnoreCase(mdlName))
+        .findFirst()
+        .orElseThrow(
+            () -> new NoSuchAlgorithmException("Unsupported mDL hash algorithm"));
   }
 
   /**
-   * Converts a given SD-JWT hash algorithm name to a corresponding {@code TokenDigestAlgorithm} instance.
+   * Converts a given SD-JWT hash algorithm name to a corresponding {@code TokenDigestAlgorithm}
+   * instance.
    *
    * @param sdJwtName the name of the hash algorithm as specified in SD-JWT representations.
    * @return the corresponding {@code TokenDigestAlgorithm} instance.
    * @throws NoSuchAlgorithmException if the provided SD-JWT hash algorithm name is not supported.
    */
   public static TokenDigestAlgorithm fromSdJwtName(String sdJwtName)
-    throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     return Arrays.stream(values())
-      .filter(
-        tokenDigestAlgorithm ->
-          tokenDigestAlgorithm.getSdJwtName().equalsIgnoreCase(sdJwtName)
-      )
-      .findFirst()
-      .orElseThrow(
-        () -> new NoSuchAlgorithmException("Unsupported SD-JWT hash algorithm")
-      );
+        .filter(
+            tokenDigestAlgorithm -> tokenDigestAlgorithm.getSdJwtName().equalsIgnoreCase(sdJwtName))
+        .findFirst()
+        .orElseThrow(
+            () -> new NoSuchAlgorithmException("Unsupported SD-JWT hash algorithm"));
   }
 }

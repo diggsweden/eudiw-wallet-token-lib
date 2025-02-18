@@ -9,10 +9,10 @@ import java.io.Serial;
 /**
  * Exception thrown to indicate an error during the token presentation process.
  *
- * This exception is used in cases where the process of creating a verifiable token
- * presentation with selective disclosures fails due to invalid inputs, cryptographic
- * errors, or other issues that prevent successful presentation. It provides constructors
- * for specifying detailed error messages and causes.
+ * This exception is used in cases where the process of creating a verifiable token presentation
+ * with selective disclosures fails due to invalid inputs, cryptographic errors, or other issues
+ * that prevent successful presentation. It provides constructors for specifying detailed error
+ * messages and causes.
  */
 public class TokenPresentationException extends Exception {
 
@@ -20,10 +20,9 @@ public class TokenPresentationException extends Exception {
   private static final long serialVersionUID = 942635978985209161L;
 
   /**
-   * Default constructor for the TokenPresentationException.
-   * This constructor initializes a new instance of the exception without any
-   * specific message or cause, indicating a generic error during the token
-   * presentation process.
+   * Default constructor for the TokenPresentationException. This constructor initializes a new
+   * instance of the exception without any specific message or cause, indicating a generic error
+   * during the token presentation process.
    */
   public TokenPresentationException() {}
 

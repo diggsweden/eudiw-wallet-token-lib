@@ -16,20 +16,17 @@ class DeviceAuthenticationTest {
   @Test
   void deviceAuthenticationTest() {
     DeviceAuthentication deviceAuthentication = new DeviceAuthentication(
-      "org.iso.18013.5.1.mDL",
-      new SessionTranscript(
-        "https://example.com/client",
-        "https://example.com/response",
-        "abcdefgh1234567890",
-        "MTIzNDU2Nzg5MGFiY2RlZmdo"
-      )
-    );
+        "org.iso.18013.5.1.mDL",
+        new SessionTranscript(
+            "https://example.com/client",
+            "https://example.com/response",
+            "abcdefgh1234567890",
+            "MTIzNDU2Nzg5MGFiY2RlZmdo"));
 
     byte[] deviceAuthenticationBytes =
-      deviceAuthentication.getDeviceAuthenticationBytes();
+        deviceAuthentication.getDeviceAuthenticationBytes();
     log.info(
-      "DeviceAuthenticationBytes:\n{}",
-      Hex.toHexString(deviceAuthenticationBytes)
-    );
+        "DeviceAuthenticationBytes:\n{}",
+        Hex.toHexString(deviceAuthenticationBytes));
   }
 }

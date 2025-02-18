@@ -51,176 +51,142 @@ class SdJwtTest {
     ECKey walletKey = new ECKeyGenerator(Curve.P_256).generate();
     PkiCredential issuerCredential = TestCredentials.p256_issuerCredential;
     JWSSigner signer = new ECDSASigner(
-      (ECPrivateKey) issuerCredential.getPrivateKey()
-    );
+        (ECPrivateKey) issuerCredential.getPrivateKey());
     JWSAlgorithm jwsAlgorithm = JWSAlgorithm.ES256;
     TokenDigestAlgorithm sdAlgorithm = TokenDigestAlgorithm.SHA_256;
     Duration validity = Duration.ofDays(1);
 
     SdJwt sdJwt = SdJwt.builder("https://example.com/pid-issuer", sdAlgorithm)
-      .legacySdJwtType(true)
-      .confirmationKey(walletKey.toPublicJWK())
-      .verifiableCredentialType("https://example.com/identity_credential")
-      .claimsWithDisclosure(
-        ClaimsWithDisclosure.builder(sdAlgorithm)
-          .disclosure(
-            new Disclosure(
-              TokenAttribute.builder()
-                .type(new TokenAttributeType("given_name"))
-                .value("John")
-                .build()
-            )
-          )
-          .disclosure(
-            new Disclosure(
-              TokenAttribute.builder()
-                .type(new TokenAttributeType("family_name"))
-                .value("Doe")
-                .build()
-            )
-          )
-          .disclosure(
-            new Disclosure(
-              TokenAttribute.builder()
-                .type(new TokenAttributeType("email"))
-                .value("johndoe@example.com")
-                .build()
-            )
-          )
-          .disclosure(
-            new Disclosure(
-              TokenAttribute.builder()
-                .type(new TokenAttributeType("phone_number"))
-                .value("+1-202-555-0101")
-                .build()
-            )
-          )
-          .disclosure(
-            new Disclosure(
-              TokenAttribute.builder()
-                .type(new TokenAttributeType("birthdate"))
-                .value("1940-01-01")
-                .build()
-            )
-          )
-          .arrayEntry(
-            "nationalities",
-            new Disclosure(TokenAttribute.builder().value("US").build())
-          )
-          .arrayEntry(
-            "nationalities",
-            new Disclosure(TokenAttribute.builder().value("DE").build())
-          )
-          .arrayEntry("nationalities", "SE")
-          .openClaim("open", "Value")
-          .claimsWithDisclosure(
-            "address",
+        .legacySdJwtType(true)
+        .confirmationKey(walletKey.toPublicJWK())
+        .verifiableCredentialType("https://example.com/identity_credential")
+        .claimsWithDisclosure(
             ClaimsWithDisclosure.builder(sdAlgorithm)
-              .disclosure(
-                new Disclosure(
-                  TokenAttribute.builder()
-                    .type(new TokenAttributeType("street_address"))
-                    .value("123 Main St")
-                    .build()
-                )
-              )
-              .disclosure(
-                new Disclosure(
-                  TokenAttribute.builder()
-                    .type(new TokenAttributeType("locality"))
-                    .value("Anytown")
-                    .build()
-                )
-              )
-              .disclosure(
-                new Disclosure(
-                  TokenAttribute.builder()
-                    .type(new TokenAttributeType("region"))
-                    .value("Anystate")
-                    .build()
-                )
-              )
-              .disclosure(
-                new Disclosure(
-                  TokenAttribute.builder()
-                    .type(new TokenAttributeType("country"))
-                    .value("US")
-                    .build()
-                )
-              )
-              .build()
-          )
-          .build()
-      )
-      .build(
-        issuerCredential,
-        validity,
-        jwsAlgorithm,
-        signer,
-        issuerCredential.getName()
-      );
+                .disclosure(
+                    new Disclosure(
+                        TokenAttribute.builder()
+                            .type(new TokenAttributeType("given_name"))
+                            .value("John")
+                            .build()))
+                .disclosure(
+                    new Disclosure(
+                        TokenAttribute.builder()
+                            .type(new TokenAttributeType("family_name"))
+                            .value("Doe")
+                            .build()))
+                .disclosure(
+                    new Disclosure(
+                        TokenAttribute.builder()
+                            .type(new TokenAttributeType("email"))
+                            .value("johndoe@example.com")
+                            .build()))
+                .disclosure(
+                    new Disclosure(
+                        TokenAttribute.builder()
+                            .type(new TokenAttributeType("phone_number"))
+                            .value("+1-202-555-0101")
+                            .build()))
+                .disclosure(
+                    new Disclosure(
+                        TokenAttribute.builder()
+                            .type(new TokenAttributeType("birthdate"))
+                            .value("1940-01-01")
+                            .build()))
+                .arrayEntry(
+                    "nationalities",
+                    new Disclosure(TokenAttribute.builder().value("US").build()))
+                .arrayEntry(
+                    "nationalities",
+                    new Disclosure(TokenAttribute.builder().value("DE").build()))
+                .arrayEntry("nationalities", "SE")
+                .openClaim("open", "Value")
+                .claimsWithDisclosure(
+                    "address",
+                    ClaimsWithDisclosure.builder(sdAlgorithm)
+                        .disclosure(
+                            new Disclosure(
+                                TokenAttribute.builder()
+                                    .type(new TokenAttributeType("street_address"))
+                                    .value("123 Main St")
+                                    .build()))
+                        .disclosure(
+                            new Disclosure(
+                                TokenAttribute.builder()
+                                    .type(new TokenAttributeType("locality"))
+                                    .value("Anytown")
+                                    .build()))
+                        .disclosure(
+                            new Disclosure(
+                                TokenAttribute.builder()
+                                    .type(new TokenAttributeType("region"))
+                                    .value("Anystate")
+                                    .build()))
+                        .disclosure(
+                            new Disclosure(
+                                TokenAttribute.builder()
+                                    .type(new TokenAttributeType("country"))
+                                    .value("US")
+                                    .build()))
+                        .build())
+                .build())
+        .build(
+            issuerCredential,
+            validity,
+            jwsAlgorithm,
+            signer,
+            issuerCredential.getName());
     sdJwt.protectedPresentation(
-      new ECDSASigner(walletKey.toECPrivateKey()),
-      JWSAlgorithm.ES256,
-      "https://example.com/aud",
-      "nonce_12345",
-      null
-    );
+        new ECDSASigner(walletKey.toECPrivateKey()),
+        JWSAlgorithm.ES256,
+        "https://example.com/aud",
+        "nonce_12345",
+        null);
 
     SignedJWT issuerSignedJwt = sdJwt.getIssuerSigned();
     log.info("Issuer Signed JWT:\n{}", issuerSignedJwt.serialize());
     String unprotectedPresentation = sdJwt.unprotectedPresentation(null);
     log.info(
-      "Complete unprotected persentation: \n{}",
-      unprotectedPresentation
-    );
+        "Complete unprotected persentation: \n{}",
+        unprotectedPresentation);
 
     // Parse unprotected
     SdJwt parsedSdJwt = SdJwt.parse(unprotectedPresentation);
     assertNotNull(parsedSdJwt);
 
     String nonce = JSONUtils.base64URLString(
-      new BigInteger(64, RNG).toByteArray()
-    );
+        new BigInteger(64, RNG).toByteArray());
     SdJwtPresentationInput presentationInput = SdJwtPresentationInput.builder()
-      .algorithm(TokenSigningAlgorithm.ECDSA_256)
-      .token(unprotectedPresentation.getBytes())
-      .audience("http://example.com/audience")
-      .nonce(nonce)
-      .build();
+        .algorithm(TokenSigningAlgorithm.ECDSA_256)
+        .token(unprotectedPresentation.getBytes())
+        .audience("http://example.com/audience")
+        .nonce(nonce)
+        .build();
 
     SdJwtTokenPresenter tokenPresenter = new SdJwtTokenPresenter();
     byte[] presentedToken = tokenPresenter.presentToken(
-      presentationInput,
-      walletKey.toECPrivateKey()
-    );
+        presentationInput,
+        walletKey.toECPrivateKey());
     assertNotNull(presentedToken);
 
     log.info(
-      "\nProtected presentation with disclosures:\n{}",
-      new String(presentedToken)
-    );
+        "\nProtected presentation with disclosures:\n{}",
+        new String(presentedToken));
 
     log.info(
-      "Token Payload:\n{}",
-      JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
-        .writeValueAsString(
-          sdJwt.getIssuerSigned().getJWTClaimsSet().getClaims()
-        )
-    );
+        "Token Payload:\n{}",
+        JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
+            .writeValueAsString(
+                sdJwt.getIssuerSigned().getJWTClaimsSet().getClaims()));
 
     List<Disclosure> allDisclosures = sdJwt.getDisclosures();
     log.info("Disclosures:\n------------------");
     for (Disclosure disclosure : allDisclosures) {
       String disclosureString = JSONUtils.base64URLString(
-        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
-      );
+          disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8));
       log.info(
-        "Disclosure hash: {}",
-        JSONUtils.base64URLString(
-          JSONUtils.disclosureHash(disclosure, sdAlgorithm.getJdkName())
-        )
-      );
+          "Disclosure hash: {}",
+          JSONUtils.base64URLString(
+              JSONUtils.disclosureHash(disclosure, sdAlgorithm.getJdkName())));
       log.info("Disclosure str: {}", disclosureString);
       log.info("Disclosure: {}", disclosure.getDisclosure());
     }
@@ -228,32 +194,26 @@ class SdJwtTest {
     // Validate and reconstruct disclosed credentials;
     SdJwtTokenValidator validator = new SdJwtTokenValidator();
     SdJwtTokenValidationResult validationResult = validator.validateToken(
-      presentedToken,
-      null
-    );
+        presentedToken,
+        null);
 
     log.info(
-      "Disclosed payload:\n{}",
-      JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
-        .writeValueAsString(
-          validationResult.getDisclosedTokenPayload().toJSONObject()
-        )
-    );
+        "Disclosed payload:\n{}",
+        JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
+            .writeValueAsString(
+                validationResult.getDisclosedTokenPayload().toJSONObject()));
 
     // Finally testing the presentation validator
     SdJwtPresentationValidator presentationValidator =
-      new SdJwtPresentationValidator();
+        new SdJwtPresentationValidator();
     presentationValidator.validatePresentation(
-      presentedToken,
-      new SdJwtPresentationValidationInput(
-        nonce,
-        "http://example.com/audience"
-      ),
-      List.of(
-        TrustedKey.builder()
-          .certificate(issuerCredential.getCertificate())
-          .build()
-      )
-    );
+        presentedToken,
+        new SdJwtPresentationValidationInput(
+            nonce,
+            "http://example.com/audience"),
+        List.of(
+            TrustedKey.builder()
+                .certificate(issuerCredential.getCertificate())
+                .build()));
   }
 }

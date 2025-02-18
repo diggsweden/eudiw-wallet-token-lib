@@ -32,26 +32,22 @@ import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
 import se.digg.wallet.datatypes.mdl.data.SessionTranscript;
 
 /**
- * Implementation of the {@link PresentationValidator} interface that validates
- * presentations of Mobile Driver's Licenses (mDLs).
+ * Implementation of the {@link PresentationValidator} interface that validates presentations of
+ * Mobile Driver's Licenses (mDLs).
  * <p>
- * This class performs mDL-specific validation, ensuring the presentation data is valid,
- * the issuer's signature is authenticated, and the device signature is correctly verified.
+ * This class performs mDL-specific validation, ensuring the presentation data is valid, the
+ * issuer's signature is authenticated, and the device signature is correctly verified.
  * <p>
- * The validation flow includes the following steps:
- * - Parsing the mDL presentation data
- * - Validating the issuer's signed data against the provided trusted keys
- * - Reconstructing and verifying the device signature
- * - Returning a validation result that includes the validation key, certificate chain,
- *   and other relevant data
+ * The validation flow includes the following steps: - Parsing the mDL presentation data -
+ * Validating the issuer's signed data against the provided trusted keys - Reconstructing and
+ * verifying the device signature - Returning a validation result that includes the validation key,
+ * certificate chain, and other relevant data
  * <p>
- * Logging behavior:
- * - Detailed trace logs of the presentation data when tracing is enabled
- * - Debug-level logs to denote the progress and key validation outcomes
+ * Logging behavior: - Detailed trace logs of the presentation data when tracing is enabled -
+ * Debug-level logs to denote the progress and key validation outcomes
  * <p>
- * Exceptions:
- * - Throws {@link TokenValidationException} for invalid input or validation failures
- * - Throws {@link TokenParsingException} for errors encountered during parsing
+ * Exceptions: - Throws {@link TokenValidationException} for invalid input or validation failures -
+ * Throws {@link TokenParsingException} for errors encountered during parsing
  */
 @Slf4j
 public class MdlPresentationValidator implements PresentationValidator {
@@ -60,7 +56,8 @@ public class MdlPresentationValidator implements PresentationValidator {
   private final Duration timeSkew;
 
   /**
-   * Constructs a new instance of the MdlPresentationValidator with a default timeout duration of 30 seconds.
+   * Constructs a new instance of the MdlPresentationValidator with a default timeout duration of 30
+   * seconds.
    */
   public MdlPresentationValidator() {
     this(Duration.ofSeconds(30));
@@ -69,7 +66,8 @@ public class MdlPresentationValidator implements PresentationValidator {
   /**
    * Constructs a new instance of the MdlPresentationValidator with the specified time skew.
    *
-   * @param timeSkew the maximum allowed time deviation (Duration) for verifying the validity of the data.
+   * @param timeSkew the maximum allowed time deviation (Duration) for verifying the validity of the
+   *        data.
    */
   public MdlPresentationValidator(Duration timeSkew) {
     this.timeSkew = timeSkew;
@@ -80,37 +78,33 @@ public class MdlPresentationValidator implements PresentationValidator {
    * and a list of trusted keys.
    *
    * @param presentation a byte array representing the mDL presentation data to be validated
-   * @param presentationValidationInput an instance of {@link PresentationValidationInput}, expected to be of type
-   *        {@code MdlPresentationValidationInput}, containing validation input parameters and session context
-   * @param trustedKeys a list of {@link TrustedKey} objects representing the trusted keys for validation
+   * @param presentationValidationInput an instance of {@link PresentationValidationInput}, expected
+   *        to be of type {@code MdlPresentationValidationInput}, containing validation input
+   *        parameters and session context
+   * @param trustedKeys a list of {@link TrustedKey} objects representing the trusted keys for
+   *        validation
    * @return a {@link TokenValidationResult} representing the result of validating the presentation
    * @throws TokenValidationException if the presentation or input data are invalid
    * @throws TokenParsingException if there are errors in parsing the token data
    */
   @Override
   public MdlPresentationValidationResult validatePresentation(
-    byte[] presentation,
-    PresentationValidationInput presentationValidationInput,
-    List<TrustedKey> trustedKeys
-  ) throws TokenValidationException, TokenParsingException {
+      byte[] presentation,
+      PresentationValidationInput presentationValidationInput,
+      List<TrustedKey> trustedKeys) throws TokenValidationException, TokenParsingException {
     if (log.isTraceEnabled()) {
       log.trace(
-        "Validating mDL presentation:\n{}",
-        Hex.toHexString(presentation)
-      );
+          "Validating mDL presentation:\n{}",
+          Hex.toHexString(presentation));
     } else {
       log.debug("Validating mDL presentation");
     }
 
     // Check input type
-    if (
-      !(presentationValidationInput instanceof
-        MdlPresentationValidationInput input)
-    ) {
+    if (!(presentationValidationInput instanceof MdlPresentationValidationInput input)) {
       throw new TokenValidationException(
-        "Presentation validation input of MDL presentations must be of type " +
-        "MdlPresentationValidationInput"
-      );
+          "Presentation validation input of MDL presentations must be of type " +
+              "MdlPresentationValidationInput");
     }
 
     try {
@@ -119,58 +113,49 @@ public class MdlPresentationValidator implements PresentationValidator {
       // Parse and validate the issuer signed data
       IssuerSigned issuerSigned = deviceResponse.getIssuerSigned();
       byte[] issuerSignedBytes = CBORUtils.CBOR_MAPPER.writeValueAsBytes(
-        issuerSigned
-      );
+          issuerSigned);
       MdlIssuerSignedValidator issuerSignedValidator =
-        new MdlIssuerSignedValidator(timeSkew);
+          new MdlIssuerSignedValidator(timeSkew);
       MdlIssuerSignedValidationResult issuerSignedValidationResult =
-        issuerSignedValidator.validateToken(issuerSignedBytes, trustedKeys);
+          issuerSignedValidator.validateToken(issuerSignedBytes, trustedKeys);
       // Ensure that device MAC or signature is present
       if (deviceResponse.getDeviceMac() == null && deviceResponse.getDeviceSignature() == null) {
         throw new TokenValidationException(
-          "Token presentation must name device mac or device signature"
-        );
+            "Token presentation must name device mac or device signature");
       }
       // Reconstruct the detached data
       DeviceAuthentication deviceAuthentication = new DeviceAuthentication(
-        deviceResponse.getDocType(),
-        new SessionTranscript(
-          input.getClientId(),
-          input.getResponseUri(),
-          input.getRequestNonce(),
-          input.getMdocGeneratedNonce()
-        )
-      );
+          deviceResponse.getDocType(),
+          new SessionTranscript(
+              input.getClientId(),
+              input.getResponseUri(),
+              input.getRequestNonce(),
+              input.getMdocGeneratedNonce()));
       // Get the wallet device key
       MobileSecurityObject.DeviceKeyInfo deviceKeyInfo =
-        issuerSignedValidationResult.getMso().getDeviceKeyInfo();
+          issuerSignedValidationResult.getMso().getDeviceKeyInfo();
 
       // Validate MAC if present
       if (deviceResponse.getDeviceMac() != null) {
         if (input.getClientPrivateKey() == null) {
           throw new TokenValidationException(
-            "Client private key must be provided for MAC validation"
-          );
+              "Client private key must be provided for MAC validation");
         }
         CBORObject deviceMacObject = CBORObject.DecodeFromBytes(
-          deviceResponse.getDeviceMac()
-        );
+            deviceResponse.getDeviceMac());
         // Insert the detached data as payload
         deviceMacObject.set(
-          2,
-          CBORObject.FromByteArray(
-            deviceAuthentication.getDeviceAuthenticationBytes()
-          )
-        );
+            2,
+            CBORObject.FromByteArray(
+                deviceAuthentication.getDeviceAuthenticationBytes()));
         MAC0COSEObject mac0COSEObject =
-          (MAC0COSEObject) MAC0COSEObject.DecodeFromBytes(
-            deviceMacObject.EncodeToBytes(),
-            COSEObjectTag.MAC0
-          );
+            (MAC0COSEObject) MAC0COSEObject.DecodeFromBytes(
+                deviceMacObject.EncodeToBytes(),
+                COSEObjectTag.MAC0);
         boolean validMac = mac0COSEObject.Validate(CBORUtils.deriveEMacKey(
-          CBORUtils.deriveSharedSecret(input.getClientPrivateKey(), deviceKeyInfo.getDeviceKey().AsPublicKey()),
-          deviceAuthentication.getDeviceAuthenticationBytes()
-        ));
+            CBORUtils.deriveSharedSecret(input.getClientPrivateKey(),
+                deviceKeyInfo.getDeviceKey().AsPublicKey()),
+            deviceAuthentication.getDeviceAuthenticationBytes()));
         if (!validMac) {
           // Device signature was invalid
           throw new TokenValidationException("Device signature is invalid");
@@ -181,25 +166,20 @@ public class MdlPresentationValidator implements PresentationValidator {
       if (deviceResponse.getDeviceSignature() != null) {
         // Get the detached device signature
         CBORObject deviceSignatureObject = CBORObject.DecodeFromBytes(
-          deviceResponse.getDeviceSignature()
-        );
+            deviceResponse.getDeviceSignature());
         // Insert the detached data as payload
         deviceSignatureObject.set(
-          2,
-          CBORObject.FromByteArray(
-            deviceAuthentication.getDeviceAuthenticationBytes()
-          )
-        );
+            2,
+            CBORObject.FromByteArray(
+                deviceAuthentication.getDeviceAuthenticationBytes()));
         // Create the signed object with the restored payload
         Sign1COSEObject sign1COSEObject =
-          (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
-            deviceSignatureObject.EncodeToBytes(),
-            COSEObjectTag.Sign1
-          );
+            (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
+                deviceSignatureObject.EncodeToBytes(),
+                COSEObjectTag.Sign1);
         // Validate signature against device key
         boolean deviceSignatureValid = sign1COSEObject.validate(
-          deviceKeyInfo.getDeviceKey()
-        );
+            deviceKeyInfo.getDeviceKey());
         if (!deviceSignatureValid) {
           // Device signature was invalid
           throw new TokenValidationException("Device signature is invalid");
@@ -209,35 +189,31 @@ public class MdlPresentationValidator implements PresentationValidator {
       }
       // Retrieve disclosed signatures
       Map<TokenAttributeType, Object> disclosedAttributes =
-        getDisclosedAttributes(issuerSigned.getNameSpaces());
+          getDisclosedAttributes(issuerSigned.getNameSpaces());
       issuerSignedValidationResult.setPresentationRequestNonce(
-        input.getRequestNonce()
-      );
+          input.getRequestNonce());
       MdlPresentationValidationResult result =
-        new MdlPresentationValidationResult(
-          issuerSignedValidationResult,
-          deviceResponse.getDocType(),
-          deviceResponse.getStatus(),
-          deviceResponse.getVersion(),
-          disclosedAttributes
-        );
+          new MdlPresentationValidationResult(
+              issuerSignedValidationResult,
+              deviceResponse.getDocType(),
+              deviceResponse.getStatus(),
+              deviceResponse.getVersion(),
+              disclosedAttributes);
       result.setPresentationRequestNonce(input.getRequestNonce());
       return result;
     } catch (JsonProcessingException | CoseException e) {
       throw new TokenParsingException("Error parsing token data", e);
     } catch (Exception e) {
       throw new TokenValidationException(
-        "Error validating the mDL presentation token",
-        e
-      );
+          "Error validating the mDL presentation token",
+          e);
     }
   }
 
   private Map<TokenAttributeType, Object> getDisclosedAttributes(
-    Map<String, List<IssuerSignedItem>> nameSpaces
-  ) {
+      Map<String, List<IssuerSignedItem>> nameSpaces) {
     Map<TokenAttributeType, Object> disclosedAttributes =
-      new java.util.HashMap<>();
+        new java.util.HashMap<>();
     if (nameSpaces == null || nameSpaces.isEmpty()) {
       return disclosedAttributes;
     }
@@ -245,12 +221,10 @@ public class MdlPresentationValidator implements PresentationValidator {
       if (nsAttributes != null) {
         nsAttributes.forEach(issuerSignedItem -> {
           disclosedAttributes.put(
-            new TokenAttributeType(
-              namespace,
-              issuerSignedItem.getElementIdentifier()
-            ),
-            issuerSignedItem.getElementValue()
-          );
+              new TokenAttributeType(
+                  namespace,
+                  issuerSignedItem.getElementIdentifier()),
+              issuerSignedItem.getElementValue());
         });
       }
     });

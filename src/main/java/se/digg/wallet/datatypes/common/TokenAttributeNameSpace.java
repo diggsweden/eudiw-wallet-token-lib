@@ -10,10 +10,9 @@ import lombok.Getter;
 /**
  * Enum representing namespaces associated with token attributes.
  *
- * Each namespace is identified by a unique string identifier (id),
- * which groups attributes under a specific category or standard.
- * This allows for better organization and management of token attributes
- * across different implementations or frameworks.
+ * Each namespace is identified by a unique string identifier (id), which groups attributes under a
+ * specific category or standard. This allows for better organization and management of token
+ * attributes across different implementations or frameworks.
  */
 @Getter
 @AllArgsConstructor

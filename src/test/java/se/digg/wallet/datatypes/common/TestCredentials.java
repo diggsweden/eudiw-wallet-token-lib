@@ -35,29 +35,25 @@ public class TestCredentials {
     try {
       KeyStore issuerKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
       issuerKeyStore.load(
-        TestCredentials.class.getResourceAsStream("/pid-issuer.jks"),
-        "Test1234".toCharArray()
-      );
+          TestCredentials.class.getResourceAsStream("/pid-issuer.jks"),
+          "Test1234".toCharArray());
       p256_issuerCredential = new KeyStoreCredential(
-        issuerKeyStore,
-        "pid-issuer",
-        "Test1234".toCharArray()
-      );
+          issuerKeyStore,
+          "pid-issuer",
+          "Test1234".toCharArray());
       rsa_issuerCredential = new KeyStoreCredential(
-        issuerKeyStore,
-        "pid-issuer-rsa",
-        "Test1234".toCharArray()
-      );
+          issuerKeyStore,
+          "pid-issuer-rsa",
+          "Test1234".toCharArray());
       p256_walletKey = new ECKeyGenerator(Curve.P_256).generate();
       p256_clientKey = new ECKeyGenerator(Curve.P_256).generate();
       rsa_walletKey = new RSAKeyGenerator(3072).generate();
     } catch (
-      KeyStoreException
-      | CertificateException
-      | IOException
-      | NoSuchAlgorithmException
-      | JOSEException e
-    ) {
+        KeyStoreException
+        | CertificateException
+        | IOException
+        | NoSuchAlgorithmException
+        | JOSEException e) {
       throw new RuntimeException(e);
     }
   }

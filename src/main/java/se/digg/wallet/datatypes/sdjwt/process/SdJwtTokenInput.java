@@ -17,8 +17,8 @@ import se.swedenconnect.security.credential.PkiCredential;
 
 /**
  * Represents an input object for generating an SD-JWT (Selective Disclosure-JSON Web Token).
- * Extends the functionality provided by the {@code TokenInput} class to include additional
- * fields and methods specific to SD-JWTs.
+ * Extends the functionality provided by the {@code TokenInput} class to include additional fields
+ * and methods specific to SD-JWTs.
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -33,8 +33,10 @@ public class SdJwtTokenInput extends TokenInput {
    * Constructor for creating an SdJwtTokenInput instance.
    *
    * @param issuer the issuer of the token.
-   * @param attributes the list of token attributes that are private and require disclosure by the wallet.
-   * @param openAttributes the list of token attributes that are publicly accessible without disclosure.
+   * @param attributes the list of token attributes that are private and require disclosure by the
+   *        wallet.
+   * @param openAttributes the list of token attributes that are publicly accessible without
+   *        disclosure.
    * @param issuerCredential the credential used by the issuer for signing and verification.
    * @param expirationDuration the duration after which the token expires.
    * @param algorithm the signing algorithm used for creating the token signature.
@@ -42,24 +44,22 @@ public class SdJwtTokenInput extends TokenInput {
    * @param claimsWithDisclosure the claims along with their respective disclosures.
    */
   public SdJwtTokenInput(
-    String issuer,
-    List<TokenAttribute> attributes,
-    List<TokenAttribute> openAttributes,
-    PkiCredential issuerCredential,
-    Duration expirationDuration,
-    TokenSigningAlgorithm algorithm,
-    PublicKey walletPublicKey,
-    ClaimsWithDisclosure claimsWithDisclosure
-  ) {
+      String issuer,
+      List<TokenAttribute> attributes,
+      List<TokenAttribute> openAttributes,
+      PkiCredential issuerCredential,
+      Duration expirationDuration,
+      TokenSigningAlgorithm algorithm,
+      PublicKey walletPublicKey,
+      ClaimsWithDisclosure claimsWithDisclosure) {
     super(
-      issuer,
-      attributes,
-      openAttributes,
-      issuerCredential,
-      expirationDuration,
-      algorithm,
-      walletPublicKey
-    );
+        issuer,
+        attributes,
+        openAttributes,
+        issuerCredential,
+        expirationDuration,
+        algorithm,
+        walletPublicKey);
     this.claimsWithDisclosure = claimsWithDisclosure;
   }
 
@@ -69,8 +69,8 @@ public class SdJwtTokenInput extends TokenInput {
   public SdJwtTokenInput() {}
 
   /**
-   * Provides a new instance of the SdJwtTokenInputBuilder, which is used for
-   * configuring and building an SdJwtTokenInput object with the desired properties.
+   * Provides a new instance of the SdJwtTokenInputBuilder, which is used for configuring and
+   * building an SdJwtTokenInput object with the desired properties.
    *
    * @return a new instance of SdJwtTokenInputBuilder for constructing an SdJwtTokenInput.
    */
@@ -102,8 +102,7 @@ public class SdJwtTokenInput extends TokenInput {
      * @return the current instance of SdJwtTokenInputBuilder for method chaining
      */
     public SdJwtTokenInputBuilder claimsWithDisclosure(
-      ClaimsWithDisclosure claimsWithDisclosure
-    ) {
+        ClaimsWithDisclosure claimsWithDisclosure) {
       tokenInput.claimsWithDisclosure = claimsWithDisclosure;
       return this;
     }
@@ -115,8 +114,7 @@ public class SdJwtTokenInput extends TokenInput {
      * @return the current instance of SdJwtTokenInputBuilder for method chaining
      */
     public SdJwtTokenInputBuilder verifiableCredentialType(
-      String verifiableCredentialType
-    ) {
+        String verifiableCredentialType) {
       tokenInput.verifiableCredentialType = verifiableCredentialType;
       return this;
     }
@@ -146,13 +144,12 @@ public class SdJwtTokenInput extends TokenInput {
     /**
      * Sets a list of open attributes for the SdJwtTokenInput being built.
      *
-     * @param openAttributes a list of {@link TokenAttribute} objects to define open claims
-     *                       that will be included in the token without selective disclosure
+     * @param openAttributes a list of {@link TokenAttribute} objects to define open claims that
+     *        will be included in the token without selective disclosure
      * @return the current instance of SdJwtTokenInputBuilder for method chaining
      */
     public SdJwtTokenInputBuilder openAttributes(
-      List<TokenAttribute> openAttributes
-    ) {
+        List<TokenAttribute> openAttributes) {
       tokenInput.openAttributes = openAttributes;
       return this;
     }
@@ -160,13 +157,12 @@ public class SdJwtTokenInput extends TokenInput {
     /**
      * Sets the issuer credential for the SdJwtTokenInput being built.
      *
-     * @param issuerCredential the {@link PkiCredential} representing the issuer's credentials to be used for
-     *                         signing and verification of the token
+     * @param issuerCredential the {@link PkiCredential} representing the issuer's credentials to be
+     *        used for signing and verification of the token
      * @return the current instance of SdJwtTokenInputBuilder for method chaining
      */
     public SdJwtTokenInputBuilder issuerCredential(
-      PkiCredential issuerCredential
-    ) {
+        PkiCredential issuerCredential) {
       tokenInput.issuerCredential = issuerCredential;
       return this;
     }
@@ -174,12 +170,12 @@ public class SdJwtTokenInput extends TokenInput {
     /**
      * Sets the expiration duration for the SdJwtTokenInput being built.
      *
-     * @param expirationDuration the {@link Duration} representing the time period until the token expires
+     * @param expirationDuration the {@link Duration} representing the time period until the token
+     *        expires
      * @return the current instance of {@code SdJwtTokenInputBuilder} for method chaining
      */
     public SdJwtTokenInputBuilder expirationDuration(
-      Duration expirationDuration
-    ) {
+        Duration expirationDuration) {
       tokenInput.expirationDuration = expirationDuration;
       return this;
     }
@@ -198,8 +194,8 @@ public class SdJwtTokenInput extends TokenInput {
     /**
      * Sets the wallet public key for the SdJwtTokenInput being built.
      *
-     * @param walletPublicKey the {@link PublicKey} to set as the wallet's public key,
-     *                        which will be used for token confirmation.
+     * @param walletPublicKey the {@link PublicKey} to set as the wallet's public key, which will be
+     *        used for token confirmation.
      * @return the current instance of {@code SdJwtTokenInputBuilder} for method chaining.
      */
     public SdJwtTokenInputBuilder walletPublicKey(PublicKey walletPublicKey) {
@@ -208,8 +204,8 @@ public class SdJwtTokenInput extends TokenInput {
     }
 
     /**
-     * Creates and returns a new instance of {@code SdJwtTokenInput} with the properties
-     * configured using the builder methods of {@code SdJwtTokenInputBuilder}.
+     * Creates and returns a new instance of {@code SdJwtTokenInput} with the properties configured
+     * using the builder methods of {@code SdJwtTokenInputBuilder}.
      *
      * @return a new and configured instance of {@code SdJwtTokenInput}
      */

@@ -1,188 +1,187 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-      "config:best-practices",
-      ":gitSignOff",
-      ":maintainLockFilesWeekly",
-      ":automergeMinor",
-      ":semanticCommits"
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":gitSignOff",
+    ":maintainLockFilesWeekly",
+    ":automergeMinor",
+    ":semanticCommits"
+  ],
+  "semanticCommitType": "build",
+  "semanticCommitScope": "deps",
+  "commitMessageLowerCase": "auto",
+  "commitBody": "Signed-off-by: {{{gitAuthor}}}",
+  "vulnerabilityAlerts": {
+    "labels": [
+      "security"
     ],
-    "semanticCommitType": "build",
-    "semanticCommitScope": "deps",
-    "commitMessageLowerCase": "auto",
-    "commitBody": "Signed-off-by: {{{gitAuthor}}}",
-    "vulnerabilityAlerts": {
-      "labels": [
-        "security"
+    "enabled": true,
+    "automerge": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "github-actions"
       ],
-      "enabled": true,
-      "automerge": true
+      "addLabels": [
+        "actions"
+      ],
+      "pinDigests": true,
+      "groupName": "github actions",
+      "schedule": [
+        "after 10pm every weekday",
+        "before 5am every weekday"
+      ]
     },
-    "packageRules": [
-      {
-        "matchManagers": [
-          "github-actions"
-        ],
-        "addLabels": [
-          "actions"
-        ],
-        "pinDigests": true,
-        "groupName": "github actions",
-        "schedule": [
-          "after 10pm every weekday",
-          "before 5am every weekday"
-        ]
-      },
-      {
-        "matchManagers": [
-          "github-actions"
-        ],
-        "matchPackageNames": [
-          "slsa-framework/slsa-github-generator"
-        ],
-        "pinDigests": false
-      },
-      {
-        "description": "Java dependencies - Major updates",
-        "matchManagers": [
-          "maven"
-        ],
-        "matchUpdateTypes": [
-          "major"
-        ],
-        "addLabels": [
-          "java",
-          "dependencies",
-          "major-update"
-        ],
-        "groupName": "java major"
-      },
-      {
-        "description": "Java dependencies - Non-major updates",
-        "matchManagers": [
-          "maven"
-        ],
-        "matchUpdateTypes": [
-          "minor",
-          "patch"
-        ],
-        "addLabels": [
-          "java",
-          "dependencies"
-        ],
-        "groupName": "java non-major"
-      },
-      {
-        "description": "Apache Maven plugins",
-        "groupName": "maven-plugins",
-        "matchPackageNames": [
-          "org.apache.maven.plugins:maven-compiler-plugin",
-          "org.apache.maven.plugins:maven-source-plugin",
-          "org.apache.maven.plugins:maven-javadoc-plugin",
-          "org.apache.maven.plugins:maven-surefire-plugin"
-        ]
-      },
-      {
-        "description": "Development tools",
-        "groupName": "dev tools",
-        "matchPackageNames": [
-          "org.projectlombok:lombok",
-          "com.hubspot.maven.plugins:prettier-maven-plugin"
-        ]
-      },
-      {
-        "description": "Jackson dependencies",
-        "groupName": "jackson",
-        "matchPackageNames": [
-          "com.fasterxml.jackson.core:jackson-databind",
-          "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor",
-          "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-        ],
-        "labels": [
-          "java",
-          "dependencies"
-        ]
-      },
-      {
-        "description": "Bouncy Castle dependencies",
-        "groupName": "bouncycastle",
-        "matchPackageNames": [
-          "org.bouncycastle:bcprov-jdk18on"
-        ],
-        "labels": [
-          "java",
-          "dependencies"
-        ]
-      },
-      {
-        "description": "Credentials Support dependencies",
-        "groupName": "credentials-support",
-        "matchPackageNames": [
-          "se.swedenconnect.security:credentials-support"
-        ],
-        "labels": [
-          "java",
-          "dependencies"
-        ]
-      },
-      {
-        "description": "Upokecenter dependencies",
-        "groupName": "upokecenter",
-        "matchPackageNames": [
-          "com.upokecenter:cbor"
-        ],
-        "labels": [
-          "java",
-          "dependencies"
-        ]
-      },
-      {
-        "description": "EdDSA dependencies",
-        "groupName": "eddsa",
-        "matchPackageNames": [
-          "net.i2p.crypto:eddsa"
-        ],
-        "labels": [
-          "java",
-          "dependencies"
-        ]
-      },
-      {
-        "description": "SLF4J dependencies",
-        "groupName": "slf4j",
-        "matchPackageNames": [
-          "org.slf4j:slf4j-api",
-          "org.slf4j:slf4j-simple"
-        ],
-        "labels": [
-          "java",
-          "dependencies"
-        ]
-      },
-      {
-        "description": "Nimbus dependencies",
-        "groupName": "nimbus",
-        "matchPackageNames": [
-          "com.nimbusds:nimbus-jose-jwt"
-        ],
-        "labels": [
-          "java",
-          "dependencies"
-        ]
-      },
-      {
-        "description": "Test dependencies",
-        "groupName": "test",
-        "matchPackageNames": [
-          "org.junit.jupiter:junit-jupiter",
-          "org.mockito:mockito-core",
-          "org.mockito:mockito-junit-jupiter",
-          "org.skyscreamer:jsonassert"
-        ],
-        "labels": [
-          "java",
-          "test"
-        ]
-      }
-    ]
-  }
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "slsa-framework/slsa-github-generator"
+      ],
+      "pinDigests": false
+    },
+    {
+      "description": "Java dependencies - Major updates",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "addLabels": [
+        "java",
+        "dependencies",
+        "major-update"
+      ],
+      "groupName": "java major"
+    },
+    {
+      "description": "Java dependencies - Non-major updates",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "addLabels": [
+        "java",
+        "dependencies"
+      ],
+      "groupName": "java non-major"
+    },
+    {
+      "description": "Apache Maven plugins",
+      "groupName": "maven-plugins",
+      "matchPackageNames": [
+        "org.apache.maven.plugins:maven-compiler-plugin",
+        "org.apache.maven.plugins:maven-source-plugin",
+        "org.apache.maven.plugins:maven-javadoc-plugin",
+        "org.apache.maven.plugins:maven-surefire-plugin"
+      ]
+    },
+    {
+      "description": "Development tools",
+      "groupName": "dev tools",
+      "matchPackageNames": [
+        "org.projectlombok:lombok",
+      ]
+    },
+    {
+      "description": "Jackson dependencies",
+      "groupName": "jackson",
+      "matchPackageNames": [
+        "com.fasterxml.jackson.core:jackson-databind",
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor",
+        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+      ],
+      "labels": [
+        "java",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "Bouncy Castle dependencies",
+      "groupName": "bouncycastle",
+      "matchPackageNames": [
+        "org.bouncycastle:bcprov-jdk18on"
+      ],
+      "labels": [
+        "java",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "Credentials Support dependencies",
+      "groupName": "credentials-support",
+      "matchPackageNames": [
+        "se.swedenconnect.security:credentials-support"
+      ],
+      "labels": [
+        "java",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "Upokecenter dependencies",
+      "groupName": "upokecenter",
+      "matchPackageNames": [
+        "com.upokecenter:cbor"
+      ],
+      "labels": [
+        "java",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "EdDSA dependencies",
+      "groupName": "eddsa",
+      "matchPackageNames": [
+        "net.i2p.crypto:eddsa"
+      ],
+      "labels": [
+        "java",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "SLF4J dependencies",
+      "groupName": "slf4j",
+      "matchPackageNames": [
+        "org.slf4j:slf4j-api",
+        "org.slf4j:slf4j-simple"
+      ],
+      "labels": [
+        "java",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "Nimbus dependencies",
+      "groupName": "nimbus",
+      "matchPackageNames": [
+        "com.nimbusds:nimbus-jose-jwt"
+      ],
+      "labels": [
+        "java",
+        "dependencies"
+      ]
+    },
+    {
+      "description": "Test dependencies",
+      "groupName": "test",
+      "matchPackageNames": [
+        "org.junit.jupiter:junit-jupiter",
+        "org.mockito:mockito-core",
+        "org.mockito:mockito-junit-jupiter",
+        "org.skyscreamer:jsonassert"
+      ],
+      "labels": [
+        "java",
+        "test"
+      ]
+    }
+  ]
+}

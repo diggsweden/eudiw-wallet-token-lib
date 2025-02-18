@@ -11,9 +11,9 @@ import se.digg.wallet.datatypes.common.PresentationInput;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 
 /**
- * A specialized implementation of the {@link PresentationInput} class designed to handle
- * specific requirements for SD-JWT presentations. This class includes additional fields and methods
- * tailored to SD-JWT workflows, such as specifying an audience and associated disclosures.
+ * A specialized implementation of the {@link PresentationInput} class designed to handle specific
+ * requirements for SD-JWT presentations. This class includes additional fields and methods tailored
+ * to SD-JWT workflows, such as specifying an audience and associated disclosures.
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -75,12 +75,12 @@ public class SdJwtPresentationInput extends PresentationInput<List<String>> {
     /**
      * Sets the cryptographic signing algorithm for the {@code SdJwtPresentationInput} being built.
      *
-     * @param algorithm the cryptographic signing algorithm to set, represented as an instance of {@link TokenSigningAlgorithm}
+     * @param algorithm the cryptographic signing algorithm to set, represented as an instance of
+     *        {@link TokenSigningAlgorithm}
      * @return the current instance of {@code SdJwtPresentationInputbuilder} for method chaining
      */
     public SdJwtPresentationInputbuilder algorithm(
-      TokenSigningAlgorithm algorithm
-    ) {
+        TokenSigningAlgorithm algorithm) {
       presentationInput.algorithm = algorithm;
       return this;
     }
@@ -108,9 +108,11 @@ public class SdJwtPresentationInput extends PresentationInput<List<String>> {
     }
 
     /**
-     * Finalizes the building process and returns the constructed instance of {@code SdJwtPresentationInput}.
+     * Finalizes the building process and returns the constructed instance of
+     * {@code SdJwtPresentationInput}.
      *
-     * @return the fully constructed {@code SdJwtPresentationInput} with all specified properties set
+     * @return the fully constructed {@code SdJwtPresentationInput} with all specified properties
+     *         set
      */
     public SdJwtPresentationInput build() {
       return presentationInput;

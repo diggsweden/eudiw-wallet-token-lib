@@ -13,7 +13,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * This class holds base result data for token validation. This is extended by explicit token validators
+ * This class holds base result data for token validation. This is extended by explicit token
+ * validators
  */
 @Data
 @NoArgsConstructor

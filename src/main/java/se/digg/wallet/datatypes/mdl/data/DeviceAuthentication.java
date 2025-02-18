@@ -20,12 +20,12 @@ public class DeviceAuthentication {
    * Constructs a {@code DeviceAuthentication} object.
    *
    * @param docType A string representing the type of the document being authenticated.
-   * @param sessionTranscript A {@code SessionTranscript} object containing the session transcript data used for authentication.
+   * @param sessionTranscript A {@code SessionTranscript} object containing the session transcript
+   *        data used for authentication.
    */
   public DeviceAuthentication(
-    String docType,
-    SessionTranscript sessionTranscript
-  ) {
+      String docType,
+      SessionTranscript sessionTranscript) {
     this.docType = docType;
     this.sessionTranscript = sessionTranscript;
     this.nameSpaces = CBORObject.NewMap();
@@ -35,26 +35,25 @@ public class DeviceAuthentication {
    * Constructs a {@code DeviceAuthentication} object.
    *
    * @param docType A string representing the type of the document being authenticated.
-   * @param sessionTranscript A {@code SessionTranscript} object containing the session transcript data used for authentication.
-   * @param nameSpaces A {@code CBORObject} representing the data namespaces involved in authentication.
+   * @param sessionTranscript A {@code SessionTranscript} object containing the session transcript
+   *        data used for authentication.
+   * @param nameSpaces A {@code CBORObject} representing the data namespaces involved in
+   *        authentication.
    */
   public DeviceAuthentication(
-    String docType,
-    SessionTranscript sessionTranscript,
-    CBORObject nameSpaces
-  ) {
+      String docType,
+      SessionTranscript sessionTranscript,
+      CBORObject nameSpaces) {
     this.docType = docType;
     this.sessionTranscript = sessionTranscript;
     this.nameSpaces = nameSpaces;
   }
 
   /**
-   * Generates a CBOR-encoded byte array representing the device authentication payload.
-   * The payload includes the following components:
-   * - A string identifier ("DeviceAuthentication").
-   * - The session transcript converted to CBOR format.
-   * - The document type as a string.
-   * - The namespaces as a tagged CBOR object.
+   * Generates a CBOR-encoded byte array representing the device authentication payload. The payload
+   * includes the following components: - A string identifier ("DeviceAuthentication"). - The
+   * session transcript converted to CBOR format. - The document type as a string. - The namespaces
+   * as a tagged CBOR object.
    *
    * @return A CBOR-encoded byte array representation of the device authentication payload.
    */
@@ -64,14 +63,11 @@ public class DeviceAuthentication {
     deviceAuthentication.Add(this.sessionTranscript.toCborObject());
     deviceAuthentication.Add(CBORObject.FromString(this.docType));
     deviceAuthentication.Add(
-      CBORObject.FromCBORObjectAndTag(
-        CBORObject.FromByteArray(this.nameSpaces.EncodeToBytes()),
-        EInteger.FromInt32(24)
-      )
-    );
+        CBORObject.FromCBORObjectAndTag(
+            CBORObject.FromByteArray(this.nameSpaces.EncodeToBytes()),
+            EInteger.FromInt32(24)));
     return CBORObject.FromCBORObjectAndTag(
-      CBORObject.FromByteArray(deviceAuthentication.EncodeToBytes()),
-      EInteger.FromInt32(24)
-    ).EncodeToBytes();
+        CBORObject.FromByteArray(deviceAuthentication.EncodeToBytes()),
+        EInteger.FromInt32(24)).EncodeToBytes();
   }
 }

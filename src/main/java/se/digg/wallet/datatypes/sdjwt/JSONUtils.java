@@ -29,52 +29,58 @@ import se.digg.wallet.datatypes.sdjwt.data.Disclosure;
 public class JSONUtils {
 
   /**
-   * A globally accessible and preconfigured instance of the Jackson {@code ObjectMapper} for handling JSON serialization and deserialization.
+   * A globally accessible and preconfigured instance of the Jackson {@code ObjectMapper} for
+   * handling JSON serialization and deserialization.
    *
    * <ul>
-   *   <li>Configured to disable writing dates as timestamps ({@code SerializationFeature.WRITE_DATES_AS_TIMESTAMPS}).</li>
-   *   <li>Supports Java 8 date and time types through the registration of {@code JavaTimeModule}.</li>
-   *   <li>Excludes properties with {@code null} values during serialization, using {@code JsonInclude.Include.NON_NULL}.</li>
+   * <li>Configured to disable writing dates as timestamps
+   * ({@code SerializationFeature.WRITE_DATES_AS_TIMESTAMPS}).</li>
+   * <li>Supports Java 8 date and time types through the registration of
+   * {@code JavaTimeModule}.</li>
+   * <li>Excludes properties with {@code null} values during serialization, using
+   * {@code JsonInclude.Include.NON_NULL}.</li>
    * </ul>
    *
-   * This object is intended to be reused anywhere in the application to ensure consistent JSON processing behavior.
+   * This object is intended to be reused anywhere in the application to ensure consistent JSON
+   * processing behavior.
    */
   public static final ObjectMapper JSON_MAPPER = new ObjectMapper()
-    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-    .registerModule(new JavaTimeModule())
-    .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+      .registerModule(new JavaTimeModule())
+      .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
   /**
-   * Generates a base64 URL-encoded hash string for the given disclosure object using the specified hashing algorithm.
+   * Generates a base64 URL-encoded hash string for the given disclosure object using the specified
+   * hashing algorithm.
    *
    * @param disclosure the disclosure object containing the data to be hashed
-   * @param hashAlgo   the name of the hashing algorithm to use (e.g., "SHA-256")
+   * @param hashAlgo the name of the hashing algorithm to use (e.g., "SHA-256")
    * @return a base64 URL-encoded string representing the hash of the disclosure
    * @throws NoSuchAlgorithmException if the specified hashing algorithm is not available
    */
   public static String disclosureHashString(
-    Disclosure disclosure,
-    String hashAlgo
-  ) throws NoSuchAlgorithmException {
+      Disclosure disclosure,
+      String hashAlgo) throws NoSuchAlgorithmException {
     return base64URLString(disclosureHash(disclosure, hashAlgo));
   }
 
   /**
-   * Computes a hash of the base64 URL-encoded disclosure string using the specified hashing algorithm.
+   * Computes a hash of the base64 URL-encoded disclosure string using the specified hashing
+   * algorithm.
    *
-   * @param disclosure the disclosure object containing the base64 URL-encoded disclosure string to be hashed
+   * @param disclosure the disclosure object containing the base64 URL-encoded disclosure string to
+   *        be hashed
    * @param hashAlgo the name of the hashing algorithm to use (e.g., "SHA-256")
    * @return a byte array representing the computed hash
    * @throws NoSuchAlgorithmException if the specified hashing algorithm is not available
    */
   public static byte[] disclosureHash(Disclosure disclosure, String hashAlgo)
-    throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     return hash(
-      base64URLString(
-        disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8)
-      ).getBytes(StandardCharsets.UTF_8),
-      hashAlgo
-    );
+        base64URLString(
+            disclosure.getDisclosure().getBytes(StandardCharsets.UTF_8))
+            .getBytes(StandardCharsets.UTF_8),
+        hashAlgo);
   }
 
   /**
@@ -96,13 +102,14 @@ public class JSONUtils {
    * @throws NoSuchAlgorithmException if the specified hashing algorithm is not available
    */
   public static byte[] hash(byte[] input, String algo)
-    throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     MessageDigest digest = MessageDigest.getInstance(algo);
     return digest.digest(input);
   }
 
   /**
-   * Computes a Base64 URL-encoded hash string of the given byte array input using the specified hashing algorithm.
+   * Computes a Base64 URL-encoded hash string of the given byte array input using the specified
+   * hashing algorithm.
    *
    * @param input the byte array to be hashed
    * @param alg the name of the hashing algorithm to use (e.g., "SHA-256")
@@ -110,7 +117,7 @@ public class JSONUtils {
    * @throws NoSuchAlgorithmException if the specified hashing algorithm is not available
    */
   public static String b64UrlHash(byte[] input, String alg)
-    throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     return base64URLString(hash(input, alg));
   }
 
@@ -122,26 +129,25 @@ public class JSONUtils {
    * @throws NoSuchAlgorithmException if the type of the provided public key is not supported
    */
   public static JWK getJWKfromPublicKey(PublicKey publicKey)
-    throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     if (publicKey instanceof RSAPublicKey) {
       return new RSAKey.Builder((RSAPublicKey) publicKey).build();
     }
     if (publicKey instanceof ECPublicKey ecPublicKey) {
       ECParameterSpec params = ecPublicKey.getParams();
       return new ECKey.Builder(
-        Curve.forECParameterSpec(params),
-        (ECPublicKey) publicKey
-      ).build();
+          Curve.forECParameterSpec(params),
+          (ECPublicKey) publicKey).build();
     }
     throw new NoSuchAlgorithmException("Public key type not supported");
   }
 
   /**
-   * Retrieves a public key from the given JSON Web Key (JWK) object.
-   * The JWK can either be of type RSAKey or ECKey.
+   * Retrieves a public key from the given JSON Web Key (JWK) object. The JWK can either be of type
+   * RSAKey or ECKey.
    *
-   * @param jwk the JSON Web Key (JWK) object from which the public key should be extracted.
-   *            Must be an instance of RSAKey or ECKey.
+   * @param jwk the JSON Web Key (JWK) object from which the public key should be extracted. Must be
+   *        an instance of RSAKey or ECKey.
    * @return the extracted public key as a {@code PublicKey} object.
    * @throws JOSEException if an error occurs during the public key extraction process.
    * @throws IllegalArgumentException if the provided JWK is of an unsupported type.

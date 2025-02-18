@@ -9,13 +9,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Represents a structured type for a token attribute, which can be used in various
- * token-related operations such as selective disclosure, validation, or issuance.
+ * Represents a structured type for a token attribute, which can be used in various token-related
+ * operations such as selective disclosure, validation, or issuance.
  *
- * This class encapsulates the namespace and the attribute name associated with
- * a specific token attribute. The namespace may define a specific scope or context,
- * while the attribute name identifies the attribute within that namespace. If the
- * namespace is not specified, only the attribute name is considered.
+ * This class encapsulates the namespace and the attribute name associated with a specific token
+ * attribute. The namespace may define a specific scope or context, while the attribute name
+ * identifies the attribute within that namespace. If the n amespace is not specified, only the
+ * attribute name is considered.
  */
 @Data
 @AllArgsConstructor
@@ -30,9 +30,9 @@ public class TokenAttributeType {
   /**
    * Constructs a TokenAttributeType instance with the specified attribute name.
    *
-   * @param attributeName the name of the token attribute to be associated with this type.
-   *                       This parameter specifies the name of the attribute and it is
-   *                       required while creating the instance. The namespace is set to null.
+   * @param attributeName the name of the token attribute to be associated with this type. This
+   *        parameter specifies the name of the attribute and it is required while creating the
+   *        instance. The namespace is set to null.
    */
   public TokenAttributeType(String attributeName) {
     this.attributeName = attributeName;

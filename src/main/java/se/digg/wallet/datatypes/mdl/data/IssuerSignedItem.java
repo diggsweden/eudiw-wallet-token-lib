@@ -27,14 +27,15 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Represents an issuer-signed item containing an instance of disclosed attribute data associated with an mDL document.
- * This class is serialized and deserialized using CBOR (Concise Binary Object Representation),
- * adhering to specific encoding and decoding mechanisms provided via custom serializers
- * and deserializers.
+ * Represents an issuer-signed item containing an instance of disclosed attribute data associated
+ * with an mDL document. This class is serialized and deserialized using CBOR (Concise Binary Object
+ * Representation), adhering to specific encoding and decoding mechanisms provided via custom
+ * serializers and deserializers.
  * <p>
  * Fields:
  * <ul>
- * <li>`digestID`: An integer identifier for the digest provided in the Mobile Security Object (MSO)</li>
+ * <li>`digestID`: An integer identifier for the digest provided in the Mobile Security Object
+ * (MSO)</li>
  * <li>`random`: A random salt mixed with attribute data during hashing</li>
  * <li>`elementIdentifier`: A name uniquely identifying the attribute</li>
  * <li>`elementValue`: The disclosed attribute value</li>
@@ -42,10 +43,10 @@ import lombok.extern.slf4j.Slf4j;
  *
  * Nested Classes:
  * <ul>
- * <li>`Serializer`: Custom serializer for transforming an IssuerSignedItem instance
- * into the CBOR binary format, implementing {@link JsonSerializer}.</li>
- * <li>`Deserializer`: Custom deserializer for reconstructing an IssuerSignedItem instance
- * from the CBOR binary format, implementing {@link JsonDeserializer}.</li>
+ * <li>`Serializer`: Custom serializer for transforming an IssuerSignedItem instance into the CBOR
+ * binary format, implementing {@link JsonSerializer}.</li>
+ * <li>`Deserializer`: Custom deserializer for reconstructing an IssuerSignedItem instance from the
+ * CBOR binary format, implementing {@link JsonDeserializer}.</li>
  * </ul>
  */
 @Data
@@ -67,11 +68,12 @@ public class IssuerSignedItem {
   Object elementValue;
 
   /**
-   * Converts the current object into its CBOR (Concise Binary Object Representation) byte array representation.
-   * This includes wrapping the object inside a CBOR tag 24 (CBOR encoded data)
+   * Converts the current object into its CBOR (Concise Binary Object Representation) byte array
+   * representation. This includes wrapping the object inside a CBOR tag 24 (CBOR encoded data)
    *
    * @return a byte array containing the CBOR-encoded representation of the object.
-   * @throws JsonProcessingException if an error occurs during the processing of the object to CBOR format.
+   * @throws JsonProcessingException if an error occurs during the processing of the object to CBOR
+   *         format.
    */
   @JsonIgnore
   public byte[] toBeHashedBytes() throws JsonProcessingException {
@@ -79,28 +81,25 @@ public class IssuerSignedItem {
   }
 
   /**
-   * Serializer class for serializing IssuerSignedItem objects into a CBOR representation.
-   * Extends the {@code JsonSerializer<IssuerSignedItem>} class to provide custom serialization logic.
+   * Serializer class for serializing IssuerSignedItem objects into a CBOR representation. Extends
+   * the {@code JsonSerializer<IssuerSignedItem>} class to provide custom serialization logic.
    */
   public static class Serializer extends JsonSerializer<IssuerSignedItem> {
 
     @Override
     public void serialize(
-      IssuerSignedItem issuerSignedItem,
-      JsonGenerator gen,
-      SerializerProvider serializers
-    ) throws IOException {
+        IssuerSignedItem issuerSignedItem,
+        JsonGenerator gen,
+        SerializerProvider serializers) throws IOException {
       CBORObject map = CBORObject.NewOrderedMap();
       map.set("digestID", CBORObject.FromInt32(issuerSignedItem.digestID));
       map.set("random", CBORObject.FromByteArray(issuerSignedItem.random));
       map.set(
-        "elementIdentifier",
-        CBORObject.FromString(issuerSignedItem.elementIdentifier)
-      );
+          "elementIdentifier",
+          CBORObject.FromString(issuerSignedItem.elementIdentifier));
       map.set(
-        "elementValue",
-        CBORUtils.convertValueToCBORObject(issuerSignedItem.elementValue)
-      );
+          "elementValue",
+          CBORUtils.convertValueToCBORObject(issuerSignedItem.elementValue));
 
       // Generate serialized CBOR bytes
       byte[] value = map.EncodeToBytes();
@@ -116,32 +115,27 @@ public class IssuerSignedItem {
   }
 
   /**
-   * Deserializer class is responsible for deserializing JSON data into an
-   * IssuerSignedItem object, specifically handling data in CBOR (Concise Binary
-   * Object Representation) format.
+   * Deserializer class is responsible for deserializing JSON data into an IssuerSignedItem object,
+   * specifically handling data in CBOR (Concise Binary Object Representation) format.
    * <p>
-   * This class extends the JsonDeserializer class provided by Jackson, and it
-   * overrides the {@code deserialize} method to provide custom deserialization logic.
-   * If the input data is not in CBOR format, an exception is thrown.
+   * This class extends the JsonDeserializer class provided by Jackson, and it overrides the
+   * {@code deserialize} method to provide custom deserialization logic. If the input data is not in
+   * CBOR format, an exception is thrown.
    * <p>
-   * The deserialization process involves:
-   * - Parsing the input binary value into a CBORObject.
-   * - Extracting individual fields such as digestID, random, elementIdentifier,
-   *   and elementValue from the CBORObject.
-   * - Constructing an IssuerSignedItem object using the extracted values.
+   * The deserialization process involves: - Parsing the input binary value into a CBORObject. -
+   * Extracting individual fields such as digestID, random, elementIdentifier, and elementValue from
+   * the CBORObject. - Constructing an IssuerSignedItem object using the extracted values.
    * <p>
-   * Throws:
-   * - JsonParseException if the input parser is not a CBORParser.
-   * - IOException in case of I/O errors during deserialization.
+   * Throws: - JsonParseException if the input parser is not a CBORParser. - IOException in case of
+   * I/O errors during deserialization.
    */
   public static class Deserializer extends JsonDeserializer<IssuerSignedItem> {
 
     /** {@inheritDoc} */
     @Override
     public IssuerSignedItem deserialize(
-      JsonParser gen,
-      DeserializationContext ctxt
-    ) throws IOException {
+        JsonParser gen,
+        DeserializationContext ctxt) throws IOException {
       if (gen instanceof CBORParser) {
         byte[] value = gen.getBinaryValue();
         // Parse CBOR
@@ -152,16 +146,14 @@ public class IssuerSignedItem {
         byte[] random = cbor.get("random").GetByteString();
         String elementIdentifier = cbor.get("elementIdentifier").AsString();
         Object elementValue = CBORUtils.parseCBORObjectValue(
-          cbor.get("elementValue")
-        );
+            cbor.get("elementValue"));
 
         // Construct and return result
         return new IssuerSignedItem(
-          digestID,
-          random,
-          elementIdentifier,
-          elementValue
-        );
+            digestID,
+            random,
+            elementIdentifier,
+            elementValue);
       } else {
         // Handle non-CBOR case, throw exception
         throw new JsonParseException(gen, "Non-CBOR parser used");

@@ -44,22 +44,22 @@ import se.digg.cose.MAC0COSEObject;
 import se.digg.cose.Sign1COSEObject;
 
 /**
- * Utility class for handling CBOR (Concise Binary Object Representation) encoding,
- * decoding, and conversion functionalities. This class includes methods for
- * converting objects to CBOR format, parsing CBOR objects, and transforming CBOR
- * data into JSON or other formats. The utility also provides a signing mechanism
- * for CBOR data using a COSE-based signing process.
+ * Utility class for handling CBOR (Concise Binary Object Representation) encoding, decoding, and
+ * conversion functionalities. This class includes methods for converting objects to CBOR format,
+ * parsing CBOR objects, and transforming CBOR data into JSON or other formats. The utility also
+ * provides a signing mechanism for CBOR data using a COSE-based signing process.
  */
 @SuppressWarnings("PMD.CollapsibleIfStatements")
 @Slf4j
 public class CBORUtils {
 
   /**
-   * Utility class for handling CBOR (Concise Binary Object Representation) operations.
-   * This class is designed to provide helper methods for processing and managing CBOR data,
-   * ensuring consistency and facilitating interactions with CBOR-encoded structures.
+   * Utility class for handling CBOR (Concise Binary Object Representation) operations. This class
+   * is designed to provide helper methods for processing and managing CBOR data, ensuring
+   * consistency and facilitating interactions with CBOR-encoded structures.
    *
-   * This class is not intended to be instantiated. It provides only static utility methods for usage.
+   * This class is not intended to be instantiated. It provides only static utility methods for
+   * usage.
    */
   private CBORUtils() {}
 
@@ -67,24 +67,22 @@ public class CBORUtils {
   public static final ObjectMapper CBOR_MAPPER;
   /** Date formatter for dates */
   public static final DateTimeFormatter LOCAL_DATE_FORMATTER =
-    DateTimeFormatter.ofPattern("yyyy-MM-dd");
+      DateTimeFormatter.ofPattern("yyyy-MM-dd");
   /** Time formatter for time */
   public static final DateTimeFormatter INSTANT_FORMATTER =
-    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(
-      ZoneOffset.UTC
-    );
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(
+          ZoneOffset.UTC);
 
   static {
     CBOR_MAPPER = new ObjectMapper(new CBORFactory())
-      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-      .registerModule(new JavaTimeModule());
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .registerModule(new JavaTimeModule());
   }
 
   /**
    * Converts a value item expressed as Object to a CBORObject. This function only handles one
-   * custom case (LocalDate).
-   * If other custom data classes should be supported (such as driving_prileges), they need to be
-   * assed here.
+   * custom case (LocalDate). If other custom data classes should be supported (such as
+   * driving_prileges), they need to be assed here.
    *
    * @param o value
    * @return {@link CBORObject} representation of value
@@ -96,31 +94,26 @@ public class CBORUtils {
     if (o instanceof LocalDate localDate) {
       String dateString = localDate.format(LOCAL_DATE_FORMATTER);
       return CBORObject.FromCBORObjectAndTag(
-        CBORObject.FromString(dateString),
-        EInteger.FromInt32(1004)
-      );
+          CBORObject.FromString(dateString),
+          EInteger.FromInt32(1004));
     }
     if (o instanceof Instant instant) {
       String instantString = INSTANT_FORMATTER.format(instant);
       return CBORObject.FromCBORObjectAndTag(
-        CBORObject.FromString(instantString),
-        0
-      );
+          CBORObject.FromString(instantString),
+          0);
     }
     return CBORObject.FromObject(o);
   }
 
   /**
-   * Parses the given CBORObject and converts it into a corresponding Java object
-   * based on its type or tag.
+   * Parses the given CBORObject and converts it into a corresponding Java object based on its type
+   * or tag.
    *
-   * @param cborElementValue the CBORObject to parse representing
-   *                         a valid CBOR type or tagged value
-   * @return the corresponding Java object derived from the CBORObject, which may
-   *         include a string, byte array, boolean, list, map, or date, depending
-   *         on the CBORObject's type or tag
-   * @throws IllegalArgumentException if the CBORObject contains an unsupported
-   *                                  tag or type
+   * @param cborElementValue the CBORObject to parse representing a valid CBOR type or tagged value
+   * @return the corresponding Java object derived from the CBORObject, which may include a string,
+   *         byte array, boolean, list, map, or date, depending on the CBORObject's type or tag
+   * @throws IllegalArgumentException if the CBORObject contains an unsupported tag or type
    */
   public static Object parseCBORObjectValue(CBORObject cborElementValue) {
     if (cborElementValue.isTagged()) {
@@ -140,30 +133,29 @@ public class CBORUtils {
           return cborElementValue.AsBoolean();
         case CBORType.Array:
           return cborElementValue
-            .getValues()
-            .stream()
-            .map(CBORUtils::parseCBORObjectValue)
-            .collect(Collectors.toList());
+              .getValues()
+              .stream()
+              .map(CBORUtils::parseCBORObjectValue)
+              .collect(Collectors.toList());
         case CBORType.Map:
           Map<Object, Object> map = new HashMap<>();
           for (CBORObject key : cborElementValue.getKeys()) {
             map.put(
-              parseCBORObjectValue(key),
-              parseCBORObjectValue(cborElementValue.get(key))
-            );
+                parseCBORObjectValue(key),
+                parseCBORObjectValue(cborElementValue.get(key)));
           }
           return map;
         default:
           throw new IllegalArgumentException(
-            "Unsupported CBOR type: " + cborElementValue.getType()
-          );
+              "Unsupported CBOR type: " + cborElementValue.getType());
       }
     }
   }
 
   /**
-   * Converts a CBOR-encoded byte array to its JSON string representation. The method decodes the CBOR byte array
-   * into a CBOR object, untags it if it contains specific tagging, and then converts the resulting object to JSON.
+   * Converts a CBOR-encoded byte array to its JSON string representation. The method decodes the
+   * CBOR byte array into a CBOR object, untags it if it contains specific tagging, and then
+   * converts the resulting object to JSON.
    *
    * @param cborBytes the byte array containing CBOR-encoded data
    * @return the JSON string representation of the CBOR data
@@ -193,48 +185,48 @@ public class CBORUtils {
     // Decode CBOR bytes to a CBOR object
     String jsonString = cborToJson(cborBytes);
     ObjectMapper objectMapper = new ObjectMapper()
-      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-      .registerModule(new JavaTimeModule());
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .registerModule(new JavaTimeModule());
 
     return objectMapper
-      .writerWithDefaultPrettyPrinter()
-      .writeValueAsString(objectMapper.readValue(jsonString, Object.class));
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(objectMapper.readValue(jsonString, Object.class));
   }
 
   /**
-   * Signs the provided data using the specified key and algorithm, producing a Sign1 COSE signature.
+   * Signs the provided data using the specified key and algorithm, producing a Sign1 COSE
+   * signature.
    *
    * @param toBeSigned the byte array representing the content to be signed
    * @param key the COSEKey used for signing the content
    * @param algorithmID the algorithm identifier specifying the signing algorithm
    * @param kid the key identifier to be added to the COSE header, or null if not applicable
-   * @param chain a list of X509Certificates representing the certificate chain to be added to the COSE header, or null if not applicable
-   * @param protectedKid a flag indicating whether the key identifier should be placed in the protected header
+   * @param chain a list of X509Certificates representing the certificate chain to be added to the
+   *        COSE header, or null if not applicable
+   * @param protectedKid a flag indicating whether the key identifier should be placed in the
+   *        protected header
    * @return a Sign1COSEObject representing the signed content with associated headers
    * @throws CoseException if an error occurs during the COSE signing process
    * @throws CertificateEncodingException if an encoding error occurs with the provided certificates
    */
   public static Sign1COSEObject sign(
-    byte[] toBeSigned,
-    COSEKey key,
-    AlgorithmID algorithmID,
-    String kid,
-    List<X509Certificate> chain,
-    boolean protectedKid
-  ) throws CoseException, CertificateEncodingException {
+      byte[] toBeSigned,
+      COSEKey key,
+      AlgorithmID algorithmID,
+      String kid,
+      List<X509Certificate> chain,
+      boolean protectedKid) throws CoseException, CertificateEncodingException {
     Sign1COSEObject coseSignature = new Sign1COSEObject(false);
     coseSignature.SetContent(toBeSigned);
     coseSignature.addAttribute(
-      HeaderKeys.Algorithm,
-      algorithmID.AsCBOR(),
-      Attribute.PROTECTED
-    );
+        HeaderKeys.Algorithm,
+        algorithmID.AsCBOR(),
+        Attribute.PROTECTED);
     if (kid != null) {
       coseSignature.addAttribute(
-        HeaderKeys.KID,
-        CBORObject.FromString(kid),
-        protectedKid ? Attribute.PROTECTED : Attribute.UNPROTECTED
-      );
+          HeaderKeys.KID,
+          CBORObject.FromString(kid),
+          protectedKid ? Attribute.PROTECTED : Attribute.UNPROTECTED);
     }
     if (chain != null && !chain.isEmpty()) {
       CBORObject certChainObject;
@@ -247,23 +239,23 @@ public class CBORUtils {
         }
       }
       coseSignature.addAttribute(
-        HeaderKeys.x5chain,
-        certChainObject,
-        Attribute.UNPROTECTED
-      );
+          HeaderKeys.x5chain,
+          certChainObject,
+          Attribute.UNPROTECTED);
     }
     coseSignature.sign(key);
     return coseSignature;
   }
 
-  public static MAC0COSEObject deviceComputedMac(byte[] deviceAuthenticationBytes, PrivateKey privateKey, PublicKey publicKey) throws GeneralSecurityException, CoseException {
+  public static MAC0COSEObject deviceComputedMac(byte[] deviceAuthenticationBytes,
+      PrivateKey privateKey, PublicKey publicKey) throws GeneralSecurityException, CoseException {
     byte[] sharedSecret = deriveSharedSecret(privateKey, publicKey);
     MAC0COSEObject mac0COSEObject = new MAC0COSEObject();
     mac0COSEObject.addAttribute(
-      HeaderKeys.Algorithm,
-      AlgorithmID.HMAC_SHA_256.AsCBOR(),
-      Attribute.PROTECTED);
-      mac0COSEObject.SetContent(deviceAuthenticationBytes);
+        HeaderKeys.Algorithm,
+        AlgorithmID.HMAC_SHA_256.AsCBOR(),
+        Attribute.PROTECTED);
+    mac0COSEObject.SetContent(deviceAuthenticationBytes);
     byte[] macKey = deriveEMacKey(sharedSecret, deviceAuthenticationBytes);
     mac0COSEObject.Create(macKey);
     return mac0COSEObject;
@@ -305,7 +297,7 @@ public class CBORUtils {
    * Helper method to hash input data using a given Digest.
    *
    * @param digest The SHA-256 Digest instance.
-   * @param input  The input data to hash.
+   * @param input The input data to hash.
    * @return The hashed result as a byte array.
    */
   private static byte[] hash(SHA256Digest digest, byte[] input) {
@@ -322,20 +314,23 @@ public class CBORUtils {
    * Derives a shared secret using Diffie-Hellman (DH) key derivation.
    *
    * @param privateKey The private key (either RSA or EC).
-   * @param publicKey  The public key (must be of the same type as the private key).
+   * @param publicKey The public key (must be of the same type as the private key).
    * @return A byte array representing the derived shared secret.
-   * @throws IllegalArgumentException if the keys are not of the same type or unsupported key types are provided.
+   * @throws IllegalArgumentException if the keys are not of the same type or unsupported key types
+   *         are provided.
    * @throws GeneralSecurityException if key agreement fails.
    */
   public static byte[] deriveSharedSecret(PrivateKey privateKey, PublicKey publicKey)
-    throws GeneralSecurityException {
+      throws GeneralSecurityException {
     // Ensure the key types match
     if (privateKey instanceof RSAPrivateKey || publicKey instanceof RSAPublicKey) {
-      throw new IllegalArgumentException("RSA keys cannot be used for key agreement (DH). Use EC keys instead.");
+      throw new IllegalArgumentException(
+          "RSA keys cannot be used for key agreement (DH). Use EC keys instead.");
     } else if (privateKey instanceof ECPrivateKey && publicKey instanceof ECPublicKey) {
       return deriveECSharedSecret((ECPrivateKey) privateKey, (ECPublicKey) publicKey);
     } else {
-      throw new IllegalArgumentException("Key types do not match or are unsupported. Use RSA or EC keys.");
+      throw new IllegalArgumentException(
+          "Key types do not match or are unsupported. Use RSA or EC keys.");
     }
   }
 
@@ -343,12 +338,12 @@ public class CBORUtils {
    * Derives a shared secret using EC keys.
    *
    * @param privateKey The EC private key.
-   * @param publicKey  The EC public key.
+   * @param publicKey The EC public key.
    * @return A byte array representing the derived shared secret.
    * @throws GeneralSecurityException if key agreement fails.
    */
   private static byte[] deriveECSharedSecret(ECPrivateKey privateKey, ECPublicKey publicKey)
-    throws GeneralSecurityException {
+      throws GeneralSecurityException {
     // Create EC Key Agreement
     KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH", "BC");
     keyAgreement.init(privateKey);
