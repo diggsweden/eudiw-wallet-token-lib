@@ -87,10 +87,10 @@ commit() {
   printf '\n\n'
 }
 
-format() {
-  print_header 'FORMATTING (GOOGLE STYLE)'
-  mvn formatter:format "${MAVEN_CLI_OPTS[@]}" -DskipTests -s development/settings.xml
-  store_exit_code "$?" "Format" "${MISSING} ${RED}Format check failed, see logs (std out) and fix problems.${NC}\n" "${GREEN}${CHECKMARK}${CHECKMARK} Format check passed${NC}\n"
+verify() {
+  print_header 'VERIFY'
+  mvn verify "${MAVEN_CLI_OPTS[@]}"
+  store_exit_code "$?" "Verify" "${MISSING} ${RED}Verify check failed, see logs (std out) and fix problems.${NC}\n" "${GREEN}${CHECKMARK}${CHECKMARK} Verify check passed${NC}\n"
   printf '\n\n'
 }
 
@@ -130,7 +130,7 @@ is_command_available 'sed' ''
 
 lint
 commit
-format
+verify
 license
 
 check_exit_codes

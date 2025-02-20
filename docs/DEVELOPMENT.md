@@ -20,7 +20,7 @@ NOTE: The given tag will also set the POM-project version.
 ### Maven
 
 ```shell
-mvn clean verify -s development/settings.xml  
+mvn clean verify 
 ```
 
 ### VSCode

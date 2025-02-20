@@ -38,5 +38,5 @@ jobs:
           PACKAGE_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
         run: |
           # shellcheck disable=SC2086 
-          mvn $MAVEN_CLI_OPTS test -s development/settings.xml
+          mvn $MAVEN_CLI_OPTS test
  

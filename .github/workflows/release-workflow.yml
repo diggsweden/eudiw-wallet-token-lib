@@ -13,16 +13,16 @@ on:
 permissions:
   contents: read
 
-jobs:
+jobs:  
   version-bump:
     secrets: inherit
     permissions:
       contents: write
-    uses: ./.github/workflows/bump-temporary.yml
+    uses: diggsweden/.github/.github/workflows/version-bump-changelog.yml@main
     with:
       updatePom: true
       file_pattern: pom.xml CHANGELOG.md
-
+  
   release-lib:
     needs: [version-bump]
     permissions:
