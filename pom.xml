@@ -224,7 +224,7 @@ SPDX-License-Identifier: CC0-1.0
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>10.21.2</version>
+            <version>10.21.3</version>
           </dependency>
         </dependencies>
         <configuration>
