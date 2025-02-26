@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -46,7 +46,9 @@ import se.swedenconnect.security.credential.PkiCredential;
 @JsonSerialize(using = IssuerSigned.Serializer.class)
 public class IssuerSigned {
 
-  /** Map of name spaces. Each name space lists a set of attributes under that name space */
+  /**
+   * Map of name spaces. Each name space lists a set of attributes under that name space
+   */
   Map<String, List<IssuerSignedItem>> nameSpaces;
   /**
    * Utagged Sign1 COSE signature where payload is CBOR encoding of @{@link MobileSecurityObject}
@@ -233,8 +235,7 @@ public class IssuerSigned {
      */
     public IssuerSigned build()
         throws CoseException, IOException, CertificateEncodingException {
-      Map<String, List<IssuerSignedItem>> nameSpaces =
-          this.issuerSigned.getNameSpaces();
+      Map<String, List<IssuerSignedItem>> nameSpaces = this.issuerSigned.getNameSpaces();
       if (nameSpaces == null) {
         throw new IllegalStateException(
             "NameSpaces must be set before building IssuerSigned");
@@ -244,8 +245,7 @@ public class IssuerSigned {
         COSEKey signingKey = new COSEKey(
             issuerCredential.getPublicKey(),
             issuerCredential.getPrivateKey());
-        Map<String, Map<Integer, byte[]>> attributeEntryHashMap =
-            new HashMap<>();
+        Map<String, Map<Integer, byte[]>> attributeEntryHashMap = new HashMap<>();
         for (Map.Entry<String, List<IssuerSignedItem>> nameSpaceEntry : nameSpaces.entrySet()) {
           String nameSpace = nameSpaceEntry.getKey();
           attributeEntryHashMap.put(nameSpace, new HashMap<>());

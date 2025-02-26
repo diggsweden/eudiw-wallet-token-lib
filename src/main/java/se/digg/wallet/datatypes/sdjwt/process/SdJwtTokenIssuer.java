@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -47,8 +47,7 @@ public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
     try {
       TokenSigningAlgorithm algorithm = tokenInput.getAlgorithm();
       TokenDigestAlgorithm digestAlgorithm = algorithm.getDigestAlgorithm();
-      ClaimsWithDisclosure claimsWithDisclosure =
-          tokenInput.getClaimsWithDisclosure();
+      ClaimsWithDisclosure claimsWithDisclosure = tokenInput.getClaimsWithDisclosure();
       if (claimsWithDisclosure == null) {
         // Construct from InputAttributes
         ClaimsWithDisclosure.ClaimsWithDisclosureBuilder cwdBuilder =

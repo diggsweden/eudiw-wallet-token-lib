@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 
 SPDX-License-Identifier: CC0-1.0
 -->

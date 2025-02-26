@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -204,8 +204,7 @@ class SdJwtTest {
                 validationResult.getDisclosedTokenPayload().toJSONObject()));
 
     // Finally testing the presentation validator
-    SdJwtPresentationValidator presentationValidator =
-        new SdJwtPresentationValidator();
+    SdJwtPresentationValidator presentationValidator = new SdJwtPresentationValidator();
     presentationValidator.validatePresentation(
         presentedToken,
         new SdJwtPresentationValidationInput(

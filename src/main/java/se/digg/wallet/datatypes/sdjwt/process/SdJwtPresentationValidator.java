@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -107,8 +107,7 @@ public class SdJwtPresentationValidator implements PresentationValidator {
         throw new TokenValidationException(
             "Wallet key binding is missing or invalid");
       }
-      String keyBindingNonce =
-          sdJwtTokenValidationResult.getPresentationRequestNonce();
+      String keyBindingNonce = sdJwtTokenValidationResult.getPresentationRequestNonce();
       if (keyBindingNonce == null ||
           !keyBindingNonce.equals(input.getRequestNonce())) {
         throw new TokenValidationException("Key binding nonce invalid");
@@ -118,9 +117,8 @@ public class SdJwtPresentationValidator implements PresentationValidator {
             "Token is not issued for the intended audience");
       }
 
-      Map<TokenAttributeType, Object> disclosedAttributes =
-          getDisclosedAttributes(
-              sdJwtTokenValidationResult.getDisclosedTokenPayload());
+      Map<TokenAttributeType, Object> disclosedAttributes = getDisclosedAttributes(
+          sdJwtTokenValidationResult.getDisclosedTokenPayload());
       sdJwtTokenValidationResult.setDisclosedAttributes(disclosedAttributes);
 
       return sdJwtTokenValidationResult;
@@ -135,8 +133,7 @@ public class SdJwtPresentationValidator implements PresentationValidator {
 
   private Map<TokenAttributeType, Object> getDisclosedAttributes(
       Payload disclosedTokenPayload) {
-    Map<TokenAttributeType, Object> disclosedAttributes =
-        new java.util.HashMap<>();
+    Map<TokenAttributeType, Object> disclosedAttributes = new java.util.HashMap<>();
     if (disclosedTokenPayload == null) {
       return disclosedAttributes;
     }

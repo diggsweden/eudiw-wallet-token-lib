@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -196,7 +196,9 @@ class MdlTokenPresenterTest {
             try {
               attributeValPrints.add(
                   CBORUtils.cborToPrettyJson(
-                      CBORUtils.CBOR_MAPPER.writeValueAsBytes(issuerSignedItem)));
+                      CBORUtils.CBOR_MAPPER
+                          .writeValueAsBytes(
+                              issuerSignedItem)));
             } catch (IOException e) {
               throw new RuntimeException(e);
             }
@@ -207,10 +209,9 @@ class MdlTokenPresenterTest {
               String.join("\n", attributeValPrints));
         });
     MdlIssuerSignedValidator validator = new MdlIssuerSignedValidator();
-    MdlIssuerSignedValidationResult issuerSignedValidationResult =
-        validator.validateToken(
-            CBORUtils.CBOR_MAPPER.writeValueAsBytes(issuerSigned),
-            null);
+    MdlIssuerSignedValidationResult issuerSignedValidationResult = validator.validateToken(
+        CBORUtils.CBOR_MAPPER.writeValueAsBytes(issuerSigned),
+        null);
 
     log.info(
         "Mobile security object:\n{}",

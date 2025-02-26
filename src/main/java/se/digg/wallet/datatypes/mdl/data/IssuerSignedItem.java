@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -58,7 +58,9 @@ import lombok.extern.slf4j.Slf4j;
 @JsonDeserialize(using = IssuerSignedItem.Deserializer.class)
 public class IssuerSignedItem {
 
-  /** An integer identifier for the digest provided in the Mobile Security Object (MSO) */
+  /**
+   * An integer identifier for the digest provided in the Mobile Security Object (MSO)
+   */
   int digestID;
   /** A random salt mixed with attribute data during hashing */
   byte[] random;

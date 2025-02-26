@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -23,8 +23,7 @@ class DeviceAuthenticationTest {
             "abcdefgh1234567890",
             "MTIzNDU2Nzg5MGFiY2RlZmdo"));
 
-    byte[] deviceAuthenticationBytes =
-        deviceAuthentication.getDeviceAuthenticationBytes();
+    byte[] deviceAuthenticationBytes = deviceAuthentication.getDeviceAuthenticationBytes();
     log.info(
         "DeviceAuthenticationBytes:\n{}",
         Hex.toHexString(deviceAuthenticationBytes));

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -274,12 +274,10 @@ class IssuerSignedTest {
     IssuerSigned parsedIssuerSigned = IssuerSigned.deserialize(
         issuerSignedBytes);
     Assertions.assertEquals(issuerSigned, parsedIssuerSigned);
-    Sign1COSEObject parsedSignatureObject =
-        (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
-            parsedIssuerSigned.getIssuerAuth(),
-            COSEObjectTag.Sign1);
-    CBORObject unprotectedAttributes =
-        parsedSignatureObject.getUnprotectedAttributes();
+    Sign1COSEObject parsedSignatureObject = (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
+        parsedIssuerSigned.getIssuerAuth(),
+        COSEObjectTag.Sign1);
+    CBORObject unprotectedAttributes = parsedSignatureObject.getUnprotectedAttributes();
     CBORObject x5chain = unprotectedAttributes.get(HeaderKeys.x5chain.AsCBOR());
     CBORObject signingCertObject;
     if (x5chain.getType().equals(CBORType.ByteString)) {
@@ -290,8 +288,7 @@ class IssuerSignedTest {
     CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
     InputStream in = new ByteArrayInputStream(
         signingCertObject.GetByteString());
-    X509Certificate signingCert =
-        (X509Certificate) certFactory.generateCertificate(in);
+    X509Certificate signingCert = (X509Certificate) certFactory.generateCertificate(in);
     Assertions.assertEquals(
         TestCredentials.p256_issuerCredential.getCertificate(),
         signingCert);
@@ -306,7 +303,8 @@ class IssuerSignedTest {
       throws Exception {
     log.info("Examining namespace: {}", nameSpace);
     byte[] toBeHashedBytes = CBORUtils.CBOR_MAPPER.writeValueAsBytes(item);
-    // IssuerSignedItem.TempStorage tempStorage = new IssuerSignedItem.TempStorage(item);
+    // IssuerSignedItem.TempStorage tempStorage = new
+    // IssuerSignedItem.TempStorage(item);
     log.info(
         "Issuer signed item data:\n{}",
         CBORUtils.cborToPrettyJson(toBeHashedBytes));

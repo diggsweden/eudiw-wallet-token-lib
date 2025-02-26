@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -34,6 +34,8 @@ public class TokenValidationResult {
   protected Instant expirationTime;
   /** Nonce specified in presentation request */
   protected String presentationRequestNonce;
-  /** A list of disclosed attribute values provided in a map with attribute type as key */
+  /**
+   * A list of disclosed attribute values provided in a map with attribute type as key
+   */
   protected Map<TokenAttributeType, Object> disclosedAttributes;
 }

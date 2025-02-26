@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -82,27 +82,23 @@ class SdJwtPresentationValidatorTest {
         .disclosures(nameDisclosure)
         .build();
 
-    SdJwtPresentationInput rsaPresentationInput =
-        SdJwtPresentationInput.builder()
-            .token(rsaToken)
-            .audience("https://example.com/audience")
-            .nonce("abcdefgh1234567890")
-            .algorithm(TokenSigningAlgorithm.ECDSA_256)
-            .disclosures(allDisclosure)
-            .build();
+    SdJwtPresentationInput rsaPresentationInput = SdJwtPresentationInput.builder()
+        .token(rsaToken)
+        .audience("https://example.com/audience")
+        .nonce("abcdefgh1234567890")
+        .algorithm(TokenSigningAlgorithm.ECDSA_256)
+        .disclosures(allDisclosure)
+        .build();
 
-    SdJwtPresentationValidationInput validationInput =
-        new SdJwtPresentationValidationInput(
-            "abcdefgh1234567890",
-            "https://example.com/audience");
-    SdJwtPresentationValidationInput wrongNonceInput =
-        new SdJwtPresentationValidationInput(
-            "abcdefgh123456789",
-            "https://example.com/audience");
-    SdJwtPresentationValidationInput wrongAudienceInput =
-        new SdJwtPresentationValidationInput(
-            "abcdefgh1234567890",
-            "https://example.com/wrong-audience");
+    SdJwtPresentationValidationInput validationInput = new SdJwtPresentationValidationInput(
+        "abcdefgh1234567890",
+        "https://example.com/audience");
+    SdJwtPresentationValidationInput wrongNonceInput = new SdJwtPresentationValidationInput(
+        "abcdefgh123456789",
+        "https://example.com/audience");
+    SdJwtPresentationValidationInput wrongAudienceInput = new SdJwtPresentationValidationInput(
+        "abcdefgh1234567890",
+        "https://example.com/wrong-audience");
 
     byte[] presentedToken = tokenPresenter.presentToken(
         presentationInput,
@@ -111,8 +107,7 @@ class SdJwtPresentationValidatorTest {
         rsaPresentationInput,
         walletPrivate);
 
-    SdJwtPresentationValidator defaultValidator =
-        new SdJwtPresentationValidator();
+    SdJwtPresentationValidator defaultValidator = new SdJwtPresentationValidator();
 
     performTestCase(
         "Default EC test case",
@@ -144,10 +139,9 @@ class SdJwtPresentationValidatorTest {
         TokenValidationException.class);
 
     // Ref implementation test
-    SdJwtPresentationValidationInput refValidationInput =
-        new SdJwtPresentationValidationInput(
-            TestData.SD_JWT_EUDI_REF_01_NONCE,
-            TestData.SD_JWT_EUDI_REF_01_AUDIENCE);
+    SdJwtPresentationValidationInput refValidationInput = new SdJwtPresentationValidationInput(
+        TestData.SD_JWT_EUDI_REF_01_NONCE,
+        TestData.SD_JWT_EUDI_REF_01_AUDIENCE);
 
     // Set time skew to make sure this never expires
     SdJwtPresentationValidator refValidator = new SdJwtPresentationValidator(
@@ -186,8 +180,9 @@ class SdJwtPresentationValidatorTest {
             exception.getCause().getMessage());
       }
     } else {
-      SdJwtTokenValidationResult validationResult =
-          validator.validatePresentation(presentation, input, trustedKeys);
+      SdJwtTokenValidationResult validationResult = validator.validatePresentation(presentation,
+          input,
+          trustedKeys);
       assertNotNull(validationResult);
       SdJwtTokenValidatorTest.logValidationResult(validationResult);
       log.info(

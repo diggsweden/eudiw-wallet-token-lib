@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -108,8 +108,8 @@ class SdJwtTokenValidatorTest {
       boolean legacyType,
       PublicKey walletPublic) throws Exception {
     tokenIssuer.setLegacySdJwtHeaderType(legacyType);
-    TokenSigningAlgorithm algorithm =
-        issuerCredential.getPublicKey() instanceof java.security.interfaces.ECPublicKey
+    TokenSigningAlgorithm algorithm = issuerCredential
+        .getPublicKey() instanceof java.security.interfaces.ECPublicKey
             ? TokenSigningAlgorithm.ECDSA_256
             : TokenSigningAlgorithm.RSA_PSS_256;
 
@@ -205,7 +205,8 @@ class SdJwtTokenValidatorTest {
         "Disclosed Token Payload:\n{}",
         JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
             .writeValueAsString(
-                validationResult.getDisclosedTokenPayload().toJSONObject()));
+                validationResult.getDisclosedTokenPayload()
+                    .toJSONObject()));
     log.info("Audience: {}", validationResult.getAudience());
     log.info("Issue Time: {}", validationResult.getIssueTime());
     log.info("Expiration Time: {}", validationResult.getExpirationTime());

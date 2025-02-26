@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -100,18 +100,17 @@ public class MdlIssuerSignedValidator implements TokenValidator {
       List<TrustedKey> trustedKeys) throws TokenValidationException {
     try {
       IssuerSigned parsedIssuerSigned = IssuerSigned.deserialize(token);
-      Sign1COSEObject parsedSignatureObject =
-          (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
-              parsedIssuerSigned.getIssuerAuth(),
-              COSEObjectTag.Sign1);
-      CBORObject unprotectedAttributes =
-          parsedSignatureObject.getUnprotectedAttributes();
+      Sign1COSEObject parsedSignatureObject = (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
+          parsedIssuerSigned.getIssuerAuth(),
+          COSEObjectTag.Sign1);
+      CBORObject unprotectedAttributes = parsedSignatureObject.getUnprotectedAttributes();
 
       // Retrieve certificate chain in signature and determine trusted signing key
       CBORObject x5chain = unprotectedAttributes.get(
           HeaderKeys.x5chain.AsCBOR());
       List<X509Certificate> chain = getChain(x5chain);
-      // Get the trusted validation key. If trustedKeys is null, then all keys are trusted
+      // Get the trusted validation key. If trustedKeys is null, then all keys are
+      // trusted
       PublicKey validationKey = getValidationKey(
           chain,
           parsedSignatureObject,
@@ -137,8 +136,7 @@ public class MdlIssuerSignedValidator implements TokenValidator {
       validateAttributes(parsedIssuerSigned.getNameSpaces(), mso, token);
 
       // Construct the validation result
-      MdlIssuerSignedValidationResult validationResult =
-          new MdlIssuerSignedValidationResult();
+      MdlIssuerSignedValidationResult validationResult = new MdlIssuerSignedValidationResult();
       validationResult.setIssueTime(mso.getValidityInfo().getValidFrom());
       validationResult.setExpirationTime(mso.getValidityInfo().getValidUntil());
       validationResult.setValidationChain(chain);
@@ -232,8 +230,7 @@ public class MdlIssuerSignedValidator implements TokenValidator {
         parseTokenIssuerSignedItems(token);
     for (Map.Entry<String, List<IssuerSignedItem>> entry : nameSpaces.entrySet()) {
       String namespace = entry.getKey();
-      Map<Integer, byte[]> tokenParsedNameSpace =
-          tokenParsedIssuerSignedItemBytes.get(namespace);
+      Map<Integer, byte[]> tokenParsedNameSpace = tokenParsedIssuerSignedItemBytes.get(namespace);
       List<IssuerSignedItem> items = entry.getValue();
       for (IssuerSignedItem item : items) {
         byte[] hashedBytes = tokenParsedNameSpace.get(item.getDigestID());

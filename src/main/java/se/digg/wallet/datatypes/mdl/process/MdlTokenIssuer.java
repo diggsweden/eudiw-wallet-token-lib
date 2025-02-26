@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -33,10 +33,14 @@ public class MdlTokenIssuer implements TokenIssuer<TokenInput> {
   private static final String MDL_VERSION = "1.0";
   /** docType declaration */
   private final String docType;
-  /** Determines if a kid will be set based on getName() from the issuer credential */
+  /**
+   * Determines if a kid will be set based on getName() from the issuer credential
+   */
   private final boolean setKid;
 
-  /** Determines if a kid should be inserted in a protected header, default false */
+  /**
+   * Determines if a kid should be inserted in a protected header, default false
+   */
   @Setter
   boolean kidInProtectedHeader;
 

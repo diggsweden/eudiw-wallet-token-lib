@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -52,7 +52,9 @@ import se.digg.wallet.datatypes.mdl.data.SessionTranscript;
 @Slf4j
 public class MdlPresentationValidator implements PresentationValidator {
 
-  /** The maximum allowed time deviation (Duration) for verifying the validity of the data */
+  /**
+   * The maximum allowed time deviation (Duration) for verifying the validity of the data
+   */
   private final Duration timeSkew;
 
   /**
@@ -114,10 +116,9 @@ public class MdlPresentationValidator implements PresentationValidator {
       IssuerSigned issuerSigned = deviceResponse.getIssuerSigned();
       byte[] issuerSignedBytes = CBORUtils.CBOR_MAPPER.writeValueAsBytes(
           issuerSigned);
-      MdlIssuerSignedValidator issuerSignedValidator =
-          new MdlIssuerSignedValidator(timeSkew);
-      MdlIssuerSignedValidationResult issuerSignedValidationResult =
-          issuerSignedValidator.validateToken(issuerSignedBytes, trustedKeys);
+      MdlIssuerSignedValidator issuerSignedValidator = new MdlIssuerSignedValidator(timeSkew);
+      MdlIssuerSignedValidationResult issuerSignedValidationResult = issuerSignedValidator
+          .validateToken(issuerSignedBytes, trustedKeys);
       // Ensure that device MAC or signature is present
       if (deviceResponse.getDeviceMac() == null && deviceResponse.getDeviceSignature() == null) {
         throw new TokenValidationException(
@@ -148,10 +149,9 @@ public class MdlPresentationValidator implements PresentationValidator {
             2,
             CBORObject.FromByteArray(
                 deviceAuthentication.getDeviceAuthenticationBytes()));
-        MAC0COSEObject mac0COSEObject =
-            (MAC0COSEObject) MAC0COSEObject.DecodeFromBytes(
-                deviceMacObject.EncodeToBytes(),
-                COSEObjectTag.MAC0);
+        MAC0COSEObject mac0COSEObject = (MAC0COSEObject) MAC0COSEObject.DecodeFromBytes(
+            deviceMacObject.EncodeToBytes(),
+            COSEObjectTag.MAC0);
         boolean validMac = mac0COSEObject.Validate(CBORUtils.deriveEMacKey(
             CBORUtils.deriveSharedSecret(input.getClientPrivateKey(),
                 deviceKeyInfo.getDeviceKey().AsPublicKey()),
@@ -173,10 +173,9 @@ public class MdlPresentationValidator implements PresentationValidator {
             CBORObject.FromByteArray(
                 deviceAuthentication.getDeviceAuthenticationBytes()));
         // Create the signed object with the restored payload
-        Sign1COSEObject sign1COSEObject =
-            (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
-                deviceSignatureObject.EncodeToBytes(),
-                COSEObjectTag.Sign1);
+        Sign1COSEObject sign1COSEObject = (Sign1COSEObject) Sign1COSEObject.DecodeFromBytes(
+            deviceSignatureObject.EncodeToBytes(),
+            COSEObjectTag.Sign1);
         // Validate signature against device key
         boolean deviceSignatureValid = sign1COSEObject.validate(
             deviceKeyInfo.getDeviceKey());
@@ -192,13 +191,12 @@ public class MdlPresentationValidator implements PresentationValidator {
           getDisclosedAttributes(issuerSigned.getNameSpaces());
       issuerSignedValidationResult.setPresentationRequestNonce(
           input.getRequestNonce());
-      MdlPresentationValidationResult result =
-          new MdlPresentationValidationResult(
-              issuerSignedValidationResult,
-              deviceResponse.getDocType(),
-              deviceResponse.getStatus(),
-              deviceResponse.getVersion(),
-              disclosedAttributes);
+      MdlPresentationValidationResult result = new MdlPresentationValidationResult(
+          issuerSignedValidationResult,
+          deviceResponse.getDocType(),
+          deviceResponse.getStatus(),
+          deviceResponse.getVersion(),
+          disclosedAttributes);
       result.setPresentationRequestNonce(input.getRequestNonce());
       return result;
     } catch (JsonProcessingException | CoseException e) {
@@ -212,8 +210,7 @@ public class MdlPresentationValidator implements PresentationValidator {
 
   private Map<TokenAttributeType, Object> getDisclosedAttributes(
       Map<String, List<IssuerSignedItem>> nameSpaces) {
-    Map<TokenAttributeType, Object> disclosedAttributes =
-        new java.util.HashMap<>();
+    Map<TokenAttributeType, Object> disclosedAttributes = new java.util.HashMap<>();
     if (nameSpaces == null || nameSpaces.isEmpty()) {
       return disclosedAttributes;
     }

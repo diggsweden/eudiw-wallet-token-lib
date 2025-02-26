@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -76,30 +76,30 @@ class MdlPresentationValidatorTest {
         List.of("given_name", "family_name"));
 
     MdlPresentationInput presentationInput =
-        MdlTokenPresenterTest.getInputBuilder(ecToken, nameDisclosure).build();
-    MdlPresentationInput macPresentationInput =
         MdlTokenPresenterTest.getInputBuilder(ecToken, nameDisclosure)
-            .clientPublicKey(TestCredentials.p256_clientKey.toPublicKey())
-            .macDeviceAuthentication(true)
             .build();
+    MdlPresentationInput macPresentationInput = MdlTokenPresenterTest
+        .getInputBuilder(ecToken, nameDisclosure)
+        .clientPublicKey(TestCredentials.p256_clientKey.toPublicKey())
+        .macDeviceAuthentication(true)
+        .build();
 
-    MdlPresentationInput rsaPresentationInput =
-        MdlTokenPresenterTest.getInputBuilder(rsaToken, nameDisclosure).build();
+    MdlPresentationInput rsaPresentationInput = MdlTokenPresenterTest
+        .getInputBuilder(rsaToken, nameDisclosure)
+        .build();
 
     MdlPresentationValidationInput validationInput =
         new MdlPresentationValidationInput(presentationInput);
-    MdlPresentationValidationInput macValidationInput =
-        new MdlPresentationValidationInput(presentationInput);
+    MdlPresentationValidationInput macValidationInput = new MdlPresentationValidationInput(
+        presentationInput);
     macValidationInput.setClientPrivateKey(TestCredentials.p256_clientKey.toPrivateKey());
-    MdlPresentationValidationInput wrongNonceInput =
-        new MdlPresentationValidationInput();
+    MdlPresentationValidationInput wrongNonceInput = new MdlPresentationValidationInput();
     wrongNonceInput.setClientId(presentationInput.getClientId());
     wrongNonceInput.setResponseUri(presentationInput.getResponseUri());
     wrongNonceInput.setMdocGeneratedNonce(
         presentationInput.getMdocGeneratedNonce());
     wrongNonceInput.setRequestNonce("abcdefgh123456789");
-    MdlPresentationValidationInput wrongAudienceInput =
-        new MdlPresentationValidationInput();
+    MdlPresentationValidationInput wrongAudienceInput = new MdlPresentationValidationInput();
     wrongAudienceInput.setClientId(presentationInput.getClientId());
     wrongAudienceInput.setResponseUri("https://example.com/wrong-audience");
     wrongAudienceInput.setMdocGeneratedNonce(
@@ -181,7 +181,9 @@ class MdlPresentationValidatorTest {
       }
     } else {
       MdlPresentationValidationResult validationResult =
-          validator.validatePresentation(presentation, input, trustedKeys);
+          validator.validatePresentation(presentation,
+              input,
+              trustedKeys);
       assertNotNull(validationResult);
       MdlIssuerSignedValidatorTest.logValidationResult(validationResult);
       log.info(

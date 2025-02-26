@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -115,7 +115,8 @@ public class SdJwtTokenValidator implements TokenValidator {
       List<Base64> x5chain = issuerSigned.getHeader().getX509CertChain();
       String kid = issuerSigned.getHeader().getKeyID();
       List<X509Certificate> chain = getChain(x5chain);
-      // Get the trusted validation key. If trustedKeys is null, then all keys are trusted
+      // Get the trusted validation key. If trustedKeys is null, then all keys are
+      // trusted
       PublicKey validationKey = getValidationKey(chain, kid, trustedKeys);
       if (validationKey == null) {
         throw new TokenValidationException("No validation key was found");
@@ -178,8 +179,7 @@ public class SdJwtTokenValidator implements TokenValidator {
    */
   private Payload restorePayload(SdJwt parsedToken)
       throws ParseException, NoSuchAlgorithmException {
-    ClaimsWithDisclosure claimsWithDisclosure =
-        parsedToken.getClaimsWithDisclosure();
+    ClaimsWithDisclosure claimsWithDisclosure = parsedToken.getClaimsWithDisclosure();
     List<Disclosure> allDisclosures = claimsWithDisclosure == null
         ? List.of()
         : claimsWithDisclosure.getAllDisclosures();

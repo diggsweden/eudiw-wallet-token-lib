@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -26,7 +26,9 @@ public class SdJwtTokenInput extends TokenInput {
 
   /** Claims with associated disclosure data */
   private ClaimsWithDisclosure claimsWithDisclosure;
-  /** The type identifier for the verifiable credential type represented in this SD-JWT */
+  /**
+   * The type identifier for the verifiable credential type represented in this SD-JWT
+   */
   private String verifiableCredentialType;
 
   /**

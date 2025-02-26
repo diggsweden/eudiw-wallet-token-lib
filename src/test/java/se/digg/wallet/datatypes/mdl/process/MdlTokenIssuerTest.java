@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -109,14 +109,12 @@ class MdlTokenIssuerTest {
     Assertions.assertArrayEquals(presentedToken, parseResponseCbor);
     log.info("Presentation token parsed");
 
-    MdlPresentationValidator presentationValidator =
-        new MdlPresentationValidator();
-    TokenValidationResult tokenValidationResult =
-        presentationValidator.validatePresentation(
-            presentedToken,
-            new MdlPresentationValidationInput(
-                (MdlPresentationInput) presentationInput),
-            null);
+    MdlPresentationValidator presentationValidator = new MdlPresentationValidator();
+    TokenValidationResult tokenValidationResult = presentationValidator.validatePresentation(
+        presentedToken,
+        new MdlPresentationValidationInput(
+            (MdlPresentationInput) presentationInput),
+        null);
     log.info(
         "Validated and pared presentation token content:\n{}",
         CBORUtils.cborToPrettyJson(presentedToken));

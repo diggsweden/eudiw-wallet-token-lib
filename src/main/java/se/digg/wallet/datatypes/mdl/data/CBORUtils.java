@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -70,8 +70,9 @@ public class CBORUtils {
       DateTimeFormatter.ofPattern("yyyy-MM-dd");
   /** Time formatter for time */
   public static final DateTimeFormatter INSTANT_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(
-          ZoneOffset.UTC);
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+          .withZone(
+              ZoneOffset.UTC);
 
   static {
     CBOR_MAPPER = new ObjectMapper(new CBORFactory())
@@ -307,8 +308,6 @@ public class CBORUtils {
     digest.doFinal(output, 0);
     return output;
   }
-
-
 
   /**
    * Derives a shared secret using Diffie-Hellman (DH) key derivation.

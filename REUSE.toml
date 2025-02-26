@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 Digg
+# SPDX-FileCopyrightText: 2024 eudiw-wallet-token-lib
 #
 # SPDX-License-Identifier: CC0-1.0
 
@@ -16,7 +16,7 @@ path = [
   "README.md",
 ]
 precedence = "aggregate"
-SPDX-FileCopyrightText = "diggsweden. <https://github.com/diggsweden>"
+SPDX-FileCopyrightText = "2025 diggsweden/eudiw-wallet-token-lib"
 SPDX-License-Identifier = "CC0-1.0"
 
 [[annotations]]

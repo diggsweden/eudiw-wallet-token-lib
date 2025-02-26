@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -24,7 +24,9 @@ import se.digg.wallet.datatypes.mdl.data.MobileSecurityObject;
 @NoArgsConstructor
 public class MdlIssuerSignedValidationResult extends TokenValidationResult {
 
-  /** Represents the token or data structure containing information signed by the issuer */
+  /**
+   * Represents the token or data structure containing information signed by the issuer
+   */
   protected IssuerSigned issuerSigned;
   /**
    * Represents the Mobile Security Object, which encapsulates relevant signed data used in token

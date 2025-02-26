@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -245,10 +245,9 @@ public class ClaimsWithDisclosure {
     public ClaimsWithDisclosureBuilder arrayEntry(
         String claimName,
         Object valueOrDisclosure) throws NoSuchAlgorithmException {
-      List<Object> valueList =
-          this.claimsWithDisclosure.arrayEntryMap.computeIfAbsent(
-              claimName,
-              s -> new ArrayList<>());
+      List<Object> valueList = this.claimsWithDisclosure.arrayEntryMap.computeIfAbsent(
+          claimName,
+          s -> new ArrayList<>());
       if (valueOrDisclosure instanceof Disclosure disclosure) {
         Map<String, String> disclosureRefValue = Collections.singletonMap(
             "...",

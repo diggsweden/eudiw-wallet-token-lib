@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -98,7 +98,8 @@ class MdlIssuerSignedValidatorTest {
         () -> {
           validator.validateToken(issuerSignedBytes, null);
         });
-    // This validation fails because the COSE signature payload is not provided as bstring data, but
+    // This validation fails because the COSE signature payload is not provided as
+    // bstring data, but
     // instead as CBOR tagged data.
     // And that signature validation fails no matter what input we use.
     Assertions.assertEquals(
@@ -169,8 +170,8 @@ class MdlIssuerSignedValidatorTest {
       MdlTokenIssuer tokenIssuer,
       PkiCredential issuerCredential,
       PublicKey walletPublic) throws Exception {
-    TokenSigningAlgorithm algorithm =
-        issuerCredential.getPublicKey() instanceof java.security.interfaces.ECPublicKey
+    TokenSigningAlgorithm algorithm = issuerCredential
+        .getPublicKey() instanceof java.security.interfaces.ECPublicKey
             ? TokenSigningAlgorithm.ECDSA_256
             : TokenSigningAlgorithm.RSA_PSS_256;
 

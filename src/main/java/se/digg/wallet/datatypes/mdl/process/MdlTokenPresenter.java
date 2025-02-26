@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
+// SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -55,14 +55,12 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
     if (presentationInput instanceof MdlPresentationInput input) {
       try {
         IssuerSigned issuerSigned = IssuerSigned.deserialize(input.getToken());
-        Map<String, List<IssuerSignedItem>> nameSpaces =
-            issuerSigned.getNameSpaces();
-        Map<String, List<IssuerSignedItem>> disclosedNameSpaces =
-            getDisclosedNameSpaces(nameSpaces, input.getDisclosures());
+        Map<String, List<IssuerSignedItem>> nameSpaces = issuerSigned.getNameSpaces();
+        Map<String, List<IssuerSignedItem>> disclosedNameSpaces = getDisclosedNameSpaces(nameSpaces,
+            input.getDisclosures());
         issuerSigned.setNameSpaces(disclosedNameSpaces);
 
-        MdlIssuerSignedValidator issuerSignedValidator =
-            new MdlIssuerSignedValidator();
+        MdlIssuerSignedValidator issuerSignedValidator = new MdlIssuerSignedValidator();
         MdlIssuerSignedValidationResult result =
             issuerSignedValidator.validateToken(input.getToken(), null);
         String docType = result.getMso().getDocType();
@@ -147,8 +145,7 @@ public class MdlTokenPresenter implements TokenPresenter<MdlPresentationInput> {
     if (disclosures == null || disclosures.isEmpty()) {
       return nameSpaces;
     }
-    Map<String, List<IssuerSignedItem>> disclosedNameSpaces =
-        new java.util.HashMap<>();
+    Map<String, List<IssuerSignedItem>> disclosedNameSpaces = new java.util.HashMap<>();
     disclosures.forEach((key, value) -> {
       if (nameSpaces.containsKey(key)) {
         List<IssuerSignedItem> items = nameSpaces.get(key);
