@@ -12,6 +12,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import lombok.Setter;
 import se.digg.wallet.datatypes.common.TokenSigningAlgorithm;
 import se.digg.wallet.datatypes.common.TokenValidationException;
@@ -178,10 +180,13 @@ public class SdJwtTokenValidator implements TokenValidator {
       throws ParseException, NoSuchAlgorithmException {
     ClaimsWithDisclosure claimsWithDisclosure =
         parsedToken.getClaimsWithDisclosure();
+    List<Disclosure> allDisclosures = claimsWithDisclosure == null
+        ? List.of()
+        : claimsWithDisclosure.getAllDisclosures();
     Map<String, Object> claims = new HashMap<>(
         parsedToken.getIssuerSigned().getJWTClaimsSet().getClaims());
     String hashAlgo = (String) claims.get("_sd_alg");
-    expandClaims(claims, claimsWithDisclosure.getAllDisclosures(), hashAlgo);
+    expandClaims(claims, allDisclosures, hashAlgo);
     return new Payload(claims);
   }
 

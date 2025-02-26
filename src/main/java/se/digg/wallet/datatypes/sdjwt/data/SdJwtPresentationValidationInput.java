@@ -36,4 +36,69 @@ public class SdJwtPresentationValidationInput
 
   /** The intended recipient or audience for the SD-JWT */
   private String audience;
+
+  /**
+   * Creates and returns a new builder instance for constructing an SdJwtPresentationValidationInput
+   * object.
+   *
+   * @return an SdJwtPresentationValidationInputBuilder for step-by-step construction of
+   *         SdJwtPresentationValidationInput objects.
+   */
+  public static SdJwtPresentationValidationInputBuilder builder() {
+    return new SdJwtPresentationValidationInputBuilder();
+  }
+
+  /**
+   * A builder class for constructing instances of SdJwtPresentationValidationInput. This builder
+   * provides a step-by-step approach to set properties required for SD-JWT presentation validation.
+   */
+  public static class SdJwtPresentationValidationInputBuilder {
+    /** The object being built */
+    SdJwtPresentationValidationInput input;
+
+    /**
+     * Initializes a new instance of the SdJwtPresentationValidationInputBuilder class. This builder
+     * facilitates the creation and configuration of SdJwtPresentationValidationInput instances for
+     * SD-JWT presentation validation.
+     */
+    public SdJwtPresentationValidationInputBuilder() {
+      input = new SdJwtPresentationValidationInput(null, null);
+    }
+
+    /**
+     * Sets the request nonce on the underlying SdJwtPresentationValidationInput being built. The
+     * nonce is used to ensure request uniqueness and prevent replay attacks.
+     *
+     * @param requestNonce the request nonce to be set
+     * @return the current instance of SdJwtPresentationValidationInputBuilder for method chaining
+     */
+    public SdJwtPresentationValidationInputBuilder requestNonce(String requestNonce) {
+      input.setRequestNonce(requestNonce);
+      return this;
+    }
+
+    /**
+     * Sets the audience for the underlying SdJwtPresentationValidationInput being built. The
+     * audience typically represents the intended recipient(s) or verifier(s) of the SD-JWT
+     * presentation, ensuring it is targeted to the correct party.
+     *
+     * @param audience the audience identifier to be set
+     * @return the current instance of SdJwtPresentationValidationInputBuilder for method chaining
+     */
+    public SdJwtPresentationValidationInputBuilder audience(String audience) {
+      input.setAudience(audience);
+      return this;
+    }
+
+    /**
+     * Constructs and returns the final instance of SdJwtPresentationValidationInput using the
+     * parameters set in the builder.
+     *
+     * @return the configured SdJwtPresentationValidationInput object
+     */
+    public SdJwtPresentationValidationInput build() {
+      return input;
+    }
+
+  }
 }
