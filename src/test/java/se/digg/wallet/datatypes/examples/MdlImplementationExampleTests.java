@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.examples;
 
 import com.nimbusds.jose.jwk.ECKey;
@@ -58,15 +62,15 @@ public class MdlImplementationExampleTests {
   void sdJwtExampleTest() throws Exception {
     byte[] mdlToken = issueMdlToken();
     log.info("Issued token:\n{}", Hex.toHexString(mdlToken));
-    MdlIssuerSignedValidationResult validationResult = validateMdlToken(mdlToken, trustedKeys);
+    validateMdlToken(mdlToken, trustedKeys);
     byte[] presentMdlToken = presentMdlToken(mdlToken);
     log.info("Presented token:\n{}", Hex.toHexString(presentMdlToken));
-    MdlPresentationValidationResult presentationValidationResult =
-        validateMdlPresentation(presentMdlToken, trustedKeys);
+    validateMdlPresentation(presentMdlToken,
+        trustedKeys);
     byte[] presentMdlTokenWithMac = presentMdlTokenWithMac(mdlToken);
     log.info("Presented token with MAC:\n{}", Hex.toHexString(presentMdlTokenWithMac));
-    MdlPresentationValidationResult presentationValidationResultWithMac =
-        validateMdocPresentationWithMac(presentMdlTokenWithMac, trustedKeys);
+    validateMdocPresentationWithMac(
+        presentMdlTokenWithMac, trustedKeys);
   }
 
   byte[] issueMdlToken() throws Exception {

@@ -13,7 +13,6 @@ project:
     - Digg - Agency for Digital Government
   snapshot:
     pattern: .*-SNAPSHOT
-    label: early-access
     fullChangelog: true
 
 # GitHub release configuration

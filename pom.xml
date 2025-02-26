@@ -12,7 +12,8 @@ SPDX-License-Identifier: CC0-1.0
 
   <groupId>se.digg.wallet</groupId>
   <artifactId>eudiw-wallet-token-lib</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
+
   <name>EUDI Wallet -- Token Library</name>
   <description>Library for handling data types in the EUDI Wallet PoC project.</description>
   <url>https://github.com/diggsweden/eudiw-wallet-token-lib</url>
@@ -27,8 +28,8 @@ SPDX-License-Identifier: CC0-1.0
 
   <scm>
     <connection>scm:git:https://github.com/diggsweden/eudiw-wallet-token-lib.git</connection>
-    <developerConnection>scm:git:https://github.com/eudiw-wallet-token-lib.git</developerConnection>
-    <url>https://github.com//eudiw-wallet-token-lib</url>
+    <developerConnection>scm:git:https://github.com/diggsweden/eudiw-wallet-token-lib.git</developerConnection>
+    <url>https://github.com/diggsweden/eudiw-wallet-token-lib</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -51,21 +52,38 @@ SPDX-License-Identifier: CC0-1.0
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>2.0.17</slf4j.version>
+
+    <!-- Dependency versions -->
+    <slf4j.version>2.0.16</slf4j.version>
     <credentials-support.version>2.0.3</credentials-support.version>
     <jackson.version>2.18.2</jackson.version>
     <junit.version>5.12.0</junit.version>
     <mockito.version>5.15.2</mockito.version>
-    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
-    <jreleaser-maven-plugin.version>1.16.0</jreleaser-maven-plugin.version>
+    <lombok.version>1.18.36</lombok.version>
+    <bouncycastle.version>1.80</bouncycastle.version>
+    <nimbus-jose.version>10.0.1</nimbus-jose.version>
+    <jsonassert.version>1.5.3</jsonassert.version>
 
+    <!-- Plugin versions -->
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+    <maven-deploy-plugin.version>3.1.3</maven-deploy-plugin.version>
+    <jreleaser-maven-plugin.version>1.16.0</jreleaser-maven-plugin.version>
+    <formatter-maven-plugin.version>2.25.0</formatter-maven-plugin.version>
+    <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+    <checkstyle.version>10.21.3</checkstyle.version>
+    <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
   </properties>
 
   <!-- Dependencies -->
   <dependencies>
+    <!-- Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.36</version>
+      <version>${lombok.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -86,12 +104,14 @@ SPDX-License-Identifier: CC0-1.0
       <version>${jackson.version}</version>
     </dependency>
 
+    <!-- Cryptography -->
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.80</version>
+      <version>${bouncycastle.version}</version>
     </dependency>
 
+    <!-- Security Support -->
     <dependency>
       <groupId>se.swedenconnect.security</groupId>
       <artifactId>credentials-support</artifactId>
@@ -104,16 +124,18 @@ SPDX-License-Identifier: CC0-1.0
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
 
+    <!-- Logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
 
+    <!-- JWT Support -->
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
-      <version>10.0.2</version>
+      <version>${nimbus-jose.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -144,7 +166,7 @@ SPDX-License-Identifier: CC0-1.0
     <dependency>
       <groupId>org.skyscreamer</groupId>
       <artifactId>jsonassert</artifactId>
-      <version>1.5.3</version>
+      <version>${jsonassert.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -152,11 +174,37 @@ SPDX-License-Identifier: CC0-1.0
   <!-- Build configuration -->
   <build>
     <plugins>
+      <!-- Enforcer Plugin for Maven and Java version requirements -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${maven-enforcer-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[3.8.0,)</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                </requireJavaVersion>
+                <!-- <dependencyConvergence/>-->
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Maven Compiler Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
@@ -167,7 +215,7 @@ SPDX-License-Identifier: CC0-1.0
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.1</version>
+        <version>${maven-source-plugin.version}</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -182,7 +230,10 @@ SPDX-License-Identifier: CC0-1.0
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.11.2</version>
+        <version>${maven-javadoc-plugin.version}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -192,18 +243,18 @@ SPDX-License-Identifier: CC0-1.0
           </execution>
         </executions>
       </plugin>
+
       <!-- Formatter plugin -->
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
-        <version>2.25.0</version>
+        <version>${formatter-maven-plugin.version}</version>
         <configuration>
           <configFile>${project.basedir}/development/formatting/eclipse-java-google-style.xml</configFile>
           <lineEnding>LF</lineEnding>
-          <compilerSource>21</compilerSource>
-          <compilerCompliance>21</compilerCompliance>
-          <compilerTargetPlatform>21</compilerTargetPlatform>
-
+          <compilerSource>${maven.compiler.source}</compilerSource>
+          <compilerCompliance>${maven.compiler.source}</compilerCompliance>
+          <compilerTargetPlatform>${maven.compiler.target}</compilerTargetPlatform>
         </configuration>
         <executions>
           <execution>
@@ -219,12 +270,12 @@ SPDX-License-Identifier: CC0-1.0
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>${maven-checkstyle-plugin.version}</version>
         <dependencies>
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>10.21.3</version>
+            <version>${checkstyle.version}</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -244,17 +295,17 @@ SPDX-License-Identifier: CC0-1.0
         </executions>
       </plugin>
 
-
       <!-- Maven Surefire Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.2</version>
+        <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
+
       <!-- Deployment -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -266,7 +317,7 @@ SPDX-License-Identifier: CC0-1.0
         </configuration>
       </plugin>
 
-      <!-- Release -->
+      <!-- JReleaser -->
       <plugin>
         <groupId>org.jreleaser</groupId>
         <artifactId>jreleaser-maven-plugin</artifactId>
@@ -278,11 +329,11 @@ SPDX-License-Identifier: CC0-1.0
     </plugins>
   </build>
 
-  <!-- Snapshots -->
+  <!-- Repositories -->
   <repositories>
     <repository>
-      <name>Central Portal Snapshots</name>
       <id>central-portal-snapshots</id>
+      <name>Central Portal Snapshots</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
       <releases>
         <enabled>false</enabled>

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Digg - Agency for Digital Government
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package se.digg.wallet.datatypes.examples;
 
 import com.nimbusds.jose.jwk.ECKey;
@@ -6,7 +10,6 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -54,12 +57,11 @@ public class SdJwtImplementationExampleTests {
   void sdJwtExampleTest() throws Exception {
     byte[] sdJwtToken = issueSdJwt();
     log.info("Issued token:\n{}", new String(sdJwtToken));
-    SdJwtTokenValidationResult sdJwtTokenValidationResult =
-        validateSDJwtToken(sdJwtToken, trustedKeys);
+    validateSDJwtToken(sdJwtToken, trustedKeys);
     byte[] presentSdJwtToken = presentSdJwtToken(sdJwtToken);
     log.info("Presented token:\n{}", new String(presentSdJwtToken));
-    SdJwtTokenValidationResult presentationValidationResult =
-        validateSdJwtPresentation(presentSdJwtToken, trustedKeys);
+    validateSdJwtPresentation(presentSdJwtToken,
+        trustedKeys);
   }
 
   byte[] issueSdJwt() throws Exception {
@@ -145,8 +147,7 @@ public class SdJwtImplementationExampleTests {
     final byte[] issuedToken = tokenIssuer.issueToken(tokenInput);
     log.info("Issued token without disclosures:\n{}", new String(issuedToken));
     SdJwtTokenValidator tokenValidator = new SdJwtTokenValidator();
-    SdJwtTokenValidationResult sdJwtTokenValidationResult =
-        tokenValidator.validateToken(issuedToken, trustedKeys);
+    tokenValidator.validateToken(issuedToken, trustedKeys);
     SdJwtTokenPresenter tokenPresenter = new SdJwtTokenPresenter();
     byte[] presentSdJwtToken = tokenPresenter.presentToken(SdJwtPresentationInput.builder()
         .disclosures(List.of())
@@ -157,12 +158,13 @@ public class SdJwtImplementationExampleTests {
         .build(), walletKeyPair.toPrivateKey());
     log.info("Presented token without disclosures:\n{}", new String(presentSdJwtToken));
     SdJwtTokenValidationResult presentationValidationResult =
-        validateSdJwtPresentation(presentSdJwtToken, trustedKeys);
+        validateSdJwtPresentation(presentSdJwtToken,
+            trustedKeys);
     log.info("Disclosed payload: \n{}", JSONUtils.JSON_MAPPER.writerWithDefaultPrettyPrinter()
         .writeValueAsString(
             presentationValidationResult.getDisclosedTokenPayload().toJSONObject()));
-    final Map<TokenAttributeType, Object> disclosedAttributes =
-        presentationValidationResult.getDisclosedAttributes();
+    presentationValidationResult
+        .getDisclosedAttributes();
     log.info(
         "Disclosed attributes:\n{}",
         String.join(

@@ -11,6 +11,7 @@
   "semanticCommitScope": "deps",
   "commitMessageLowerCase": "auto",
   "commitBody": "Signed-off-by: {{{gitAuthor}}}",
+  "minimumReleaseAge": "4 days",
   "vulnerabilityAlerts": {
     "labels": [
       "security"
@@ -27,11 +28,7 @@
         "actions"
       ],
       "pinDigests": true,
-      "groupName": "github actions",
-      "schedule": [
-        "after 10pm every weekday",
-        "before 5am every weekday"
-      ]
+      "groupName": "github actions"
     },
     {
       "matchManagers": [
@@ -86,7 +83,7 @@
       "description": "Development tools",
       "groupName": "dev tools",
       "matchPackageNames": [
-        "org.projectlombok:lombok",
+        "org.projectlombok:lombok"
       ]
     },
     {
@@ -125,21 +122,10 @@
       ]
     },
     {
-      "description": "Upokecenter dependencies",
-      "groupName": "upokecenter",
+      "description": "COSE Library dependencies",
+      "groupName": "cose-lib",
       "matchPackageNames": [
-        "com.upokecenter:cbor"
-      ],
-      "labels": [
-        "java",
-        "dependencies"
-      ]
-    },
-    {
-      "description": "EdDSA dependencies",
-      "groupName": "eddsa",
-      "matchPackageNames": [
-        "net.i2p.crypto:eddsa"
+        "se.digg.cose:cose-lib"
       ],
       "labels": [
         "java",
