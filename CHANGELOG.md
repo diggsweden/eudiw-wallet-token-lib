@@ -69,7 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix pom version for docs
 - Update jackson to v2.18.3 (#35)
 - Update dependency com.nimbusds:nimbus-jose-jwt to v10.0.2 (#27)
 - Update slf4j to v2.0.17 (#26)
