@@ -12,6 +12,7 @@ path = [
   "CHANGELOG.md",
  "docs/DEVELOPMENT.md",
   "jreleaser.yml",
+  ".mvn/settings.xml",
   "**/*/pmd_default_java.xml",
   "README.md",
 ]
