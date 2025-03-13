@@ -1,23 +1,32 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "osvVulnerabilityAlerts": true,
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
   "extends": [
     "config:best-practices",
+    "workarounds:all",
+    "security:openssf-scorecard",
+    ":configMigration",
+    ":dependencyDashboard",
     ":gitSignOff",
     ":maintainLockFilesWeekly",
     ":automergeMinor",
-    ":semanticCommits"
+    ":semanticCommits",
+    "npm:unpublishSafe",
+    ":rebaseStalePrs",
+    ":semanticCommitTypeAll(chore)",
+    "mergeConfidence:all-badges"
   ],
-  "semanticCommitType": "build",
-  "semanticCommitScope": "deps",
   "commitMessageLowerCase": "auto",
-  "commitBody": "Signed-off-by: {{{gitAuthor}}}",
   "minimumReleaseAge": "4 days",
+  "labels": [
+    "dependencies"
+  ],
   "vulnerabilityAlerts": {
     "labels": [
-      "security"
-    ],
-    "enabled": true,
-    "automerge": true
+      "security",
+      "dependencies"
+    ]
   },
   "packageRules": [
     {
