@@ -7,7 +7,7 @@ project:
   name: eudiw-wallet-token-lib
   description: A PoC Library to support different token formats for EUDI wallet such as SD-JWT and mDL
   license: EUPL-1.2 
-  copyright: 2025 Digg - The Agency for Digital Government
+  copyright: 2025 diggsweden/eudiw-wallet-token-lib
   inceptionYear: 2025
   authors:
     - Digg - Agency for Digital Government
@@ -39,15 +39,7 @@ signing:
 
 # Maven deployment to GitHub packages
 deploy:
-  maven:
-    github:
-      app:
-        active: ALWAYS
-        url: https://maven.pkg.github.com/diggsweden/eudiw-wallet-token-lib
-        applyMavenCentralRules: true
-        snapshotSupported: true
-        stagingRepositories:           
-          - target/staging-deploy
+  enabled: false
 
 # SBOM generation
 catalog:
@@ -61,7 +53,6 @@ catalog:
         enabled: true
 
 # Syft need to know what to sign
-distributions:
-  library:
-    artifacts:
-      - path: target/eudiw-wallet-token-lib-{{projectVersion}}.jar
+files:
+  artifacts:
+    - path: target/eudiw-wallet-token-lib-{{projectVersion}}.jar

@@ -66,10 +66,12 @@ SPDX-License-Identifier: CC0-1.0
 
     <!-- Plugin versions -->
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+    <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
+    <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
+    <maven.javadoc.plugin.version>3.11.2</maven.javadoc.plugin.version>
     <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
     <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+    <maven.gpg.plugin.version>3.2.7</maven.gpg.plugin.version>
     <jreleaser-maven-plugin.version>1.17.0</jreleaser-maven-plugin.version>
     <formatter-maven-plugin.version>2.25.0</formatter-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
@@ -211,39 +213,6 @@ SPDX-License-Identifier: CC0-1.0
         </configuration>
       </plugin>
 
-      <!-- Maven Source Plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>${maven-source-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Maven Javadoc Plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Formatter plugin -->
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
@@ -308,12 +277,14 @@ SPDX-License-Identifier: CC0-1.0
 
       <!-- Deployment -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>${maven-deploy-plugin.version}</version>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.7.0</version>
+        <extensions>true</extensions>
         <configuration>
-          <altDeploymentRepository>local::file:./target/staging-deploy</altDeploymentRepository>
-          <skip>false</skip>
+          <checksums>all</checksums>
+          <skipPublishing>false</skipPublishing>
+          <publishingServerId>central</publishingServerId>
         </configuration>
       </plugin>
 
@@ -328,6 +299,62 @@ SPDX-License-Identifier: CC0-1.0
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>central-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven.gpg.plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Sources -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven.source.plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Documentation -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven.javadoc.plugin.version}</version>
+            <configuration>
+              <source>${maven.target.source}</source>
+              <bottom>COSE for Java documentation, generated in {currentYear}.</bottom>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <!-- Repositories -->
   <repositories>
