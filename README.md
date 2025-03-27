@@ -133,7 +133,7 @@ The examples below can be found in [SdJwtImplementationExampleTests.java](src/te
 
 The examples below can be found in [MdlImplementationExampleTests.java](src/test/java/se/digg/wallet/datatypes/examples/MdlImplementationExampleTests.java)
 
-#### Issue token
+#### Issue mDL token
 
 ```java
 byte[] issueMdlToken() throws Exception
@@ -159,7 +159,7 @@ byte[] issueMdlToken() throws Exception
 }
 ```
 
-#### Validate token
+#### Validate mDL token
 
 ```java
   MdlIssuerSignedValidationResult validateMdlToken(byte[] mdlToken, List<TrustedKey> trustedKeys)
@@ -170,7 +170,7 @@ byte[] issueMdlToken() throws Exception
   }
 ```
 
-#### Present token
+#### Present mDL token
 
 Default presentation using device signature to bind the token to the wallet private key.
 
@@ -216,7 +216,7 @@ byte[] presentMdlTokenWithMac(byte[] token) throws Exception
 }
 ```
 
-#### Validate presentation
+#### Validate mDL presentation
 
 Default validation to validate presentations where device signature was used to prove possession of wallet private key.
 

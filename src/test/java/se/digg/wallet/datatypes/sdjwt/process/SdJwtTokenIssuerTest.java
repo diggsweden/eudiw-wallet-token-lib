@@ -41,11 +41,19 @@ class SdJwtTokenIssuerTest {
 
   static PkiCredential issuerCredential;
   static ECKey walletKey;
+  static SdJwtTokenIssuer tokenIssuer;
+  static SdJwtTokenIssuer legacyTokenIssuer;
+  static SdJwtTokenIssuer kidTokenIssuer;
 
   @BeforeAll
   static void setUp() {
     issuerCredential = TestCredentials.p256_issuerCredential;
     walletKey = TestCredentials.p256_walletKey;
+    tokenIssuer = new SdJwtTokenIssuer();
+    legacyTokenIssuer = new SdJwtTokenIssuer();
+    legacyTokenIssuer.setLegacySdJwtHeaderType(true);
+    kidTokenIssuer = new SdJwtTokenIssuer();
+    kidTokenIssuer.setIncludeKid(true);
   }
 
   @Test
@@ -58,7 +66,6 @@ class SdJwtTokenIssuerTest {
         .expirationDuration(Duration.ofDays(1))
         .attributes(TestData.defaultPidUserAttributes)
         .build();
-    SdJwtTokenIssuer tokenIssuer = new SdJwtTokenIssuer();
     String token = new String(
         tokenIssuer.issueToken(tokenInput),
         StandardCharsets.UTF_8);
@@ -79,7 +86,20 @@ class SdJwtTokenIssuerTest {
             .expirationDuration(Duration.ofDays(1))
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        false,
+        tokenIssuer,
+        null);
+
+    performTest(
+        "Issue token with kid in header",
+        SdJwtTokenInput.sdJwtINputBuilder()
+            .algorithm(TokenSigningAlgorithm.ECDSA_256)
+            .issuer("http://example.com/issuer")
+            .issuerCredential(issuerCredential)
+            .walletPublicKey(walletKey.toPublicKey())
+            .expirationDuration(Duration.ofDays(1))
+            .attributes(TestData.defaultPidUserAttributes)
+            .build(),
+        kidTokenIssuer,
         null);
 
     performTest(
@@ -92,7 +112,7 @@ class SdJwtTokenIssuerTest {
             .expirationDuration(Duration.ofDays(1))
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        false,
+        tokenIssuer,
         null);
 
     performTest(
@@ -105,7 +125,7 @@ class SdJwtTokenIssuerTest {
             .expirationDuration(Duration.ofDays(1))
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        true,
+        legacyTokenIssuer,
         null);
 
     performTest(
@@ -118,7 +138,7 @@ class SdJwtTokenIssuerTest {
             .expirationDuration(Duration.ofDays(1))
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        true,
+        legacyTokenIssuer,
         TokenIssuingException.class);
 
     performTest(
@@ -130,7 +150,7 @@ class SdJwtTokenIssuerTest {
             .expirationDuration(Duration.ofDays(1))
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        true,
+        legacyTokenIssuer,
         TokenIssuingException.class);
 
     performTest(
@@ -142,7 +162,7 @@ class SdJwtTokenIssuerTest {
             .expirationDuration(Duration.ofDays(1))
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        true,
+        legacyTokenIssuer,
         TokenIssuingException.class);
 
     performTest(
@@ -154,7 +174,7 @@ class SdJwtTokenIssuerTest {
             .expirationDuration(Duration.ofDays(1))
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        false,
+        tokenIssuer,
         TokenIssuingException.class);
 
     performTest(
@@ -166,18 +186,28 @@ class SdJwtTokenIssuerTest {
             .walletPublicKey(walletKey.toPublicKey())
             .attributes(TestData.defaultPidUserAttributes)
             .build(),
-        false,
+        tokenIssuer,
         TokenIssuingException.class);
+
+
   }
 
+  /**
+   * Performs a test of the SdJwtTokenIssuer's functionality using the provided inputs.
+   *
+   * @param description a description of the test case for logging purposes
+   * @param tokenInput the input data for the token to be issued
+   * @param tokenIssuer the token issuer used to issue the token
+   * @param exceptionClass the class of the expected exception to be thrown during the test,
+   *                       or null if no exception is expected
+   * @throws Exception if an unexpected error occurs during the test execution
+   */
   void performTest(
       String description,
       SdJwtTokenInput tokenInput,
-      boolean legacyType,
+      SdJwtTokenIssuer tokenIssuer,
       Class<? extends Exception> exceptionClass) throws Exception {
     log.info("TEST CASE:\n================\n{}\n================", description);
-    SdJwtTokenIssuer tokenIssuer = new SdJwtTokenIssuer();
-    tokenIssuer.setLegacySdJwtHeaderType(legacyType);
     if (exceptionClass != null) {
       Exception exception = Assertions.assertThrows(exceptionClass, () -> {
         tokenIssuer.issueToken(tokenInput);
@@ -209,10 +239,20 @@ class SdJwtTokenIssuerTest {
           .getIssuerSigned()
           .getHeader()
           .getType();
-      if (legacyType) {
+      if (tokenIssuer.isLegacySdJwtHeaderType()) {
         Assertions.assertEquals(SdJwt.SD_JWT_TYPE_LEGACY, type);
       } else {
         Assertions.assertEquals(SdJwt.SD_JWT_TYPE, type);
+      }
+      String kid = validationResult
+          .getVcToken()
+          .getIssuerSigned()
+          .getHeader()
+          .getKeyID();
+      if (tokenIssuer.isIncludeKid()) {
+        Assertions.assertNotNull(kid);
+      } else {
+        Assertions.assertNull(kid);
       }
     }
   }
