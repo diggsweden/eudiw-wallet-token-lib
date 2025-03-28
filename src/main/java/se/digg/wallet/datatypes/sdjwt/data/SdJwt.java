@@ -390,14 +390,20 @@ public class SdJwt {
       ClaimsWithDisclosure cwd = sdJwt.getClaimsWithDisclosure();
       cwd.getAllSupportingClaims().forEach(claimsBuilder::claim);
       // Create JWT
+      JWSHeader.Builder jwsHeaderBuilder = new JWSHeader.Builder(algorithm).type(sdJwt.getJwtType());
+
+      if (kid != null) {
+        jwsHeaderBuilder.keyID(kid);
+      }
+      if (issuerCredential.getCertificate() != null) {
+        jwsHeaderBuilder.x509CertChain(
+            List.of(
+                Base64.encode(issuerCredential.getCertificate().getEncoded())));
+      }
+
+      final JWSHeader jwsHeader = new JWSHeader(jwsHeaderBuilder.build());
       final SignedJWT jwt = new SignedJWT(
-          new JWSHeader.Builder(algorithm)
-              .keyID(kid)
-              .x509CertChain(
-                  List.of(
-                      Base64.encode(issuerCredential.getCertificate().getEncoded())))
-              .type(sdJwt.getJwtType())
-              .build(),
+          jwsHeader,
           claimsBuilder.build());
       jwt.sign(signer);
       sdJwt.setIssuerSigned(jwt);

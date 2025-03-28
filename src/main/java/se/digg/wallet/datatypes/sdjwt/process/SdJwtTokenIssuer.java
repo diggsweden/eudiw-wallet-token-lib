@@ -12,6 +12,8 @@ import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.Getter;
 import lombok.Setter;
 import se.digg.wallet.datatypes.common.TokenAttribute;
 import se.digg.wallet.datatypes.common.TokenDigestAlgorithm;
@@ -34,9 +36,11 @@ import se.swedenconnect.security.credential.PkiCredential;
  * customizing legacy behavior for the SD-JWT header type.
  */
 @Setter
+@Getter
 public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
 
   private boolean legacySdJwtHeaderType = false;
+  private boolean includeKid = false;
 
   @Override
   public byte[] issueToken(SdJwtTokenInput tokenInput)
@@ -79,7 +83,7 @@ public class SdJwtTokenIssuer implements TokenIssuer<SdJwtTokenInput> {
               tokenInput.getExpirationDuration(),
               algorithm.getJwsAlgorithm(),
               algorithm.jwsSigner(issuerCredential.getPrivateKey()),
-              issuerCredential.getName());
+              includeKid ? issuerCredential.getName() : null);
       return sdJwt
           .unprotectedPresentation(null)
           .getBytes(StandardCharsets.UTF_8);
