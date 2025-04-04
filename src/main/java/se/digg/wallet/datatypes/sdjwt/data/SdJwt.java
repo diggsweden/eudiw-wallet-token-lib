@@ -390,7 +390,8 @@ public class SdJwt {
       ClaimsWithDisclosure cwd = sdJwt.getClaimsWithDisclosure();
       cwd.getAllSupportingClaims().forEach(claimsBuilder::claim);
       // Create JWT
-      JWSHeader.Builder jwsHeaderBuilder = new JWSHeader.Builder(algorithm).type(sdJwt.getJwtType());
+      JWSHeader.Builder jwsHeaderBuilder =
+          new JWSHeader.Builder(algorithm).type(sdJwt.getJwtType());
 
       if (kid != null) {
         jwsHeaderBuilder.keyID(kid);
