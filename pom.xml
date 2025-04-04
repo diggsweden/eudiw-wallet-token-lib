@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
+SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
 
 SPDX-License-Identifier: CC0-1.0
 -->
@@ -11,7 +11,7 @@ SPDX-License-Identifier: CC0-1.0
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>se.digg.wallet</groupId>
-  <artifactId>eudiw-wallet-token-lib</artifactId>
+  <artifactId>token-lib</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
   <name>EUDI Wallet -- Token Library</name>
@@ -219,7 +219,7 @@ SPDX-License-Identifier: CC0-1.0
         <artifactId>formatter-maven-plugin</artifactId>
         <version>${formatter-maven-plugin.version}</version>
         <configuration>
-          <configFile>${project.basedir}/development/formatting/eclipse-java-google-style.xml</configFile>
+          <configFile>${project.basedir}/development/format/eclipse-java-google-style.xml</configFile>
           <lineEnding>LF</lineEnding>
           <compilerSource>${maven.compiler.source}</compilerSource>
           <compilerCompliance>${maven.compiler.source}</compilerCompliance>
@@ -248,7 +248,7 @@ SPDX-License-Identifier: CC0-1.0
           </dependency>
         </dependencies>
         <configuration>
-          <configLocation>${project.basedir}/development/checkstyle/google_checks.xml</configLocation>
+          <configLocation>${project.basedir}/development/lint/google_checks.xml</configLocation>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
           <linkXRef>false</linkXRef>

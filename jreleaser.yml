@@ -55,4 +55,4 @@ catalog:
 # Syft need to know what to sign
 files:
   artifacts:
-    - path: target/eudiw-wallet-token-lib-{{projectVersion}}.jar
+    - path: target/{{projectName}}-{{projectVersion}}.jar
