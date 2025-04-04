@@ -198,8 +198,8 @@ class SdJwtTokenIssuerTest {
    * @param description a description of the test case for logging purposes
    * @param tokenInput the input data for the token to be issued
    * @param tokenIssuer the token issuer used to issue the token
-   * @param exceptionClass the class of the expected exception to be thrown during the test,
-   *                       or null if no exception is expected
+   * @param exceptionClass the class of the expected exception to be thrown during the test, or null
+   *        if no exception is expected
    * @throws Exception if an unexpected error occurs during the test execution
    */
   void performTest(
