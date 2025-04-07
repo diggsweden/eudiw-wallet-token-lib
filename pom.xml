@@ -41,9 +41,9 @@ SPDX-License-Identifier: CC0-1.0
   <developers>
     <developer>
       <name>Stefan Santesson</name>
-      <email>stefan@idsec.se</email>
-      <organization>IDsec Solutions AB</organization>
-      <organizationUrl>https://www.idsec.se</organizationUrl>
+      <email>extern.stefan.santesson@digg.se</email>
+      <organization>Digg - Agency for Digital Government</organization>
+      <organizationUrl>https://www.digg.se</organizationUrl>
     </developer>
   </developers>
 
