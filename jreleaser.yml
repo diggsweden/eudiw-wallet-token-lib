@@ -4,7 +4,7 @@
 
 # Basic project metadata
 project:
-  name: eudiw-wallet-token-lib
+  name: token-lib
   description: A PoC Library to support different token formats for EUDI wallet such as SD-JWT and mDL
   license: EUPL-1.2 
   copyright: 2025 diggsweden/eudiw-wallet-token-lib
