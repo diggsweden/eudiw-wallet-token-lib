@@ -72,7 +72,7 @@ SPDX-License-Identifier: CC0-1.0
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
     <maven.gpg.plugin.version>3.2.7</maven.gpg.plugin.version>
-    <jreleaser-maven-plugin.version>1.17.0</jreleaser-maven-plugin.version>
+    <jreleaser-maven-plugin.version>1.18.0</jreleaser-maven-plugin.version>
     <formatter-maven-plugin.version>2.26.0</formatter-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <checkstyle.version>10.23.1</checkstyle.version>
