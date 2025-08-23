@@ -61,7 +61,7 @@ SPDX-License-Identifier: CC0-1.0
     <mockito.version>5.19.0</mockito.version>
     <lombok.version>1.18.38</lombok.version>
     <bouncycastle.version>1.81</bouncycastle.version>
-    <nimbus-jose.version>10.3</nimbus-jose.version>
+    <nimbus-jose.version>10.4.2</nimbus-jose.version>
     <jsonassert.version>1.5.3</jsonassert.version>
 
     <!-- Plugin versions -->
