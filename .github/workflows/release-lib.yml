@@ -86,7 +86,7 @@ jobs:
 
       - name: Generate Releasenotes (non-SNAPSHOT)
         if: steps.get-latest-tag.outputs.IS_SNAPSHOT == 'false'
-        uses: orhun/git-cliff-action@4a4a951bc43fafe41cd2348d181853f52356bee7 # v4.4.2
+        uses: orhun/git-cliff-action@98c93442bb05a455a77bee982867857ae748eeea # v4.5.1
         with:
           config: .github-templates/gitcliff-templates/default.toml
           args: --latest --ignore-tags '.*SNAPSHOT|early-access'
@@ -96,7 +96,7 @@ jobs:
 
       - name: Generate Releasenotes (SNAPSHOT)
         if: steps.get-latest-tag.outputs.IS_SNAPSHOT == 'true'
-        uses: orhun/git-cliff-action@4a4a951bc43fafe41cd2348d181853f52356bee7 # v4.4.2
+        uses: orhun/git-cliff-action@98c93442bb05a455a77bee982867857ae748eeea # v4.5.1
         with:
           config: .github-templates/gitcliff-templates/default.toml
           args: --latest --ignore-tags 'early-access'
