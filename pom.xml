@@ -60,7 +60,7 @@ SPDX-License-Identifier: CC0-1.0
     <junit.version>5.13.4</junit.version>
     <mockito.version>5.19.0</mockito.version>
     <lombok.version>1.18.40</lombok.version>
-    <bouncycastle.version>1.81</bouncycastle.version>
+    <bouncycastle.version>1.82</bouncycastle.version>
     <nimbus-jose.version>10.5</nimbus-jose.version>
     <jsonassert.version>1.5.3</jsonassert.version>
 
