@@ -58,7 +58,7 @@ SPDX-License-Identifier: CC0-1.0
     <credentials-support.version>2.0.7</credentials-support.version>
     <jackson.version>2.20.0</jackson.version>
     <junit.version>5.13.4</junit.version>
-    <mockito.version>5.19.0</mockito.version>
+    <mockito.version>5.20.0</mockito.version>
     <lombok.version>1.18.42</lombok.version>
     <bouncycastle.version>1.82</bouncycastle.version>
     <nimbus-jose.version>10.5</nimbus-jose.version>
