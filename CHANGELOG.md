@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2-SNAPSHOT] - 2025-10-14
+
+### Changed
+
+- Use reuseable-ci v2
+- Use reusable-ci v1
+- Update dependency org.junit.jupiter:junit-jupiter to v5.14.0 (#94)
+- Update dependency org.apache.maven.plugins:maven-enforcer-plugin to v3.6.2 (#93)
+- Update dependency com.puppycrawl.tools:checkstyle to v11.1.0 (#92)
+- Update dependency org.sonatype.central:central-publishing-maven-plugin to v0.9.0 (#91)
+- Update orhun/git-cliff-action action to v4.6.0 (#90)
+- Update test to v5.20.0 (#89)
+- Update dependency org.apache.maven.plugins:maven-compiler-plugin to v3.14.1 (#88)
+- Update dependency org.projectlombok:lombok to v1.18.42 (#87)
+- Update dependency org.bouncycastle:bcprov-jdk18on to v1.82 (#86)
+- Update dependency org.apache.maven.plugins:maven-javadoc-plugin to v3.12.0 (#85)
+- Update dependency net.revelc.code.formatter:formatter-maven-plugin to v2.29.0 (#84)
+- Update dependency se.swedenconnect.security:credentials-support to v2.0.7 (#83)
+- Update dependency org.apache.maven.plugins:maven-surefire-plugin to v3.5.4 (#82)
+- Update dependency net.revelc.code.formatter:formatter-maven-plugin to v2.28.0 (#81)
+- Update dependency com.nimbusds:nimbus-jose-jwt to v10.5 (#80)
+- Update dependency org.projectlombok:lombok to v1.18.40 (#79)
+- Update java non-major (#78)
+- Update dependency com.fasterxml.jackson.core:jackson-databind to v2.20.0 (#77)
+- Update actions/setup-java action to v5
+- Update orhun/git-cliff-action action to v4.5.1 (#71)
+- Update java non-major (#67)
+- Update dependency com.nimbusds:nimbus-jose-jwt to v10.4.2 (#69)
+- Update jackson to v2.19.2 (#70)
+- Update test
+- Update dependency se.swedenconnect.security:credentials-support to v2.0.6
+- Update dependency com.puppycrawl.tools:checkstyle to v11
+- Update dependency org.apache.maven.plugins:maven-javadoc-plugin to v3.11.3
+- Update actions/checkout action to v5
+- Extend commit description lint length
+- Update jackson to v2.19.1 (#66)
+- Update dependency org.junit.jupiter:junit-jupiter to v5.13.1 (#65)
+- Update dependency org.bouncycastle:bcprov-jdk18on to v1.81 (#64)
+- Update dependency com.puppycrawl.tools:checkstyle to v10.25.0 (#63)
+- Update dependency org.junit.jupiter:junit-jupiter to v5.13.0 (#62)
+- Update dependency com.puppycrawl.tools:checkstyle to v10.24.0 (#61)
+- Update test to v5.18.0 (#60)
+- Update dependency com.nimbusds:nimbus-jose-jwt to v10.3 (#59)
+- Update dependency org.jreleaser:jreleaser-maven-plugin to v1.18.0 (#57)
+- Update dependency com.puppycrawl.tools:checkstyle to v10.23.1 (#56)
+- Update jackson to v2.19.0 (#55)
+- Update dependency org.junit.jupiter:junit-jupiter to v5.12.2 (#54)
+- Update actions/setup-java action to v4.7.1 (#53)
+- Update dependency com.nimbusds:nimbus-jose-jwt to v10.2 (#52)
+
+### Fixed
+
+- Fix lint warning
+
 ## [0.9.1] - 2025-04-09
 
 ### Changed
@@ -15,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Change name in jreleaser
+
 
 ## [0.9.0] - 2025-04-09
 
@@ -119,6 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix missing perm for test
 
 
+[0.9.2-SNAPSHOT]: https://github.com/diggsweden/eudiw-wallet-token-lib/compare/v0.9.1..v0.9.2-SNAPSHOT
 [0.9.1]: https://github.com/diggsweden/eudiw-wallet-token-lib/compare/v0.9.0..v0.9.1
 [0.9.0]: https://github.com/diggsweden/eudiw-wallet-token-lib/compare/v0.1.0-SNAPSHOT..v0.9.0
 
