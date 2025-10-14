@@ -1,0 +1,23 @@
+
+# SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Artifacts configuration for eudiw-wallet-token-lib
+# This file defines how the token-lib Maven library is built and published
+
+artifacts:
+  - name: token-lib
+    project-type: maven
+    working-directory: .
+    build-type: library
+    require-authorization: true
+    publish-to:
+      - maven-central
+    config:
+      java-version: 21
+      settings-path: .mvn/settings.xml
+      profile: central-release
+
+# No containers for this library
+containers: []
