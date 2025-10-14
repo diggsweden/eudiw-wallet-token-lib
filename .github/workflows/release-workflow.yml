@@ -2,22 +2,9 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
-# Release Workflow
-# 
-# Purpose: Automated release process for Maven libraries published to Maven Central.
-# Authorization is automatically enforced via AUTHORIZED_RELEASE_DEVELOPERS secret:
-# - SNAPSHOT releases: Anyone with tag push access can release
-# - Production releases: Only authorized developers can release
-#
-# Required Secrets:
-#   AUTHORIZED_RELEASE_DEVELOPERS: Comma-separated list of authorized GitHub usernames
-#   MAVENCENTRAL_USERNAME: Maven Central OSSRH username
-#   MAVENCENTRAL_PASSWORD: Maven Central OSSRH password
-#   OSPO_BOT_GPG_PRIV: GPG private key for artifact signing
-#   OSPO_BOT_GPG_PASS: GPG key passphrase
-#   OSPO_BOT_GPG_PUB: GPG public key
-#   RELEASE_TOKEN: GitHub token for creating releases
-#
+# Release Workflow for token-lib
+# Uses the unified release orchestrator with Maven library publisher
+---
 name: Release Workflow
 
 on:
@@ -35,7 +22,7 @@ permissions:
 
 jobs:
   release:
-    uses: diggsweden/reusable-ci/.github/workflows/release-orchestrator.yml@v1
+    uses: diggsweden/reusable-ci/.github/workflows/release-orchestrator.yml@v2
     permissions:
       contents: write         # Create GitHub releases and tags
       packages: write         # Publish to GitHub Packages (backup)
@@ -45,12 +32,12 @@ jobs:
       security-events: write # Needed by container scan (N/A for libs)
     secrets: inherit  # Use org-level MAVEN_CENTRAL credentials, GPG keys, and AUTHORIZED_RELEASE_DEVELOPERS
     with:
-      # Project configuration
-      projectType: maven  # Build system type (determines version file location)
+      # Artifacts configuration
+      artifacts-config: .github/artifacts.yml
       
-      # Publishers and tools
-      artifactPublisher: maven-lib-mavencentral       # Publish library to Maven Central (auto-enables authorization)
-      artifact.jreleaserenabled: true                 # JReleaser plugin configured in pom.xml
-      artifact.settingspath: ".mvn/settings.xml"      # Contains Maven Central server config
+      # Changelog configuration
+      changelog-creator: git-cliff
       
-      changelogCreator: git-cliff  # Generate changelog from conventional commits
+      # Release configuration
+      release-publisher: github-cli
+      release.checkauthorization: true
