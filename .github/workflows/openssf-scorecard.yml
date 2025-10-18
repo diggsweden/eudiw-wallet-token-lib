@@ -1,23 +1,26 @@
-# SPDX-FileCopyrightText: 2025 diggsweden/eudiw-wallet-token-lib
+# SPDX-FileCopyrightText: 2025 Digg - Agency for Digital Government
 #
 # SPDX-License-Identifier: CC0-1.0
 
 ---
-name: OpenSSF Scorecard
-
+name: OpenSSF Scorecard Analysis
 on:
-  branch_protection_rule:
   schedule:
-    - cron: '0 2 * * 0'  # Weekly on Sunday at 2am UTC
+    # Saturdays at 01:50 UTC
+    - cron: "50 1 * * 6"
+    # Wednesdays at 01:50 UTC
+    - cron: "50 1 * * 3"
   workflow_dispatch:
 
-permissions: read-all
+permissions:
+  contents: read
 
 jobs:
-  scorecard:
-    uses: diggsweden/reusable-ci/.github/workflows/security-openssf-scorecard.yml@v2
+  scorecard-analysis:
     permissions:
+      contents: read
       security-events: write
       id-token: write
-      contents: read
-      actions: read
+    uses: diggsweden/reusable-ci/.github/workflows/security-openssf-scorecard.yml@v2
+    with:
+      publish-results: true
