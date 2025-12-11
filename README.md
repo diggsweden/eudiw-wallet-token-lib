@@ -9,7 +9,7 @@
 [![OpenSSF Best Practice](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fbestpractices.coreinfrastructure.org%2Fprojects%2F10000000.json&query=%24.badge_level&style=for-the-badge&label=OpenSSF%20Best%20Practice&color=green)](https://www.bestpractices.dev/en/projects/100000)
 
 A library supporting different token formats for EUDI wallet such as SD-JWT and mDL
-
+s
 ## SD-JWT
 
 The SD-JWT token format is based on the Selective Disclosure for JWTs (SD-JWT) specification developed by the IETF ([draft-ietf-oauth-selective-disclosure-jwt](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-selective-disclosure-jwt)) as well as the SD-JWT-based Verifiable Credentials ([draft-ietf-oauth-sd-jwt-vc](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-sd-jwt-vc-08)).
