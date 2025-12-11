@@ -14,24 +14,32 @@ on:
       - 'feature/**'
 
 permissions:
-  contents: read  # Best Security practice. Jobs only get read as base, and then permissions are added as needed
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pr-checks:
-    uses: diggsweden/reusable-ci/.github/workflows/pullrequest-orchestrator.yml@02decc6526ebd8994da90b923974e59e1cc9c22e # v2.3.8
-    secrets: inherit  # Pass org-level secrets (for private Maven dependencies)
+    uses: diggsweden/reusable-ci/.github/workflows/pullrequest-orchestrator.yml@e29145e720cef0b86ef147c72c2d001b5ac6c8b9 # v2.4.2
     permissions:
-      contents: read         # Clone repository and read source code
-      packages: read         # Access GitHub Packages for Maven dependencies
-      security-events: write # Upload SpotBugs/dependency check results to Security tab
+      contents: read
+      packages: read
+      security-events: write
+    secrets: inherit
     with:
       project-type: maven
-      # All linters enabled by default (library needs strict quality checks)
-  
+      # Use just+mise linting (replaces megalint, commitlint, licenselint)
+      linters.justmiselint: true
+      linters.megalint: false
+      linters.commitlint: false
+      linters.licenselint: false
+
   test:
     needs: [pr-checks]
-    if: always()  # Run tests even if linting fails (get complete feedback)
+    if: always()
     permissions:
-      contents: read  # Access test resources and source code
-      packages: read  # Fetch test dependencies from GitHub Packages
+      contents: read
+      packages: read
     uses: ./.github/workflows/test.yml
