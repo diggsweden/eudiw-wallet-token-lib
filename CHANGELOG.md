@@ -5,10 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.2-SNAPSHOT] - 2025-10-14
+## [0.9.2-SNAPSHOT] - 2025-12-11
 
 ### Changed
 
+- Update justfile and reuseableci
+- Update reuseablci, justkit etc
+- Update dependency com.puppycrawl.tools:checkstyle to v12.2.0 (#115)
+- Update dependency org.bouncycastle:bcprov-jdk18on to v1.83 (#114)
+- Update diggsweden/reusable-ci action to v2.3.8 (#113)
+- Update diggsweden/reusable-ci action to v2.3.1 (#111)
+- Update dependency org.apache.maven.plugins:maven-source-plugin to v3.4.0 (#110)
+- Update github actions (#109)
+- Update dependency com.puppycrawl.tools:checkstyle to v12.1.2 (#108)
+- Update diggsweden/reusable-ci action to v2.2.3 (#107)
+- Update dependency se.swedenconnect.security:credentials-support to v2.1.0 (#106)
+- Update dependency com.nimbusds:nimbus-jose-jwt to v10.6 (#105)
+- Update dependency org.junit.jupiter:junit-jupiter to v6
+- Update diggsweden/reusable-ci action to v2.1.1 (#104)
+- Update jackson to v2.20.1 (#103)
+- Update dependency org.junit.jupiter:junit-jupiter to v5.14.1 (#102)
+- Update dependency com.puppycrawl.tools:checkstyle to v12.1.1 (#101)
+- Update dependency com.puppycrawl.tools:checkstyle to v12.1.0 (#100)
+- Update dependency com.puppycrawl.tools:checkstyle to v12
+- Pin sha and version
+- Adjust settings
+- Use base renovate config
 - Use reuseable-ci v2
 - Use reusable-ci v1
 - Update dependency org.junit.jupiter:junit-jupiter to v5.14.0 (#94)
@@ -58,6 +80,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix lint warning
+
+### Removed
+
+- Remove jreleaser from pom
+
 
 ## [0.9.1] - 2025-04-09
 
