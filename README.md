@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2024 diggsweden/eudiw-wallet-token-lib
-
-SPDX-License-Identifier: CC0-1.0
--->
-
 # EUDIW Wallet Token Library
 
 [![Tag](https://img.shields.io/github/v/tag/diggsweden/eudiw-wallet-token-lib?style=for-the-badge&color=green)](https://github.com/diggsweden/eudiw-wallet-token-lib/tags)
@@ -16,11 +10,11 @@ SPDX-License-Identifier: CC0-1.0
 
 A library supporting different token formats for EUDI wallet such as SD-JWT and mDL
 
-**SD-JWT**
+## SD-JWT
 
 The SD-JWT token format is based on the Selective Disclosure for JWTs (SD-JWT) specification developed by the IETF ([draft-ietf-oauth-selective-disclosure-jwt](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-selective-disclosure-jwt)) as well as the SD-JWT-based Verifiable Credentials ([draft-ietf-oauth-sd-jwt-vc](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-sd-jwt-vc-08)).
 
-**mDL**
+## mDL
 
 The mDL token format are based on ISO/IEC 18013-5 and is using ISO/IEC 18013-7 for the presentation format to specify the means to bind the presentation to the wallet private key.
 
@@ -234,6 +228,7 @@ Default validation to validate presentations where device signature was used to 
             .build(), trustedKeys);
   }
 ```
+
 Optional extension that can validate MAC as well as device signatures as means of validating that the token is bound to the wallet private key.
 
 ```java
@@ -253,7 +248,5 @@ Optional extension that can validate MAC as well as device signatures as means o
 ```
 
 Note that the MAC option has the slight added feature of also binding the presentation to the requester private key and ensures that only the legitimate intended recipient can validate the MAC.
-
-
 
 [Development](./docs/DEVELOPMENT.md)

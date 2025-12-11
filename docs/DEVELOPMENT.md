@@ -23,8 +23,8 @@ This guide outlines core essentials for developing in this project.
 
 #### VSCode
 
- 1. Install [Checkstyle For Java](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
- 2. Open workspace settings - settings.json (for example with Ctrl+Shift+P → Preferences: Workspace Settings (JSON)) and add:
+1. Install [Checkstyle For Java](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
+2. Open workspace settings - settings.json (for example with Ctrl+Shift+P → Preferences: Workspace Settings (JSON)) and add:
 
     ```json
     "[java]": {
@@ -39,15 +39,15 @@ This guide outlines core essentials for developing in this project.
 
 #### IntelliJ
 
- 1. **Code Style**
-    - Settings → `Editor → Code Style → Java`
-    - Click gear → `Import Scheme → Eclipse XML Profile`
-    - Select `development/format/eclipse-java-google-style.xml`
+1. **Code Style**
+   - Settings → `Editor → Code Style → Java`
+   - Click gear → `Import Scheme → Eclipse XML Profile`
+   - Select `development/format/eclipse-java-google-style.xml`
 
- 2. **Checkstyle**
-    - Install "CheckStyle-IDEA" plugin
-    - Settings → `Tools → Checkstyle`
-    - Click the built-in Google Style Check
+2. **Checkstyle**
+   - Install "CheckStyle-IDEA" plugin
+   - Settings → `Tools → Checkstyle`
+   - Click the built-in Google Style Check
 
 ## Consuming SNAPSHOTS from Maven Central
 
