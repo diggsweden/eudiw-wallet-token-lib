@@ -1,43 +1,189 @@
 # Development Guide
 
-This guide outlines core essentials you need to know for developing in this project.
-This guide outlines core essentials for developing in this project.
-
 ## Table of Contents
 
 - [Setup and Configuration](#setup-and-configuration)
-  - [IDE Setup](#ide-setup)
-  - [Consuming SNAPSHOTS](#consuming-snapshots-from-maven-central)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
 - [Development Workflow](#development-workflow)
-  - [Testing and Verification](#testing-format-and-lint)
-  - [Documentation](#documentation)
-  - [Pull Request Process](#pull-request-workflow)
-- [Release Process](#the-release-workflow)
-  - [CI Release](#ci-release-process)
-  - [Local Release](#local-release-process)
-  - [Troubleshooting](#troubleshooting)
+  - [Available Commands](#available-commands)
+  - [Code Quality](#code-quality)
+- [IDE Setup](#ide-setup)
+- [Build](#build)
+- [Consuming SNAPSHOTS](#consuming-snapshots-from-maven-central)
+- [Release Process](#release-process)
 
 ## Setup and Configuration
 
-### IDE Setup
+### Prerequisites - Linux
 
-#### VSCode
+1. Install [mise](https://mise.jdx.dev/) (manages linting tools):
+
+   ```bash
+   curl https://mise.run | sh
+   ```
+
+2. Activate mise in your shell:
+
+   ```bash
+   # For bash - add to ~/.bashrc
+   eval "$(mise activate bash)"
+
+   # For zsh - add to ~/.zshrc
+   eval "$(mise activate zsh)"
+
+   # For fish - add to ~/.config/fish/config.fish
+   mise activate fish | source
+   ```
+
+   Then restart your terminal.
+
+3. Install pipx (needed for reuse license linting):
+
+   ```bash
+   # Debian/Ubuntu
+   sudo apt install pipx
+   ```
+
+4. Install project tools:
+
+   ```bash
+   mise install
+   ```
+
+### Prerequisites - macOS
+
+1. Install [mise](https://mise.jdx.dev/) (manages linting tools):
+
+   ```bash
+   brew install mise
+   ```
+
+2. Activate mise in your shell:
+
+   ```bash
+   # For zsh - add to ~/.zshrc
+   eval "$(mise activate zsh)"
+
+   # For bash - add to ~/.bashrc
+   eval "$(mise activate bash)"
+
+   # For fish - add to ~/.config/fish/config.fish
+   mise activate fish | source
+   ```
+
+   Then restart your terminal.
+
+3. Install newer bash than macOS default:
+
+   ```bash
+   brew install bash
+   ```
+
+4. Install pipx (needed for reuse license linting):
+
+   ```bash
+   brew install pipx
+   ```
+
+5. Install project tools:
+
+   ```bash
+   mise install
+   ```
+
+### Quick Start
+
+```shell
+# Install all development tools
+mise install
+
+# Show all tasks
+just
+
+# Setup shared linting tools
+just setup-devtools
+
+# Run all quality checks
+just verify
+```
+
+## Development Workflow
+
+### Available Commands
+
+Run `just` to see all available commands. Key commands:
+
+| Command | Description |
+|---------|-------------|
+| `just verify` | Run all checks (lint + test) |
+| `just lint-all` | Run all linters |
+| `just lint-fix` | Auto-fix linting issues |
+| `just test` | Run tests (mvn verify) |
+| `just build` | Build project |
+| `just clean` | Clean build artifacts |
+
+#### Linting Commands
+
+| Command | Tool | Description |
+|---------|------|-------------|
+| `just lint-commits` | conform | Validate commit messages |
+| `just lint-secrets` | gitleaks | Scan for secrets |
+| `just lint-yaml` | yamlfmt | Lint YAML files |
+| `just lint-markdown` | rumdl | Lint markdown files |
+| `just lint-shell` | shellcheck | Lint shell scripts |
+| `just lint-shell-fmt` | shfmt | Check shell formatting |
+| `just lint-actions` | actionlint | Lint GitHub Actions |
+| `just lint-license` | reuse | Check license compliance |
+| `just lint-java` | Maven | Run all Java linters |
+| `just lint-java-checkstyle` | checkstyle | Java style checks |
+| `just lint-java-pmd` | pmd | Java static analysis |
+| `just lint-java-spotbugs` | spotbugs | Java bug detection |
+| `just lint-java-fmt` | formatter | Check Java formatting |
+
+#### Fix Commands
+
+| Command | Description |
+|---------|-------------|
+| `just lint-yaml-fix` | Fix YAML formatting |
+| `just lint-markdown-fix` | Fix markdown formatting |
+| `just lint-shell-fmt-fix` | Fix shell formatting |
+| `just lint-java-fmt-fix` | Fix Java formatting |
+
+### Code Quality
+
+Run all quality checks before submitting a PR:
+
+```shell
+# Run all checks
+just verify
+
+# Or run linting only
+just lint-all
+
+# Auto-fix where possible
+just lint-fix
+```
+
+## IDE Setup
+
+### VSCode
 
 1. Install [Checkstyle For Java](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle)
-2. Open workspace settings - settings.json (for example with Ctrl+Shift+P → Preferences: Workspace Settings (JSON)) and add:
+2. Open workspace settings (Ctrl+Shift+P → Preferences: Workspace Settings (JSON)) and add:
 
     ```json
     "[java]": {
-        "editor.defaultFormatter": "redhat.java",
+        "editor.defaultFormatter": "redhat.java"
     },
     "java.format.settings.url": "development/format/eclipse-java-google-style.xml",
     "java.format.settings.profile": "GoogleStyle",
     "editor.formatOnSave": true,
     "java.checkstyle.configuration": "development/lint/google_checks.xml",
-    "java.checkstyle.version": "1x.xx.x"
+    "java.checkstyle.version": "10.25.0"
     ```
 
-#### IntelliJ
+### IntelliJ
 
 1. **Code Style**
    - Settings → `Editor → Code Style → Java`
@@ -48,6 +194,16 @@ This guide outlines core essentials for developing in this project.
    - Install "CheckStyle-IDEA" plugin
    - Settings → `Tools → Checkstyle`
    - Click the built-in Google Style Check
+
+## Build
+
+```shell
+# Using just
+just build
+
+# Or using Maven directly
+mvn clean verify
+```
 
 ## Consuming SNAPSHOTS from Maven Central
 
@@ -69,75 +225,11 @@ Configure your pom.xml file with:
 </repositories>
 ```
 
-## Development Workflow
+## Release Process
 
-### Testing, Format and Lint
+Releases to Maven Central can be done via CI or locally.
 
-Run Maven verification:
-
-```shell
-mvn clean verify
-```
-
-### Documentation
-
-Generate Javadocs:
-
-```shell
-mvn javadoc:javadoc
-```
-
-View documentation in your browser:
-
-```shell
-<browser> target/reports/apidocs/index.html
-```
-
-### Pull Request Workflow
-
-When submitting a PR, CI will automatically run several checks. To avoid surprises, run these checks locally first.
-
-#### Pull Request Workflow Prerequisites
-
-- [Podman](https://podman.io/)
-
-#### Running Code Quality Checks Locally
-
-1. Run the quality check script:
-
-   ```shell
-   ./development/code_quality.sh
-   ```
-
-2. Fix any identified issues
-
-3. Update your PR with fixes
-
-4. Verify CI passes in the updated PR
-
-#### Quality Check Details
-
-- **Linting with megalinter**: BASH, Markdown, YAML, GitHub Actions, security scanning
-- **License Compliance**: REUSE tool ensures proper copyright information
-- **Commit Structure**: Conform checks commit messages for changelog generation
-- **Dependency Analysis**: Scans for vulnerabilities, outdated packages, and license issues
-- **OpenSSF Scorecard**: Validates security best practices
-
-#### Handling Failed Checks
-
-If any checks fail in the CI pipeline:
-
-1. Review the CI error logs
-2. Run checks locally to reproduce the issues
-3. Make necessary fixes in your local environment
-4. Update your Pull Request
-5. Verify all checks pass in the updated PR
-
-## The Release Workflow
-
-Releases to Maven Central can be done in two ways - by CI or locally.
-
-### Release Workflow Prerequisites
+### Prerequisites
 
 1. **For CI releases**:
    - Push access to the repository (ability to push tags)
@@ -175,8 +267,6 @@ Releases to Maven Central can be done in two ways - by CI or locally.
 
 3. **Monitor the workflow** in GitHub Actions to ensure successful completion.
 
-   > **NOTE**: If the workflow fails due to authorization issues, contact the repository administrator to add your GitHub username to the AUTHORIZED_RELEASE_DEVELOPERS list.
-
 ### Local Release Process
 
 1. **Configure settings.xml**:
@@ -196,4 +286,4 @@ Releases to Maven Central can be done in two ways - by CI or locally.
 
 - For CI failures: Check "jreleaser-logs" artifact for detailed error information
 - For authorization issues: Verify your GitHub username is in AUTHORIZED_RELEASE_DEVELOPERS
-- For GPG problems: Ensure your key is correctly configured in your environment.
+- For GPG problems: Ensure your key is correctly configured in your environment
