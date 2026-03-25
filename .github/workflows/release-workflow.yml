@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   release:
-    uses: diggsweden/reusable-ci/.github/workflows/release-orchestrator.yml@e1e1387d5b0399bb5edb00e40485746772344176 # v2.6.0
+    uses: diggsweden/reusable-ci/.github/workflows/release-orchestrator.yml@2afbedbefbb457a5fc6175de232e4644cab58a69 # v2.7.3
     permissions:
       contents: write # Create GitHub releases and tags
       packages: write # Publish to GitHub Packages (backup)
@@ -31,6 +31,7 @@ jobs:
       security-events: write # Needed by container scan (N/A for libs)
     secrets: inherit # Use org-level MAVEN_CENTRAL credentials, GPG keys, and AUTHORIZED_RELEASE_DEVELOPERS
     with:
+      reusable-ci-ref: v2.7.3
       # Artifacts configuration
       artifacts-config: .github/artifacts.yml
 
